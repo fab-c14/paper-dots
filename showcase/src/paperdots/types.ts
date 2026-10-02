@@ -3,6 +3,8 @@
  * Designed for 2D tactile paper & ink-dot physics and interactive UI.
  */
 
+export type DotGeometry = 'circle' | 'square' | 'diamond';
+
 export interface Dot {
   id: string | number;
   x: number;
@@ -20,10 +22,12 @@ export interface Dot {
   stiffness: number;
   damping: number;
   jitter: number;
+  shape?: DotGeometry;
   // Confetti / scatter state
   scatterVx?: number;
   scatterVy?: number;
   isScattered?: boolean;
+  scatterTime?: number;
 }
 
 export interface SpringConfig {
@@ -53,6 +57,8 @@ export interface RisographPalette {
   dark: string;           // Deep ink (Soy Black / Indigo)
   light: string;          // Highlight ink (Sunflower Yellow / Warm Cream)
   muted: string;          // Halftone ink
+  border: string;         // Card & section border tint
+  cardBg: string;         // Card background
 }
 
 export type PresetShape = 'circle' | 'square' | 'heart' | 'star' | 'play' | 'pause' | 'check' | 'arrow';
@@ -62,6 +68,7 @@ export interface ComponentConfig {
   height: number;
   dotSpacing: number;
   dotRadius: number;
+  dotShape?: DotGeometry;
   palette: RisographPalette;
   spring: SpringConfig;
   interactiveRadius: number;

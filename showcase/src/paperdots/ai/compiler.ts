@@ -1,5 +1,5 @@
 import type { PaperDotComponentDSL, PromptToComponentResult } from './dsl';
-import type { PresetShape } from '../types';
+import type { PresetShape, DotGeometry } from '../types';
 
 export class PaperDotsAICompiler {
   /**
@@ -15,6 +15,12 @@ export class PaperDotsAICompiler {
       componentType = 'slider';
     } else if (lower.includes('toggle') || lower.includes('switch') || lower.includes('checkbox')) {
       componentType = 'toggle';
+    } else if (lower.includes('badge') || lower.includes('tag') || lower.includes('pill') || lower.includes('status')) {
+      componentType = 'badge';
+    } else if (lower.includes('progress') || lower.includes('meter') || lower.includes('gauge') || lower.includes('bar')) {
+      componentType = 'progress';
+    } else if (lower.includes('input') || lower.includes('search') || lower.includes('field') || lower.includes('type')) {
+      componentType = 'input';
     } else if (lower.includes('load') || lower.includes('spinner') || lower.includes('wait') || lower.includes('orbital')) {
       componentType = 'loader';
     } else if (lower.includes('morph') || lower.includes('star') || lower.includes('heart') || lower.includes('icon') || lower.includes('shape')) {
@@ -25,7 +31,15 @@ export class PaperDotsAICompiler {
       componentType = 'canvas';
     }
 
-    // 2. Determine Palette
+    // 2. Determine Dot Geometry (Square vs Circle vs Diamond)
+    let dotShape: DotGeometry = 'circle';
+    if (lower.includes('square') || lower.includes('chip') || lower.includes('pixel') || lower.includes('block') || lower.includes('tile')) {
+      dotShape = 'square';
+    } else if (lower.includes('diamond') || lower.includes('rhombus') || lower.includes('cmyk') || lower.includes('angle')) {
+      dotShape = 'diamond';
+    }
+
+    // 3. Determine Palette
     let paletteKey: PaperDotComponentDSL['paletteKey'] = 'risographClassic';
     if (lower.includes('cyber') || lower.includes('neon') || lower.includes('dark') || lower.includes('halftone')) {
       paletteKey = 'cyberPaper';
@@ -35,9 +49,13 @@ export class PaperDotsAICompiler {
       paletteKey = 'matchaPaper';
     } else if (lower.includes('monochrome') || lower.includes('letterpress') || lower.includes('black') || lower.includes('grey') || lower.includes('lead')) {
       paletteKey = 'monochromePress';
+    } else if (lower.includes('blueprint') || lower.includes('cyanotype') || lower.includes('prussian') || lower.includes('sun print')) {
+      paletteKey = 'cyanotype';
+    } else if (lower.includes('kraft') || lower.includes('postal') || lower.includes('stamp') || lower.includes('brown')) {
+      paletteKey = 'kraftPostal';
     }
 
-    // 3. Determine Shape (for morph or button)
+    // 4. Determine Shape (for morph or button)
     let shape: PresetShape = 'circle';
     if (lower.includes('heart') || lower.includes('love') || lower.includes('like')) {
       shape = 'heart';
@@ -53,39 +71,51 @@ export class PaperDotsAICompiler {
       shape = 'arrow';
     }
 
-    // 4. Determine Physics Characteristics
-    const isBouncy = lower.includes('bounc') || lower.includes('elastic') || lower.includes('springy') || lower.includes('snappy');
-    const isSoft = lower.includes('soft') || lower.includes('slow') || lower.includes('gentle') || lower.includes('subtle');
-    const isJittery = lower.includes('jitter') || lower.includes('rough') || lower.includes('ink') || lower.includes('grainy') || lower.includes('organic');
+    // 5. Determine Physics & Burst Mode
+    const isBouncy = lower.includes('bounc') || lower.includes('elastic') || lower.includes('springy');
+    const isGentle = lower.includes('gentle') || lower.includes('subtle') || lower.includes('soft') || lower.includes('less burst');
+    const noBurst = lower.includes('no burst') || lower.includes('no scatter') || lower.includes('static');
 
-    const stiffness = isBouncy ? 0.32 : isSoft ? 0.09 : 0.18;
-    const damping = isBouncy ? 0.72 : isSoft ? 0.88 : 0.82;
-    const jitter = isJittery ? 0.35 : 0.12;
-    const scatterForce = isBouncy ? 28 : 16;
+    const burstIntensity: PaperDotComponentDSL['burstIntensity'] = noBurst ? 'none' : isGentle ? 'gentle' : 'gentle'; // Default gentle to avoid feeling stuck!
+    const stiffness = isBouncy ? 0.28 : 0.20;
+    const damping = isBouncy ? 0.74 : 0.80;
+    const jitter = lower.includes('rough') || lower.includes('jitter') ? 0.25 : 0.12;
 
-    // 5. Determine Dimensions & Styling
+    // 6. Dimensions
     let width = 180;
-    let height = 54;
+    let height = 52;
     let dotRadius = 2.4;
     let dotSpacing = 7;
 
     switch (componentType) {
       case 'slider':
-        width = 260;
+        width = 240;
         height = 48;
         break;
       case 'toggle':
-        width = 76;
-        height = 38;
+        width = 72;
+        height = 36;
+        break;
+      case 'badge':
+        width = 120;
+        height = 32;
+        break;
+      case 'progress':
+        width = 240;
+        height = 36;
+        break;
+      case 'input':
+        width = 280;
+        height = 46;
         break;
       case 'loader':
-        width = 110;
-        height = 110;
+        width = 100;
+        height = 100;
         break;
       case 'morph':
-        width = 120;
-        height = 120;
-        dotRadius = 2.8;
+        width = 110;
+        height = 110;
+        dotRadius = 2.6;
         break;
       case 'card':
         width = 300;
@@ -93,30 +123,24 @@ export class PaperDotsAICompiler {
         break;
       case 'canvas':
         width = 500;
-        height = 320;
-        dotSpacing = 22;
+        height = 300;
+        dotSpacing = 20;
         break;
     }
 
-    // 6. Extract Label
+    // 7. Extract Label
     let label = 'Action';
     if (componentType === 'button') {
       const match = prompt.match(/["']([^"']+)["']/);
-      if (match) {
-        label = match[1];
-      } else if (lower.includes('press') || lower.includes('submit')) {
-        label = 'Publish Zine';
-      } else if (lower.includes('burst') || lower.includes('confetti')) {
-        label = 'Celebrate!';
-      } else if (lower.includes('play')) {
-        label = 'Play Audio';
-      } else {
-        label = 'Interact';
-      }
+      label = match ? match[1] : lower.includes('publish') ? 'Publish Zine' : 'Interact';
     } else if (componentType === 'slider') {
-      label = lower.includes('volume') ? 'Volume' : lower.includes('opacity') ? 'Ink Density' : 'Bead Position';
-    } else if (componentType === 'toggle') {
-      label = lower.includes('dark') ? 'Night Press' : 'Risograph Mode';
+      label = lower.includes('volume') ? 'Volume' : 'Level';
+    } else if (componentType === 'badge') {
+      label = lower.includes('live') ? 'Live Press' : lower.includes('active') ? 'In Stock' : 'Edition 01';
+    } else if (componentType === 'progress') {
+      label = 'Ink Transfer';
+    } else if (componentType === 'input') {
+      label = 'Search Zines...';
     }
 
     const dsl: PaperDotComponentDSL = {
@@ -125,12 +149,14 @@ export class PaperDotsAICompiler {
       label,
       paletteKey,
       shape,
+      dotShape,
+      burstIntensity,
       physics: {
         stiffness,
         damping,
         mass: 1.0,
         jitter,
-        scatterForce,
+        scatterForce: burstIntensity === 'none' ? 0 : 10,
       },
       dimensions: {
         width,
@@ -142,7 +168,7 @@ export class PaperDotsAICompiler {
         inkBleed: true,
         paperGrainIntensity: 0.05,
       },
-      description: `Generative paper-dot component with ${paletteKey} ink palette and tactile ${isBouncy ? 'high-elasticity spring' : 'balanced'} physics.`,
+      description: `Generative ${componentType} with ${dotShape} paper dots, ${paletteKey} ink palette, and responsive tactile return physics.`,
     };
 
     const inferenceTimeMs = Math.round(performance.now() - startTime);
@@ -155,13 +181,10 @@ export class PaperDotsAICompiler {
     };
   }
 
-  /**
-   * Prompt template for Gemma / Tinker fine-tuning.
-   */
   public static getGemmaPromptTemplate(userPrompt: string): string {
     return `<start_of_turn>user
 You are PaperDots-AI, an expert generative compiler that transforms natural language UI requests into declarative 2D paper-dot physics components.
-Given the user prompt below, output strictly a JSON object conforming to the PaperDotComponentDSL schema.
+Given the user prompt below, output strictly a JSON object conforming to the PaperDotComponentDSL schema with dotShape ('circle' or 'square') and burstIntensity ('gentle' or 'none').
 
 User Request: "${userPrompt}"
 <end_of_turn>

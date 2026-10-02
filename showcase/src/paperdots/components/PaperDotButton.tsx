@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Dot, PointerState, RisographPalette } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
+import { TactileAudio } from '../audio';
 
 export interface PaperDotButtonProps {
   label: string;
   onClick?: () => void;
   palette?: RisographPalette;
   variant?: 'solid' | 'outline' | 'halftone';
+  dotShape?: DotGeometry;
+  burstIntensity?: 'none' | 'gentle' | 'confetti';
   width?: number;
   height?: number;
   dotSpacing?: number;
@@ -21,6 +24,8 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
   onClick,
   palette = DEFAULT_PALETTE,
   variant = 'solid',
+  dotShape = 'circle',
+  burstIntensity = 'gentle',
   width = 160,
   height = 52,
   dotSpacing = 7,
@@ -76,13 +81,13 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
         if (variant === 'outline' && !isBorder) continue;
 
-        const baseRad = isBorder ? 2.5 : variant === 'halftone' ? (r % 2 === 0 ? 1.8 : 2.6) : 2.2;
+        const baseRad = isBorder ? 2.4 : variant === 'halftone' ? (r % 2 === 0 ? 1.8 : 2.5) : 2.1;
         const dotColor = isBorder ? palette.primary : (c + r) % 3 === 0 ? palette.secondary : palette.primary;
 
         dots.push({
           id: id++,
-          x: x + (Math.random() - 0.5) * 1.5,
-          y: y + (Math.random() - 0.5) * 1.5,
+          x: x + (Math.random() - 0.5) * 1.0,
+          y: y + (Math.random() - 0.5) * 1.0,
           targetX: x,
           targetY: y,
           vx: 0,
@@ -93,15 +98,16 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
           opacity: 0.9,
           baseOpacity: 0.9,
           mass: 1.0,
-          stiffness: 0.16,
-          damping: 0.82,
-          jitter: 0.2,
+          stiffness: 0.20,
+          damping: 0.80,
+          jitter: 0.15,
+          shape: dotShape,
         });
       }
     }
 
     dotsRef.current = dots;
-  }, [width, height, dotSpacing, palette, variant]);
+  }, [width, height, dotSpacing, palette, variant, dotShape]);
 
   // Canvas animation loop
   useEffect(() => {
@@ -115,7 +121,6 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     const render = () => {
       if (!isRunning) return;
 
-      // Clear with slight alpha to produce tactile motion blur trail
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, width, height);
 
@@ -123,10 +128,10 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
       DotPhysicsEngine.updateDots(
         dotsRef.current,
         pointerRef.current,
-        { stiffness: 0.16, damping: 0.82, mass: 1.0 }
+        { stiffness: 0.20, damping: 0.80, mass: 1.0 }
       );
 
-      // Render dots
+      // Render dots or squares
       const dots = dotsRef.current;
       for (let i = 0; i < dots.length; i++) {
         const d = dots[i];
@@ -137,14 +142,15 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
           d.radius,
           d.color,
           d.opacity,
-          true
+          true,
+          d.shape || dotShape
         );
       }
 
       // Draw subtle paper fiber overlay
       const paperPattern = PaperTextureGenerator.getPaperPattern(0.04);
       ctx.save();
-      ctx.globalAlpha = 0.4;
+      ctx.globalAlpha = 0.35;
       ctx.drawImage(paperPattern, 0, 0, width, height);
       ctx.restore();
 
@@ -157,7 +163,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette]);
+  }, [width, height, palette, dotShape]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -184,13 +190,17 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
 
   const handleClick = () => {
     if (disabled) return;
-    // Trigger tactile burst confetti
-    DotPhysicsEngine.triggerScatter(
-      dotsRef.current,
-      pointerRef.current.x || width / 2,
-      pointerRef.current.y || height / 2,
-      22
-    );
+    TactileAudio.playPop(520);
+
+    if (burstIntensity !== 'none') {
+      const force = burstIntensity === 'gentle' ? 9 : 15;
+      DotPhysicsEngine.triggerScatter(
+        dotsRef.current,
+        pointerRef.current.x || width / 2,
+        pointerRef.current.y || height / 2,
+        force
+      );
+    }
     if (onClick) onClick();
   };
 
@@ -226,7 +236,9 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         style={{
           color: palette.dark,
           fontFamily: '"Courier New", Courier, monospace',
-          textShadow: '0 1px 2px rgba(255,255,255,0.7)',
+          textShadow: palette.background.startsWith('#1') || palette.background.startsWith('#0') 
+            ? '0 1px 4px rgba(0,0,0,0.9)' 
+            : '0 1px 2px rgba(255,255,255,0.8)',
         }}
       >
         {label}

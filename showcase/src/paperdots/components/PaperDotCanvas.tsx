@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
@@ -9,6 +9,7 @@ export interface PaperDotCanvasProps {
   height?: number;
   spacing?: number;
   palette?: RisographPalette;
+  dotShape?: DotGeometry;
   interactiveRadius?: number;
   className?: string;
   children?: React.ReactNode;
@@ -19,6 +20,7 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
   height = 500,
   spacing = 24,
   palette = DEFAULT_PALETTE,
+  dotShape = 'circle',
   interactiveRadius = 75,
   className = '',
   children,
@@ -55,7 +57,7 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
 
         const isAccent = (c * 7 + r * 13) % 11 === 0;
         const color = isAccent ? palette.secondary : palette.muted;
-        const baseRad = isAccent ? 2.4 : 1.6;
+        const baseRad = isAccent ? 2.3 : 1.5;
 
         dots.push({
           id: id++,
@@ -70,16 +72,17 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
           color,
           opacity: isAccent ? 0.75 : 0.45,
           baseOpacity: isAccent ? 0.75 : 0.45,
-          mass: 1.2,
-          stiffness: 0.12,
-          damping: 0.85,
+          mass: 1.1,
+          stiffness: 0.16,
+          damping: 0.82,
           jitter: 0.08,
+          shape: dotShape,
         });
       }
     }
 
     dotsRef.current = dots;
-  }, [width, height, spacing, palette]);
+  }, [width, height, spacing, palette, dotShape]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -96,14 +99,14 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
-        stiffness: 0.12,
-        damping: 0.85,
-        mass: 1.2,
+        stiffness: 0.16,
+        damping: 0.82,
+        mass: 1.1,
       });
 
       const paperPattern = PaperTextureGenerator.getPaperPattern(0.04);
       ctx.save();
-      ctx.globalAlpha = 0.6;
+      ctx.globalAlpha = 0.5;
       ctx.drawImage(paperPattern, 0, 0, width, height);
       ctx.restore();
 
@@ -116,7 +119,8 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
           dots[i].radius,
           dots[i].color,
           dots[i].opacity,
-          false
+          false,
+          dots[i].shape || dotShape
         );
       }
 
@@ -129,7 +133,7 @@ export const PaperDotCanvas: React.FC<PaperDotCanvasProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette]);
+  }, [width, height, palette, dotShape]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

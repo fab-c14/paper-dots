@@ -1,13 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
+import { TactileAudio } from '../audio';
 
 export interface PaperDotToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   palette?: RisographPalette;
+  dotShape?: DotGeometry;
   width?: number;
   height?: number;
   label?: string;
@@ -18,6 +20,7 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
   checked,
   onChange,
   palette = DEFAULT_PALETTE,
+  dotShape = 'circle',
   width = 72,
   height = 36,
   label,
@@ -74,9 +77,10 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
         opacity: 0.6,
         baseOpacity: 0.6,
         mass: 1.0,
-        stiffness: 0.18,
-        damping: 0.8,
+        stiffness: 0.22,
+        damping: 0.80,
         jitter: 0.1,
+        shape: dotShape,
       });
     }
     borderDotsRef.current = borderDots;
@@ -107,13 +111,14 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
         opacity: 0.95,
         baseOpacity: 0.95,
         mass: 0.7,
-        stiffness: 0.28,
-        damping: 0.72,
-        jitter: 0.15,
+        stiffness: 0.30,
+        damping: 0.75,
+        jitter: 0.1,
+        shape: dotShape,
       });
     }
     knobDotsRef.current = knobDots;
-  }, [width, height, radius, centerY, palette]);
+  }, [width, height, radius, centerY, palette, dotShape]);
 
   // Update knob position and colors on checked state change
   useEffect(() => {
@@ -153,14 +158,14 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       DotPhysicsEngine.updateDots(borderDotsRef.current, pointerRef.current, {
-        stiffness: 0.18,
-        damping: 0.8,
+        stiffness: 0.22,
+        damping: 0.80,
         mass: 1.0,
       });
 
       DotPhysicsEngine.updateDots(knobDotsRef.current, pointerRef.current, {
-        stiffness: 0.28,
-        damping: 0.72,
+        stiffness: 0.30,
+        damping: 0.75,
         mass: 0.7,
       });
 
@@ -174,7 +179,8 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
           border[i].radius,
           border[i].color,
           border[i].opacity,
-          false
+          false,
+          border[i].shape || dotShape
         );
       }
 
@@ -188,7 +194,8 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
           knob[i].radius,
           knob[i].color,
           knob[i].opacity,
-          true
+          true,
+          knob[i].shape || dotShape
         );
       }
 
@@ -201,15 +208,16 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette]);
+  }, [width, height, palette, dotShape]);
 
   const toggle = () => {
-    // Impart velocity kick
+    TactileAudio.playClick(checked ? 550 : 750);
+    // Impart gentle momentum kick
     DotPhysicsEngine.triggerScatter(
       knobDotsRef.current,
       targetX,
       centerY,
-      8
+      6
     );
     onChange(!checked);
   };

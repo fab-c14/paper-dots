@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import type { Dot, PointerState, RisographPalette } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
+import { TactileAudio } from '../audio';
 
 export interface PaperDotSliderProps {
   value: number;
@@ -11,6 +12,7 @@ export interface PaperDotSliderProps {
   step?: number;
   onChange: (value: number) => void;
   palette?: RisographPalette;
+  dotShape?: DotGeometry;
   width?: number;
   height?: number;
   label?: string;
@@ -24,6 +26,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
   step = 1,
   onChange,
   palette = DEFAULT_PALETTE,
+  dotShape = 'circle',
   width = 240,
   height = 48,
   label,
@@ -34,6 +37,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
   const thumbDotsRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const lastValRef = useRef<number>(value);
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -55,7 +59,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
 
   // Initialize track & thumb dots
   useEffect(() => {
-    // 1. Track dots (linear sequence of paper dots)
+    // 1. Track dots
     const trackDots: Dot[] = [];
     const numTrackDots = 24;
     for (let i = 0; i < numTrackDots; i++) {
@@ -75,17 +79,18 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
         opacity: 0.7,
         baseOpacity: 0.7,
         mass: 1.0,
-        stiffness: 0.15,
-        damping: 0.8,
+        stiffness: 0.20,
+        damping: 0.80,
         jitter: 0.1,
+        shape: dotShape,
       });
     }
     trackDotsRef.current = trackDots;
 
-    // 2. Thumb dots (tactile stippled circular droplet)
+    // 2. Thumb dots (stippled circular or square cluster)
     const thumbDots: Dot[] = [];
     const thumbRadius = 12;
-    const numThumbDots = 28;
+    const numThumbDots = 26;
     const phi = (1 + Math.sqrt(5)) / 2;
 
     for (let i = 0; i < numThumbDots; i++) {
@@ -102,21 +107,22 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
         targetY: centerY + relY,
         vx: 0,
         vy: 0,
-        radius: i === 0 ? 3.5 : 2.4,
-        baseRadius: i === 0 ? 3.5 : 2.4,
+        radius: i === 0 ? 3.4 : 2.2,
+        baseRadius: i === 0 ? 3.4 : 2.2,
         color: i % 2 === 0 ? palette.primary : palette.secondary,
         opacity: 0.95,
         baseOpacity: 0.95,
         mass: 0.8,
-        stiffness: 0.22,
-        damping: 0.78,
-        jitter: 0.15,
+        stiffness: 0.28,
+        damping: 0.76,
+        jitter: 0.1,
+        shape: dotShape,
       });
     }
     thumbDotsRef.current = thumbDots;
-  }, [width, height, min, max, palette, trackWidth, centerY]);
+  }, [width, height, min, max, palette, trackWidth, centerY, dotShape]);
 
-  // Update thumb target positions when value changes
+  // Update thumb positions when value changes
   useEffect(() => {
     const thumbDots = thumbDotsRef.current;
     const thumbRadius = 12;
@@ -127,17 +133,16 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
       const theta = i * 2 * Math.PI * phi;
       thumbDots[i].targetX = thumbX + r * Math.cos(theta);
       thumbDots[i].targetY = centerY + r * Math.sin(theta);
+    }
 
-      // Light up track dots behind thumb
-      const trackDots = trackDotsRef.current;
-      for (let t = 0; t < trackDots.length; t++) {
-        if (trackDots[t].x <= thumbX) {
-          trackDots[t].color = palette.primary;
-          trackDots[t].opacity = 0.9;
-        } else {
-          trackDots[t].color = palette.muted;
-          trackDots[t].opacity = 0.5;
-        }
+    const trackDots = trackDotsRef.current;
+    for (let t = 0; t < trackDots.length; t++) {
+      if (trackDots[t].x <= thumbX) {
+        trackDots[t].color = palette.primary;
+        trackDots[t].opacity = 0.9;
+      } else {
+        trackDots[t].color = palette.muted;
+        trackDots[t].opacity = 0.5;
       }
     }
   }, [thumbX, centerY, palette]);
@@ -157,20 +162,19 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, width, height);
 
-      // Physics update
       DotPhysicsEngine.updateDots(trackDotsRef.current, pointerRef.current, {
-        stiffness: 0.15,
-        damping: 0.82,
+        stiffness: 0.20,
+        damping: 0.80,
         mass: 1.0,
       });
 
       DotPhysicsEngine.updateDots(thumbDotsRef.current, pointerRef.current, {
-        stiffness: 0.25,
-        damping: 0.78,
+        stiffness: 0.28,
+        damping: 0.76,
         mass: 0.8,
       });
 
-      // Draw connecting elastic paper line between track dots
+      // Connecting tactile string line
       ctx.beginPath();
       ctx.strokeStyle = palette.muted;
       ctx.lineWidth = 1;
@@ -180,7 +184,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Draw track dots
+      // Draw track
       const track = trackDotsRef.current;
       for (let i = 0; i < track.length; i++) {
         PaperTextureGenerator.drawInkDot(
@@ -190,11 +194,12 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
           track[i].radius,
           track[i].color,
           track[i].opacity,
-          false
+          false,
+          track[i].shape || dotShape
         );
       }
 
-      // Draw thumb dots
+      // Draw thumb
       const thumb = thumbDotsRef.current;
       for (let i = 0; i < thumb.length; i++) {
         PaperTextureGenerator.drawInkDot(
@@ -204,7 +209,8 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
           thumb[i].radius,
           thumb[i].color,
           thumb[i].opacity,
-          true
+          true,
+          thumb[i].shape || dotShape
         );
       }
 
@@ -217,7 +223,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette, paddingX, centerY]);
+  }, [width, height, palette, paddingX, centerY, dotShape]);
 
   const updateFromPointer = useCallback((clientX: number) => {
     const canvas = canvasRef.current;
@@ -230,7 +236,11 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
     const steppedVal = Math.round(rawVal / step) * step;
     const finalVal = Math.max(min, Math.min(max, steppedVal));
 
-    onChange(finalVal);
+    if (finalVal !== lastValRef.current) {
+      TactileAudio.playTick();
+      lastValRef.current = finalVal;
+      onChange(finalVal);
+    }
   }, [min, max, step, onChange, paddingX, width, trackWidth]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {

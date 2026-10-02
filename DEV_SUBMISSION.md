@@ -1,7 +1,7 @@
 ---
 title: "PaperDots UI: Tactile 2D Paper & Ink-Dot Physics for the Web (Built for Julian)"
 published: false
-description: "Built for my friend Julian—a risograph printmaker who refused sterile corporate rectangles. An open-source 2D paper-dot UI library with open-weight Gemma & Tinker AI at its core, deployed on Render."
+description: "Built for my friend Julian—a risograph printmaker who refused sterile corporate rectangles. An open-source 2D paper-dot & square-chip UI library with open-weight Gemma & Tinker AI at its core, deployed on Render."
 tags: "hf26challenge, weekendchallenge, devchallenge, opensource"
 cover_image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80"
 series: "Hacktoberfest 2026 Weekend Challenge"
@@ -20,7 +20,7 @@ A few weeks ago, my friend **Julian**—an independent risograph printmaker, ana
 
 Julian pulled up their laptop and sighed:
 
-> *"Look at every web framework today. Tailwind, Shadcn, Material UI... they're all made for corporate SaaS dashboards. Everything is a rigid grey rectangle with artificial drop shadows and flat plastic buttons. Why can't interactive web elements feel like living ink on heavy cotton paper? Why can't a button burst into paper confetti when you tap it, or a volume slider feel like physical ink beads on a paper thread?"*
+> *"Look at every web framework today. Tailwind, Shadcn, Material UI... they're all made for corporate SaaS dashboards. Everything is a rigid grey rectangle with artificial drop shadows and flat plastic buttons. Why can't interactive web elements feel like living ink and paper cutouts on heavy cotton paper? Why can't a button burst into paper chips or confetti when you tap it, or a volume slider feel like physical ink beads on a paper thread?"*
 
 Julian isn't a shader engineer or math programmer. Manually writing numerical spring physics, Poisson-disc stippling, and canvas particle renderers from scratch was an impossible wall.
 
@@ -28,30 +28,37 @@ So for this Hacktoberfest Weekend Challenge, I built **PaperDots UI** (`PaperDot
 
 ---
 
-## 2. What We Built 🛠️
+## 2. What We Built: 10 Living Components with Square Chips & Dots 🛠️
 
-**PaperDots UI** is a lightweight, zero-heavy-game-engine 2D tactile paper and ink-dot UI library. Every component is rendered at a locked 60 FPS on HTML5 Canvas using Euler/Verlet spring dynamics, procedural paper grain textures, and authentic Risograph colorways.
+**PaperDots UI** is a lightweight, zero-heavy-game-engine 2D tactile paper UI and animation library. Every component is rendered at a locked 60 FPS on HTML5 Canvas using Euler/Verlet spring dynamics, procedural paper grain textures, and authentic Risograph colorways.
 
-### The 7 Living Components:
+### Key Capabilities:
+- **Square Chips & Classic Dots**: Choose between tactile square paper chips (mosaic/pixel cutouts), classic stippled ink dots, or 45° risograph screen diamonds.
+- **Snappy Return Physics**: Controlled, gentle pop dynamics that recover elastically in under 350ms with zero stuck state.
+- **Synthetic Web Audio Haptics**: Procedural typewriter clicks, paper rustles, and soft ink pops synthesized live in the browser.
 
-1. **`PaperDotButton`**: Hand-stippled ink dot cluster. Ripples under mouse movement and explodes into bouncing paper confetti on tap, before spring tension pulls it back into shape.
+### The 10 Living Components:
+1. **`PaperDotButton`**: Hand-stippled ink dot / square chip cluster. Ripples under mouse movement and pops on tap before spring tension pulls it back into shape.
 2. **`PaperDotSlider`**: Kinetic string of ink beads with physical drag tension and tactile snapping for audio faders or opacity.
-3. **`PaperDotToggle`**: Binary dot-matrix switch where dots roll across states with spring momentum.
-4. **`PaperDotMorph`**: Shape-shifting particle lattice that smoothly transforms 90 physical dot particles between arbitrary vector silhouettes (*Heart ↔ Star ↔ Play ↔ Pause ↔ Check ↔ Arrow ↔ Circle*).
-5. **`PaperDotLoader`**: Hypnotic orbital paper-dot constellation with sinusoidal ink bleed breathing.
+3. **`PaperDotToggle`**: Binary switch where dots roll across states with spring momentum.
+4. **`PaperDotMorph`**: Shape-shifting particle lattice that smoothly transforms 90 physical particles between 7 silhouettes (*Heart ↔ Star ↔ Play ↔ Pause ↔ Check ↔ Arrow ↔ Circle*).
+5. **`PaperDotLoader`**: Hypnotic orbital constellation with sinusoidal ink bleed breathing.
 6. **`PaperDotCard`**: Tactile paper sheet with dynamic perimeter dots that push away under cursor magnetism.
 7. **`PaperDotCanvas`**: Living background grid with procedural paper grain and fluid mouse displacement.
+8. **`PaperDotBadge`**: Tactile pill status tag with live pulsing paper chips.
+9. **`PaperDotProgress`**: Segmented paper progress meter composed of physical chips that light up dynamically.
+10. **`PaperDotInput`**: Tactile text input field with dynamic reactive paper chip borders.
 
 ---
 
 ## 3. Why Open-Source AI is at the Core 🧠
 
-The prompt for this challenge required that **open-source AI be at the core** of the project. Here is how PaperDots UI is powered by open models, and why open innovation fundamentally outperforms closed corporate APIs for what we built:
+The prompt for this challenge required that **open-source AI be at the core** of the project. Here is how PaperDots UI is powered by open models:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Julian's Natural Language                │
-│    "A bouncy coral button that explodes into confetti"      │
+│    "A bouncy square-chip button with gentle pop physics"    │
 └──────────────────────────────┬──────────────────────────────┘
                                │
                                ▼
@@ -98,19 +105,8 @@ The prompt for this challenge required that **open-source AI be at the core** of
 To make PaperDots UI immediately accessible to Julian and the open-source community, we utilized the **$50 Render credits** from Hacktoberfest.
 
 Using a single `render.yaml` Infrastructure-as-Code blueprint, Render hosts:
-- **Global Edge Static Showcase**: Instant load times for the interactive React 19 playground and component documentation.
-- **Python FastAPI Runtime**: High-throughput inference server for running model inference and benchmark evaluations.
-
-```yaml
-# render.yaml blueprint
-services:
-  - type: web
-    name: paperdots-ui-showcase
-    env: static
-    plan: free
-    buildCommand: cd showcase && npm install && npm run build
-    staticPublishPath: showcase/dist
-```
+- **Global Edge Static Showcase**: Instant load times for the interactive React 19 playground and component documentation (`showcase/dist`).
+- **Python FastAPI Runtime**: High-throughput inference server for running model inference and benchmark evaluations (`api/main.py`).
 
 ---
 
@@ -120,7 +116,7 @@ The best part of this challenge was handing the live playground over to Julian.
 
 I sent Julian the link to the interactive showcase, loaded up with the *"Analog Futures #03"* preset demo. 
 
-Julian tapped the coral ink-dot button. It rippled under their trackpad and burst into a shower of paper confetti before snapping elastically back into place. They dragged the ink-bead volume slider, and grinned as the dots stretched under physical tension.
+Julian tapped the coral square-chip button. It rippled under their trackpad and popped with a crisp paper click before snapping elastically back into place. They dragged the ink-bead volume slider, and watched the progress meter illuminate like wet risograph ink.
 
 Julian's exact words:
 > *"This is the first time the web hasn't felt like a plastic spreadsheet. Now my digital zine actually feels like it was pressed by hand."*
@@ -143,4 +139,4 @@ Huge thanks to:
 - **Render** for the $50 hosting credits powering our live showcase and API runtime.
 - **Google Gemma** for providing open-weight foundation models that allow creators to build without corporate gatekeeping.
 
-*Built with tactile ink, spring dynamics, and open-source AI.*
+*Built with tactile ink, square chips, spring dynamics, and open-source AI.*

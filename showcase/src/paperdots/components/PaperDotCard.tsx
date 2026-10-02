@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { ShapeGenerator } from '../shapes';
@@ -10,6 +10,7 @@ export interface PaperDotCardProps {
   subtitle?: string;
   children?: React.ReactNode;
   palette?: RisographPalette;
+  dotShape?: DotGeometry;
   width?: number;
   height?: number;
   className?: string;
@@ -20,6 +21,7 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
   subtitle,
   children,
   palette = DEFAULT_PALETTE,
+  dotShape = 'circle',
   width = 300,
   height = 180,
   className = '',
@@ -61,14 +63,15 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
         opacity: 0.85,
         baseOpacity: 0.85,
         mass: 1.0,
-        stiffness: 0.18,
-        damping: 0.82,
+        stiffness: 0.20,
+        damping: 0.80,
         jitter: 0.1,
+        shape: dotShape,
       });
     }
 
     dotsRef.current = dots;
-  }, [width, height, palette]);
+  }, [width, height, palette, dotShape]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -81,19 +84,20 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
     const render = () => {
       if (!isRunning) return;
 
-      ctx.fillStyle = palette.background;
+      const bgColor = palette.cardBg || palette.background;
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
-        stiffness: 0.18,
-        damping: 0.82,
+        stiffness: 0.20,
+        damping: 0.80,
         mass: 1.0,
       });
 
       // Draw paper pattern
       const paperPattern = PaperTextureGenerator.getPaperPattern(0.04);
       ctx.save();
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.4;
       ctx.drawImage(paperPattern, 0, 0, width, height);
       ctx.restore();
 
@@ -107,7 +111,8 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
           dots[i].radius,
           dots[i].color,
           dots[i].opacity,
-          true
+          true,
+          dots[i].shape || dotShape
         );
       }
 
@@ -120,7 +125,7 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette]);
+  }, [width, height, palette, dotShape]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -134,7 +139,12 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
   return (
     <div
       className={`relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow select-none ${className}`}
-      style={{ width, height, backgroundColor: palette.background }}
+      style={{
+        width,
+        height,
+        backgroundColor: palette.cardBg || palette.background,
+        border: `1px solid ${palette.border || 'rgba(0,0,0,0.1)'}`,
+      }}
       onPointerMove={handlePointerMove}
       onPointerEnter={() => { pointerRef.current.isInside = true; }}
       onPointerLeave={() => { pointerRef.current.isInside = false; }}

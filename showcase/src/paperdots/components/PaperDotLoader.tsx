@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import type { RisographPalette } from '../types';
+import type { RisographPalette, DotGeometry } from '../types';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
 
 export interface PaperDotLoaderProps {
   size?: number;
   palette?: RisographPalette;
+  dotShape?: DotGeometry;
   dotCount?: number;
   speed?: number;
   label?: string;
@@ -15,6 +16,7 @@ export interface PaperDotLoaderProps {
 export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
   size = 100,
   palette = DEFAULT_PALETTE,
+  dotShape = 'circle',
   dotCount = 16,
   speed = 1.0,
   label = 'Inking...',
@@ -49,11 +51,11 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
         const x = center + Math.cos(theta) * curRadius;
         const y = center + Math.sin(theta) * curRadius;
 
-        const dotSize = 2.4 + (Math.sin(theta - time) + 1) * 1.6;
+        const dotSize = 2.4 + (Math.sin(theta - time) + 1) * 1.5;
         const color = i % 2 === 0 ? palette.primary : palette.secondary;
-        const opacity = 0.4 + (Math.sin(theta - time) + 1) * 0.3;
+        const opacity = 0.45 + (Math.sin(theta - time) + 1) * 0.3;
 
-        PaperTextureGenerator.drawInkDot(ctx, x, y, dotSize, color, opacity, true);
+        PaperTextureGenerator.drawInkDot(ctx, x, y, dotSize, color, opacity, true, dotShape);
       }
 
       animFrameRef.current = requestAnimationFrame(render);
@@ -65,7 +67,7 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, palette, dotCount, speed, center, radius]);
+  }, [size, palette, dotCount, speed, center, radius, dotShape]);
 
   return (
     <div className={`flex flex-col items-center justify-center gap-2 select-none ${className}`}>
