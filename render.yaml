@@ -1,0 +1,29 @@
+services:
+  # 1. PaperDots UI Interactive Showcase & Playground (Static Site)
+  - type: web
+    name: paperdots-ui-showcase
+    env: static
+    plan: free
+    buildCommand: cd showcase && npm install && npm run build
+    staticPublishPath: showcase/dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # 2. PaperDots AI Compiler Runtime (FastAPI / Open-Model Engine on Render)
+  - type: web
+    name: paperdots-ai-runtime
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
