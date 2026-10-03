@@ -32,7 +32,6 @@ import {
   Zap,
   Heart,
   Palette,
-  CheckCircle,
   Clock,
   Volume2,
   VolumeX,
@@ -112,6 +111,8 @@ export const App: React.FC = () => {
   const [compiledResult, setCompiledResult] = useState<PromptToComponentResult | null>(null);
   const [activeCodeTab, setActiveCodeTab] = useState<'preview' | 'dsl' | 'react'>('preview');
 
+  const [tinkerServerConnected, setTinkerServerConnected] = useState<boolean>(false);
+
   // Audio mute toggle
   const toggleAudio = () => {
     const next = !isAudioMuted;
@@ -134,6 +135,20 @@ export const App: React.FC = () => {
 
   React.useEffect(() => {
     handleCompile();
+  }, []);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const checkStatus = async () => {
+      const res = await PaperDotsAICompiler.checkLocalTinkerStatus();
+      if (mounted) setTinkerServerConnected(res.connected);
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 3000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const samplePrompts = [
@@ -1972,8 +1987,12 @@ export default function MyZine() {
               color: activePalette.dark,
             }}
           >
-            <CheckCircle className="w-4 h-4 text-emerald-500" />
-            <span>Gemma 2B + Thinking Machines' Tinker</span>
+            <span className={`w-2.5 h-2.5 rounded-full ${tinkerServerConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+            <span>
+              {tinkerServerConnected
+                ? "Tinker Local Server (:8000) Connected"
+                : "Tinker Edge Engine Active (Run 'python tinker/serve.py' for local server)"}
+            </span>
           </div>
         </div>
 
@@ -2074,7 +2093,11 @@ export default function MyZine() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-3 text-xs font-mono opacity-80">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-mono opacity-80">
+                <span className="flex items-center gap-1">
+                  <span className={`w-2 h-2 rounded-full ${compiledResult.generatedBy === 'gemma-tinker-fine-tuned' ? 'bg-emerald-500' : 'bg-blue-500'}`} />
+                  Engine: <strong>{compiledResult.generatedBy === 'gemma-tinker-fine-tuned' ? 'Gemma 2B (Tinker Bridge)' : 'Edge Heuristic'}</strong>
+                </span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-blue-500" />
                   Latency: <strong>{compiledResult.inferenceTimeMs}ms</strong>
@@ -2351,6 +2374,35 @@ export const MyComponent = () => {
             <p className="text-xs font-mono opacity-70 leading-relaxed">
               Hosted seamlessly on Render using the $50 Hacktoberfest partner credits, with high-availability static assets and backend inference.
             </p>
+          </div>
+        </div>
+
+        {/* Local Connection Guide */}
+        <div
+          className="mt-8 rounded-2xl p-6 border shadow-xs"
+          style={{
+            backgroundColor: activePalette.cardBg,
+            borderColor: activePalette.border,
+          }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-emerald-600" />
+              <h4 className="font-mono font-bold text-sm">How to Connect to Thinking Machines' Tinker Locally</h4>
+            </div>
+            <span className={`text-[11px] font-mono px-2.5 py-1 rounded-full ${tinkerServerConnected ? 'bg-emerald-500/10 text-emerald-600 font-bold' : 'bg-amber-500/10 text-amber-600'}`}>
+              {tinkerServerConnected ? '● Server Active on http://127.0.0.1:8000' : '○ Server Standby'}
+            </span>
+          </div>
+          <p className="text-xs font-mono opacity-80 mb-4">
+            PaperDots UI ships with an active Python Tinker bridge server (<code className="bg-black/5 px-1 py-0.5 rounded font-bold">tinker/serve.py</code>) and the 132-pair fine-tuning dataset (<code className="bg-black/5 px-1 py-0.5 rounded font-bold">paperdots_tinker_train.jsonl</code>).
+          </p>
+          <div className="bg-[#1C1D1F] rounded-xl p-4 text-emerald-400 font-mono text-xs overflow-x-auto space-y-2">
+            <div><span className="text-white/50"># Step 1: Start the local Tinker model bridge server (zero dependencies):</span></div>
+            <div><span className="text-pink-400">python</span> tinker/serve.py</div>
+            <div className="pt-2"><span className="text-white/50"># Step 2: (Optional) Run the training execution script with your Tinker API key:</span></div>
+            <div><span className="text-white/60">$env:TINKER_API_KEY</span> = <span className="text-amber-300">"your-tinker-key-from-promos"</span></div>
+            <div><span className="text-pink-400">python</span> tinker/train_tinker.py</div>
           </div>
         </div>
       </section>
