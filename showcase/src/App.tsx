@@ -32,7 +32,6 @@ import {
   Zap,
   Heart,
   Palette,
-  Send,
   CheckCircle,
   Clock,
   Volume2,
@@ -41,10 +40,7 @@ import {
   Circle,
   Diamond,
   Sliders,
-  Copy,
-  Check,
   Terminal,
-  Layers,
   Cpu,
   BookOpen,
   Download,
@@ -86,7 +82,24 @@ export const App: React.FC = () => {
   const [progressVal, setProgressVal] = useState<number>(45);
   const [toggleState, setToggleState] = useState<boolean>(true);
   const [inputVal, setInputVal] = useState<string>('Analog Futures Issue #03');
+  
+  // Hero Live Application Console ("Julian's Analog Futures Zine Console")
+  const [heroZineTitle, setHeroZineTitle] = useState<string>('Analog Futures Issue #04');
+  const [heroAudioPlaying, setHeroAudioPlaying] = useState<boolean>(true);
+  const [heroSpeed, setHeroSpeed] = useState<number>(78);
+  const [heroBleed, setHeroBleed] = useState<boolean>(true);
+  const [heroProgress, setHeroProgress] = useState<number>(68);
+  const [heroConsoleTab, setHeroConsoleTab] = useState<'app' | 'code'>('app');
+  const [heroStatusMsg, setHeroStatusMsg] = useState<string>('Press running at 78% ink flow • 68/100 copies stamped');
   const [zineLikes, setZineLikes] = useState<number>(42);
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      TactileAudio.playClick(600);
+    }
+  };
 
   // Documentation Tab State
   const [docsTab, setDocsTab] = useState<'quickstart' | 'animations' | 'props' | 'palettes' | 'audio'>('quickstart');
@@ -359,95 +372,329 @@ export const App: React.FC = () => {
             pure 60 FPS Canvas physics, 100% light tactile themes, and open-weight Gemma + Tinker fine-tuning.
           </p>
 
-          {/* Quick Install Pill */}
-          <div className="max-w-xl mx-auto mb-8">
+          {/* Quick Install Pill using PaperDotButton */}
+          <div className="max-w-2xl mx-auto mb-8">
             <div
-              className="rounded-2xl p-2.5 border flex items-center justify-between gap-3 shadow-xs"
+              className="rounded-2xl p-2.5 border flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
               style={{
                 backgroundColor: activePalette.cardBg,
                 borderColor: activePalette.border,
               }}
             >
-              <div className="flex items-center gap-2 px-2 overflow-x-auto text-xs font-mono">
+              <div className="flex items-center gap-2 px-2 overflow-x-auto text-xs font-mono w-full sm:w-auto">
                 <Terminal className="w-4 h-4 text-emerald-600 shrink-0" />
                 <code className="text-emerald-700 font-bold whitespace-nowrap">
                   npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
                 </code>
               </div>
-              <button
+              <PaperDotButton
+                label={copiedInstallCmd ? "Copied!" : "Copy Command"}
                 onClick={() => copyToClipboard('npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json')}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-black text-white hover:bg-black/80 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+                palette={activePalette}
+                dotShape={globalDotShape}
+                animationType="hydraulic-pop"
+                width={140}
+                height={38}
+              />
+            </div>
+          </div>
+
+          {/* Real Library Buttons for Navigation (Eating our own dog food) */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <PaperDotButton
+              label="✦ Install via CLI"
+              onClick={() => scrollTo('install')}
+              palette={activePalette}
+              dotShape={globalDotShape}
+              animationType="hydraulic-pop"
+              width={175}
+              height={44}
+            />
+            <PaperDotButton
+              label="✦ Component Suite"
+              onClick={() => scrollTo('components')}
+              palette={activePalette}
+              dotShape={globalDotShape}
+              animationType="ripple-wave"
+              width={185}
+              height={44}
+            />
+            <PaperDotButton
+              label="✦ Documentation"
+              onClick={() => scrollTo('docs')}
+              palette={activePalette}
+              dotShape={globalDotShape}
+              animationType="stamp-press"
+              width={175}
+              height={44}
+            />
+            <PaperDotButton
+              label="✦ AI DSL Compiler"
+              onClick={() => scrollTo('playground')}
+              palette={activePalette}
+              dotShape={globalDotShape}
+              animationType="particle-vortex"
+              width={175}
+              height={44}
+            />
+          </div>
+        </div>
+
+        {/* Real Product Demo Built With PaperDots: Julian's Analog Futures Zine Console */}
+        <div className="mt-10 max-w-4xl mx-auto text-left relative z-20">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-mono font-bold text-xs uppercase tracking-wider" style={{ color: activePalette.dark }}>
+                Built With PaperDots: Julian's Analog Zine Studio
+              </span>
+            </div>
+            <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl">
+              <button
+                onClick={() => {
+                  setHeroConsoleTab('app');
+                  TactileAudio.playClick(600);
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                  heroConsoleTab === 'app' ? 'bg-white text-black shadow-xs' : 'opacity-70 hover:opacity-100'
+                }`}
               >
-                {copiedInstallCmd ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedInstallCmd ? 'Copied!' : 'Copy'}</span>
+                Interactive Product
+              </button>
+              <button
+                onClick={() => {
+                  setHeroConsoleTab('code');
+                  TactileAudio.playClick(750);
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                  heroConsoleTab === 'code' ? 'bg-white text-black shadow-xs' : 'opacity-70 hover:opacity-100'
+                }`}
+              >
+                View React / Shadcn Code
               </button>
             </div>
           </div>
 
-          {/* Quick navigation buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="#install"
-              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs text-white shadow-md hover:scale-105 transition-transform flex items-center gap-2"
-              style={{ backgroundColor: activePalette.primary }}
-            >
-              <Download className="w-4 h-4" />
-              Installation & Registry Hub
-            </a>
-            <a
-              href="#components"
-              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs shadow-xs transition-all flex items-center gap-2"
+          {heroConsoleTab === 'app' ? (
+            <div
+              className="rounded-2xl p-6 shadow-xs border transition-all"
               style={{
                 backgroundColor: activePalette.cardBg,
-                border: `1px solid ${activePalette.border}`,
-                color: activePalette.dark,
+                borderColor: activePalette.border,
               }}
             >
-              <Layers className="w-4 h-4" />
-              Explore 10 Components & Animations
-            </a>
-            <a
-              href="#docs"
-              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs shadow-xs transition-all flex items-center gap-2"
-              style={{
-                backgroundColor: activePalette.cardBg,
-                border: `1px solid ${activePalette.border}`,
-                color: activePalette.dark,
-              }}
-            >
-              <BookOpen className="w-4 h-4" />
-              Full Documentation & API
-            </a>
-          </div>
-        </div>
+              {/* Top Ribbon: Badges + Kinetic Input */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 mb-6" style={{ borderColor: activePalette.border }}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <PaperDotBadge
+                    label="Living Press: Online"
+                    variant="primary"
+                    animationType="beacon-pulse"
+                    palette={activePalette}
+                    dotShape={globalDotShape}
+                  />
+                  <PaperDotBadge
+                    label="Limited Edition: 100 Copies"
+                    variant="secondary"
+                    animationType="shimmer-wave"
+                    palette={activePalette}
+                    dotShape={globalDotShape}
+                  />
+                </div>
 
-        {/* Hero Interactive Living Background Grid */}
-        <div
-          className="mt-10 max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xs"
-          style={{ border: `1px solid ${activePalette.border}` }}
-        >
-          <PaperDotCanvas
-            width={896}
-            height={200}
-            spacing={customSpacing * 2.5}
-            palette={activePalette}
-            dotShape={globalDotShape}
-            interactiveRadius={85}
-            className="w-full flex items-center justify-center"
-          >
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span
-                className="text-xs font-mono font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-xs"
-                style={{
-                  backgroundColor: `${activePalette.cardBg}EE`,
-                  border: `1px solid ${activePalette.border}`,
-                  color: activePalette.dark,
-                }}
-              >
-                ✦ Move pointer across canvas to ripple physical {globalDotShape}s ✦
-              </span>
+                {/* Typewriter Recoil Input */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono opacity-60">Issue:</span>
+                  <PaperDotInput
+                    value={heroZineTitle}
+                    onChange={setHeroZineTitle}
+                    animationType="typewriter-recoil"
+                    palette={activePalette}
+                    dotShape={globalDotShape}
+                    width={230}
+                    height={40}
+                  />
+                </div>
+              </div>
+
+              {/* 3 Interactive Workstations */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Workstation 1: Living Equalizer Wave (Morph) */}
+                <div className="p-4 rounded-xl border border-dashed flex flex-col items-center justify-between text-center gap-3" style={{ borderColor: activePalette.border }}>
+                  <div>
+                    <div className="font-mono font-bold text-xs">Audio Wave Synthesizer</div>
+                    <p className="text-[10px] font-mono opacity-60 mt-0.5">Click to toggle living wave vs freeze</p>
+                  </div>
+                  <PaperDotMorph
+                    shape={heroAudioPlaying ? 'play' : 'pause'}
+                    isPlaying={heroAudioPlaying}
+                    size={95}
+                    palette={activePalette}
+                    dotShape={globalDotShape}
+                    burstIntensity="gentle"
+                    onClick={() => {
+                      setHeroAudioPlaying(!heroAudioPlaying);
+                      setHeroStatusMsg(!heroAudioPlaying ? 'Acoustic equalizer wave active' : 'Audio wave frozen in crystalline pause');
+                      TactileAudio.playPop(heroAudioPlaying ? 500 : 750);
+                    }}
+                  />
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">
+                    {heroAudioPlaying ? 'Living Wave' : 'Crystalline Freeze'}
+                  </span>
+                </div>
+
+                {/* Workstation 2: Press Sliders & Tactile Toggle */}
+                <div className="p-4 rounded-xl border border-dashed flex flex-col justify-between gap-4" style={{ borderColor: activePalette.border }}>
+                  <div>
+                    <div className="font-mono font-bold text-xs mb-1">Ink Flow &amp; Density</div>
+                    <PaperDotSlider
+                      value={heroSpeed}
+                      onChange={(v) => {
+                        setHeroSpeed(v);
+                        setHeroStatusMsg(`Ink density adjusted to ${v}%`);
+                      }}
+                      palette={activePalette}
+                      dotShape={globalDotShape}
+                      animationType="elastic-string"
+                      width={210}
+                      height={40}
+                    />
+                    <div className="flex justify-between text-[10px] font-mono opacity-60 mt-1">
+                      <span>Flow: {heroSpeed}%</span>
+                      <span>Elastic String</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: activePalette.border }}>
+                    <div>
+                      <div className="font-mono font-bold text-xs">Living Bleed</div>
+                      <span className="text-[10px] font-mono opacity-60">Tangential roll</span>
+                    </div>
+                    <PaperDotToggle
+                      checked={heroBleed}
+                      onChange={(b) => {
+                        setHeroBleed(b);
+                        setHeroStatusMsg(b ? 'Capillary ink bleed enabled' : 'Clean edge mode active');
+                      }}
+                      palette={activePalette}
+                      dotShape={globalDotShape}
+                      animationType="cylinder-roll"
+                    />
+                  </div>
+                </div>
+
+                {/* Workstation 3: Printing Progress & Stamping */}
+                <div className="p-4 rounded-xl border border-dashed flex flex-col justify-between gap-3 text-center" style={{ borderColor: activePalette.border }}>
+                  <div>
+                    <div className="font-mono font-bold text-xs">Print Production</div>
+                    <p className="text-[10px] font-mono opacity-60 mt-0.5">Domino cascade ink queue</p>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <PaperDotProgress
+                      value={heroProgress}
+                      palette={activePalette}
+                      dotShape={globalDotShape}
+                      animationType="domino-cascade"
+                      width={200}
+                      height={32}
+                    />
+                    <span className="text-[10px] font-mono opacity-70 mt-1">
+                      {heroProgress}/100 Copies Stamped
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <PaperDotButton
+                      label="Stamp Proof"
+                      palette={activePalette}
+                      dotShape={globalDotShape}
+                      animationType="hydraulic-pop"
+                      width={110}
+                      height={36}
+                      onClick={() => {
+                        setHeroProgress(Math.min(100, heroProgress + 10));
+                        setHeroStatusMsg(`Proof stamped! Current run: ${Math.min(100, heroProgress + 10)}/100 copies`);
+                        TactileAudio.playPop(800);
+                      }}
+                    />
+                    <PaperDotButton
+                      label="Publish Zine"
+                      inkColor={SPOT_INKS.fluorescentPink.hex}
+                      palette={activePalette}
+                      dotShape={globalDotShape}
+                      animationType="stamp-press"
+                      width={110}
+                      height={36}
+                      onClick={() => {
+                        setHeroProgress(100);
+                        setHeroStatusMsg(`Published '${heroZineTitle}' to the Living Web!`);
+                        TactileAudio.playPop(900);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Status Feed */}
+              <div className="flex items-center justify-between text-xs font-mono px-3 py-2 rounded-xl bg-black/5" style={{ color: activePalette.dark }}>
+                <div className="flex items-center gap-2 truncate">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: activePalette.primary }} />
+                  <span className="font-bold truncate">{heroStatusMsg}</span>
+                </div>
+                <span className="text-[10px] opacity-60 shrink-0 ml-2">PaperDots Physics v1.2</span>
+              </div>
             </div>
-          </PaperDotCanvas>
+          ) : (
+            <div className="rounded-2xl p-6 bg-[#1C1D1F] text-emerald-400 font-mono text-xs shadow-xs border border-black/20 overflow-x-auto">
+              <div className="flex items-center justify-between text-white/50 border-b border-white/10 pb-2 mb-4">
+                <span>// Building Julian's Zine Console using PaperDots Shadcn components:</span>
+                <span>components/ZineConsole.tsx</span>
+              </div>
+              <pre className="leading-relaxed">
+{`import React, { useState } from "react";
+import { 
+  Button, 
+  Slider, 
+  Switch, 
+  Badge, 
+  Input, 
+  Card,
+  SPOT_INKS 
+} from "@/components/ui";
+
+export function ZineConsole() {
+  const [playing, setPlaying] = useState(true);
+  const [speed, setSpeed] = useState([78]);
+  const [bleed, setBleed] = useState(true);
+
+  return (
+    <Card withKineticBorder className="p-6">
+      {/* 1. Header with Kinetic Badges & Typewriter Input */}
+      <Badge variant="paper-kinetic">Living Press: Online</Badge>
+      <Input withKineticBorder placeholder="Zine Title..." />
+
+      {/* 2. Elastic String Fader & Roll Switch */}
+      <Slider value={speed} onValueChange={setSpeed} />
+      <Switch checked={bleed} onCheckedChange={setBleed} />
+
+      {/* 3. Kinetic Hydraulic & Stamp Buttons with Spot Inks */}
+      <Button animationType="hydraulic-pop" onClick={handleStamp}>
+        Stamp Proof
+      </Button>
+      <Button 
+        inkColor={SPOT_INKS.fluorescentPink.hex}
+        animationType="stamp-press"
+        onClick={handlePublish}
+      >
+        Publish Zine
+      </Button>
+    </Card>
+  );
+}`}
+              </pre>
+            </div>
+          )}
         </div>
       </section>
 
@@ -534,13 +781,15 @@ export const App: React.FC = () => {
           {/* Dynamic Command Box */}
           <div className="bg-[#1C1D1F] rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-emerald-400 font-mono text-xs mb-4">
             <code>{getInstallCommand()}</code>
-            <button
+            <PaperDotButton
+              label={copiedInstallCmd ? "Copied Command!" : "Copy Command"}
               onClick={() => copyToClipboard(getInstallCommand())}
-              className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1.5 transition-all self-end md:self-auto shrink-0"
-            >
-              {copiedInstallCmd ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedInstallCmd ? 'Copied Command!' : 'Copy'}</span>
-            </button>
+              palette={activePalette}
+              dotShape={globalDotShape}
+              animationType="hydraulic-pop"
+              width={150}
+              height={36}
+            />
           </div>
 
           {/* Step by step instructions based on install tab */}
@@ -1749,24 +1998,18 @@ export default function MyZine() {
                 borderColor: activePalette.border,
               }}
             />
-            <button
+            <PaperDotButton
+              label={isCompiling ? "Compiling..." : "✦ Compile DSL"}
               onClick={() => handleCompile()}
               disabled={isCompiling}
-              className="px-5 py-2.5 rounded-xl text-white font-mono font-bold text-xs flex items-center gap-2 shadow-xs transition-transform active:scale-95 disabled:opacity-50"
-              style={{ backgroundColor: activePalette.primary }}
-            >
-              {isCompiling ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Compiling...
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5" />
-                  Compile
-                </>
-              )}
-            </button>
+              animationType="hydraulic-pop"
+              dotShape={globalDotShape}
+              burstIntensity={globalBurstMode}
+              inkColor={customInkColor || activePalette.primary}
+              palette={activePalette}
+              width={160}
+              height={46}
+            />
           </div>
 
           {/* Quick preset pills */}
