@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./utils";
 import { PaperDotButton } from "../components/PaperDotButton";
-import type { RisographPalette, DotGeometry } from "../types";
+import type { RisographPalette, DotGeometry, ButtonAnimationType } from "../types";
 import { DEFAULT_PALETTE } from "../palettes";
 
 const buttonVariants = cva(
@@ -42,6 +42,7 @@ export interface ButtonProps
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
+  animationType?: ButtonAnimationType;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -54,6 +55,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       palette = DEFAULT_PALETTE,
       dotShape = "square",
       burstIntensity = "gentle",
+      animationType = "hydraulic-pop",
       onClick,
       ...props
     },
@@ -71,6 +73,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           palette={palette}
           dotShape={dotShape}
           burstIntensity={burstIntensity}
+          animationType={animationType}
           width={w}
           height={h}
           onClick={onClick as () => void}

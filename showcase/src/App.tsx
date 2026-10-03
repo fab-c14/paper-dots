@@ -14,16 +14,16 @@ import {
   PaperDotInput,
   TactileAudio,
 } from './paperdots';
-import type { PresetShape, DotGeometry } from './paperdots';
-import {
-  Button as ShadcnButton,
-  Badge as ShadcnBadge,
-  Input as ShadcnInput,
-  Tabs as ShadcnTabs,
-  TabsList as ShadcnTabsList,
-  TabsTrigger as ShadcnTabsTrigger,
-  TabsContent as ShadcnTabsContent,
-} from './paperdots/shadcn';
+import type {
+  PresetShape,
+  DotGeometry,
+  ButtonAnimationType,
+  SliderAnimationType,
+  ToggleAnimationType,
+  ProgressAnimationType,
+  BadgeAnimationType,
+  InputAnimationType,
+} from './paperdots';
 import { PaperDotsAICompiler } from './paperdots/ai/compiler';
 import type { PromptToComponentResult } from './paperdots/ai/dsl';
 import {
@@ -45,6 +45,8 @@ import {
   Terminal,
   Layers,
   Cpu,
+  BookOpen,
+  Download,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -62,6 +64,31 @@ export const App: React.FC = () => {
 
   const activePalette = PALETTES[selectedPaletteKey] || DEFAULT_PALETTE;
 
+  // Installation Hub State
+  const [installTab, setInstallTab] = useState<'shadcn' | 'cli' | 'npm' | 'manual'>('shadcn');
+  const [installComponent, setInstallComponent] = useState<string>('button');
+  const [copiedInstallCmd, setCopiedInstallCmd] = useState<boolean>(false);
+
+  // Distinct Animation Type States for every component
+  const [buttonAnim, setButtonAnim] = useState<ButtonAnimationType>('hydraulic-pop');
+  const [morphShape, setMorphShape] = useState<PresetShape>('play');
+  const [morphPlaying, setMorphPlaying] = useState<boolean>(true);
+  const [sliderAnim, setSliderAnim] = useState<SliderAnimationType>('elastic-string');
+  const [toggleAnim, setToggleAnim] = useState<ToggleAnimationType>('cylinder-roll');
+  const [progressAnim, setProgressAnim] = useState<ProgressAnimationType>('domino-cascade');
+  const [inputAnim, setInputAnim] = useState<InputAnimationType>('typewriter-recoil');
+  const [badgeAnim, setBadgeAnim] = useState<BadgeAnimationType>('beacon-pulse');
+
+  // Interactive component value states
+  const [sliderVal, setSliderVal] = useState<number>(65);
+  const [progressVal, setProgressVal] = useState<number>(45);
+  const [toggleState, setToggleState] = useState<boolean>(true);
+  const [inputVal, setInputVal] = useState<string>('Analog Futures Issue #03');
+  const [zineLikes, setZineLikes] = useState<number>(42);
+
+  // Documentation Tab State
+  const [docsTab, setDocsTab] = useState<'quickstart' | 'animations' | 'props' | 'palettes' | 'audio'>('quickstart');
+
   // AI Playground state
   const [promptInput, setPromptInput] = useState<string>(
     "A bouncy square-chip button labeled 'Publish Zine' with gentle spring pop"
@@ -69,19 +96,6 @@ export const App: React.FC = () => {
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
   const [compiledResult, setCompiledResult] = useState<PromptToComponentResult | null>(null);
   const [activeCodeTab, setActiveCodeTab] = useState<'preview' | 'dsl' | 'react'>('preview');
-  const [copiedSnippet, setCopiedSnippet] = useState<boolean>(false);
-
-  // Interactive component states
-  const [sliderVal, setSliderVal] = useState<number>(65);
-  const [progressVal, setProgressVal] = useState<number>(45);
-  const [toggleState, setToggleState] = useState<boolean>(true);
-  const [morphShape, setMorphShape] = useState<PresetShape>('heart');
-  const [inputVal, setInputVal] = useState<string>('Analog Futures Issue #03');
-  const [zineAudioPlaying, setZineAudioPlaying] = useState<boolean>(false);
-  const [zineLikes, setZineLikes] = useState<number>(42);
-
-  // Shadcn demo tab
-  const [shadcnTab, setShadcnTab] = useState<string>('buttons');
 
   // Audio mute toggle
   const toggleAudio = () => {
@@ -116,13 +130,26 @@ export const App: React.FC = () => {
     "A hypnotic slow-pulsing loader with matcha green paper chips",
   ];
 
-  const morphShapesList: PresetShape[] = ['heart', 'star', 'play', 'pause', 'check', 'arrow', 'circle'];
+  const morphShapesList: PresetShape[] = ['play', 'pause', 'heart', 'star', 'check', 'arrow', 'circle'];
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedSnippet(true);
+    setCopiedInstallCmd(true);
     TactileAudio.playClick(900);
-    setTimeout(() => setCopiedSnippet(false), 2000);
+    setTimeout(() => setCopiedInstallCmd(false), 2000);
+  };
+
+  const getInstallCommand = () => {
+    if (installTab === 'shadcn') {
+      return `npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-${installComponent}.json`;
+    }
+    if (installTab === 'cli') {
+      return `npx paperdots-ui add ${installComponent}`;
+    }
+    if (installTab === 'npm') {
+      return `npm install paperdots-ui`;
+    }
+    return `// Copy components/ui/paper-${installComponent}.tsx from showcase/src/paperdots/shadcn/`;
   };
 
   return (
@@ -133,7 +160,7 @@ export const App: React.FC = () => {
         color: activePalette.dark,
       }}
     >
-      {/* Top Sticky Navigation & Global Controls */}
+      {/* Top Sticky Navigation */}
       <header
         className="sticky top-0 z-50 backdrop-blur-md border-b px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-4"
         style={{
@@ -161,9 +188,20 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Global Toolbar: Shape + Burst + Sound + Palette */}
+        {/* Navigation jump links */}
+        <nav className="hidden lg:flex items-center gap-5 text-xs font-mono font-bold opacity-80">
+          <a href="#install" className="hover:opacity-100 transition-opacity">Installation</a>
+          <a href="#components" className="hover:opacity-100 transition-opacity">Components</a>
+          <a href="#docs" className="hover:opacity-100 transition-opacity">Documentation</a>
+          <a href="#customizer" className="hover:opacity-100 transition-opacity">Customizer</a>
+          <a href="#playground" className="hover:opacity-100 transition-opacity">AI Compiler</a>
+          <a href="#benchmark" className="hover:opacity-100 transition-opacity">Benchmark</a>
+          <a href="#story" className="hover:opacity-100 transition-opacity">Julian's Story</a>
+        </nav>
+
+        {/* Global Toolbar */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* 1. Shape Switcher */}
+          {/* Shape Switcher */}
           <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl">
             <button
               onClick={() => {
@@ -175,7 +213,6 @@ export const App: React.FC = () => {
                   ? 'bg-white text-black shadow-xs font-bold'
                   : 'opacity-70 hover:opacity-100'
               }`}
-              title="Square Paper Chips / Halftone Mosaic"
             >
               <Square className="w-3.5 h-3.5 fill-current" />
               <span>Squares</span>
@@ -190,7 +227,6 @@ export const App: React.FC = () => {
                   ? 'bg-white text-black shadow-xs font-bold'
                   : 'opacity-70 hover:opacity-100'
               }`}
-              title="Classic Stippled Paper Dots"
             >
               <Circle className="w-3.5 h-3.5 fill-current" />
               <span>Circles</span>
@@ -205,14 +241,13 @@ export const App: React.FC = () => {
                   ? 'bg-white text-black shadow-xs font-bold'
                   : 'opacity-70 hover:opacity-100'
               }`}
-              title="45° Halftone Diamonds"
             >
               <Diamond className="w-3.5 h-3.5 fill-current" />
               <span>Diamonds</span>
             </button>
           </div>
 
-          {/* 2. Burst Intensity Mode */}
+          {/* Burst Mode */}
           <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl">
             <span className="text-[10px] font-mono px-2 opacity-60 flex items-center gap-1">
               <Sliders className="w-3 h-3" /> Burst:
@@ -235,19 +270,18 @@ export const App: React.FC = () => {
             ))}
           </div>
 
-          {/* 3. Audio Toggle */}
+          {/* Sound Toggle */}
           <button
             onClick={toggleAudio}
             className={`p-2 rounded-xl border text-xs font-mono flex items-center gap-1 transition-all ${
               !isAudioMuted ? 'bg-white text-black shadow-xs font-bold' : 'opacity-60 hover:opacity-100'
             }`}
             style={{ borderColor: activePalette.border }}
-            title={isAudioMuted ? 'Unmute paper sound effects' : 'Mute sound effects'}
           >
             {isAudioMuted ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4 text-emerald-600" />}
           </button>
 
-          {/* 4. Light Paper Palette Switcher */}
+          {/* Palette Select */}
           <div className="flex items-center gap-1.5 bg-black/5 p-1 rounded-xl">
             <Palette className="w-3.5 h-3.5 opacity-60 ml-1" />
             <select
@@ -288,51 +322,53 @@ export const App: React.FC = () => {
             <span style={{ color: activePalette.primary }}>
               {globalDotShape === 'square' ? 'Square-Chip' : 'Ink-Dot'}
             </span>
-            <span className="block mt-1">Physics with Shadcn Support</span>
+            <span className="block mt-1">Physics UI Library</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-base md:text-lg opacity-85 mb-6 leading-relaxed">
-            Built for <strong>Julian</strong>, an indie printmaker who wanted living, tactile paper components
-            instead of sterile corporate rectangles. Supports <strong>square paper chips</strong>, drop-in <strong>Shadcn UI integration</strong>,
-            gentle spring returns (zero lag), fine-tuned with <strong>Thinking Machines' Tinker</strong>, and deployed on <strong>Render</strong>.
+            Install beautiful tactile paper UI components directly into any React or Shadcn application.
+            Featuring <strong>distinct per-component animations</strong> (hydraulic pops, ripple waves, stamps, vortex swirls),
+            pure 60 FPS Canvas physics, 100% light tactile themes, and open-weight Gemma + Tinker fine-tuning.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          {/* Quick Install Pill */}
+          <div className="max-w-xl mx-auto mb-8">
+            <div
+              className="rounded-2xl p-2.5 border flex items-center justify-between gap-3 shadow-xs"
+              style={{
+                backgroundColor: activePalette.cardBg,
+                borderColor: activePalette.border,
+              }}
+            >
+              <div className="flex items-center gap-2 px-2 overflow-x-auto text-xs font-mono">
+                <Terminal className="w-4 h-4 text-emerald-600 shrink-0" />
+                <code className="text-emerald-700 font-bold whitespace-nowrap">
+                  npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
+                </code>
+              </div>
+              <button
+                onClick={() => copyToClipboard('npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json')}
+                className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-black text-white hover:bg-black/80 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+              >
+                {copiedInstallCmd ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedInstallCmd ? 'Copied!' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick navigation buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#shadcn"
-              className="px-6 py-3 rounded-xl font-mono font-bold text-sm text-white shadow-md hover:scale-105 transition-transform flex items-center gap-2"
+              href="#install"
+              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs text-white shadow-md hover:scale-105 transition-transform flex items-center gap-2"
               style={{ backgroundColor: activePalette.primary }}
             >
-              <Terminal className="w-4 h-4" />
-              Shadcn Drop-In Components
-            </a>
-            <a
-              href="#customizer"
-              className="px-6 py-3 rounded-xl font-mono font-bold text-sm shadow-xs transition-all flex items-center gap-2"
-              style={{
-                backgroundColor: activePalette.cardBg,
-                border: `1px solid ${activePalette.border}`,
-                color: activePalette.dark,
-              }}
-            >
-              <Sliders className="w-4 h-4" />
-              Paper Studio Customizer
-            </a>
-            <a
-              href="#playground"
-              className="px-6 py-3 rounded-xl font-mono font-bold text-sm shadow-xs transition-all flex items-center gap-2"
-              style={{
-                backgroundColor: activePalette.cardBg,
-                border: `1px solid ${activePalette.border}`,
-                color: activePalette.dark,
-              }}
-            >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              AI Compiler Playground
+              <Download className="w-4 h-4" />
+              Installation & Registry Hub
             </a>
             <a
               href="#components"
-              className="px-6 py-3 rounded-xl font-mono font-bold text-sm shadow-xs transition-all flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs shadow-xs transition-all flex items-center gap-2"
               style={{
                 backgroundColor: activePalette.cardBg,
                 border: `1px solid ${activePalette.border}`,
@@ -340,19 +376,19 @@ export const App: React.FC = () => {
               }}
             >
               <Layers className="w-4 h-4" />
-              Explore 10 Components
+              Explore 10 Components & Animations
             </a>
             <a
-              href="#benchmark"
-              className="px-6 py-3 rounded-xl font-mono font-bold text-sm shadow-xs transition-all flex items-center gap-2"
+              href="#docs"
+              className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs shadow-xs transition-all flex items-center gap-2"
               style={{
                 backgroundColor: activePalette.cardBg,
                 border: `1px solid ${activePalette.border}`,
                 color: activePalette.dark,
               }}
             >
-              <Cpu className="w-4 h-4 text-amber-600" />
-              Tinker Evaluation
+              <BookOpen className="w-4 h-4" />
+              Full Documentation & API
             </a>
           </div>
         </div>
@@ -364,7 +400,7 @@ export const App: React.FC = () => {
         >
           <PaperDotCanvas
             width={896}
-            height={220}
+            height={200}
             spacing={customSpacing * 2.5}
             palette={activePalette}
             dotShape={globalDotShape}
@@ -387,36 +423,568 @@ export const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Shadcn UI Drop-In Integration Section */}
-      <section id="shadcn" className="py-14 px-6 max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-1">
-              <Terminal className="w-4 h-4 text-emerald-600" />
-              Shadcn Drop-In Compatibility
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold font-mono tracking-tight">
-              Shadcn UI + PaperDots Integration
-            </h2>
-            <p className="text-xs font-mono opacity-75 mt-1 max-w-xl">
-              Use PaperDots as drop-in replacements for standard Shadcn components. Uses <code className="px-1.5 py-0.5 rounded bg-black/5">cn()</code>, <code className="px-1.5 py-0.5 rounded bg-black/5">cva</code>, and full TypeScript prop forwarding.
-            </p>
+      {/* SECTION 1: Installation & Registry Hub */}
+      <section id="install" className="py-14 px-6 max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
+            <Download className="w-4 h-4 text-emerald-600" />
+            Component Installation & Registry
           </div>
-
-          <button
-            onClick={() => copyToClipboard('npx shadcn@latest add button\n# Then replace with components/ui/paper-button.tsx')}
-            className="px-4 py-2 rounded-xl text-xs font-mono font-bold border flex items-center gap-2 shadow-2xs hover:bg-black/5 transition-all self-start md:self-auto"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              borderColor: activePalette.border,
-            }}
-          >
-            {copiedSnippet ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copiedSnippet ? 'Copied CLI Command!' : 'Copy Shadcn Setup'}</span>
-          </button>
+          <h2 className="text-3xl font-bold font-mono tracking-tight">
+            Install Components in Any Project
+          </h2>
+          <p className="text-sm font-mono opacity-75 mt-2 max-w-xl mx-auto">
+            Install PaperDots directly into your existing Shadcn or React codebase with one command.
+          </p>
         </div>
 
-        {/* Interactive Shadcn Component Showcase Tabs */}
+        {/* Method Picker Tabs */}
+        <div
+          className="rounded-2xl p-6 shadow-xs border mb-8"
+          style={{
+            backgroundColor: activePalette.cardBg,
+            borderColor: activePalette.border,
+          }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4 mb-6" style={{ borderColor: activePalette.border }}>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setInstallTab('shadcn')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                  installTab === 'shadcn' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+                }`}
+              >
+                Shadcn Registry CLI
+              </button>
+              <button
+                onClick={() => setInstallTab('cli')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                  installTab === 'cli' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+                }`}
+              >
+                PaperDots CLI
+              </button>
+              <button
+                onClick={() => setInstallTab('npm')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                  installTab === 'npm' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+                }`}
+              >
+                NPM / PNPM
+              </button>
+              <button
+                onClick={() => setInstallTab('manual')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                  installTab === 'manual' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+                }`}
+              >
+                Manual Drop-In
+              </button>
+            </div>
+
+            {/* Component Selector */}
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className="opacity-60">Component:</span>
+              <select
+                value={installComponent}
+                onChange={(e) => setInstallComponent(e.target.value)}
+                className="bg-black/5 px-2.5 py-1 rounded-lg font-bold outline-none cursor-pointer"
+                style={{ color: activePalette.dark }}
+              >
+                <option value="button">paper-button</option>
+                <option value="slider">paper-slider</option>
+                <option value="toggle">paper-toggle</option>
+                <option value="morph">paper-morph</option>
+                <option value="badge">paper-badge</option>
+                <option value="progress">paper-progress</option>
+                <option value="input">paper-input</option>
+                <option value="card">paper-card</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Dynamic Command Box */}
+          <div className="bg-[#1C1D1F] rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-emerald-400 font-mono text-xs mb-4">
+            <code>{getInstallCommand()}</code>
+            <button
+              onClick={() => copyToClipboard(getInstallCommand())}
+              className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1.5 transition-all self-end md:self-auto shrink-0"
+            >
+              {copiedInstallCmd ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedInstallCmd ? 'Copied Command!' : 'Copy'}</span>
+            </button>
+          </div>
+
+          {/* Step by step instructions based on install tab */}
+          <div className="text-xs font-mono opacity-80 space-y-2">
+            {installTab === 'shadcn' && (
+              <>
+                <p>✦ <strong>Step 1:</strong> Run the command above in your terminal. Shadcn will fetch the schema and place the component in <code className="bg-black/5 px-1 py-0.5 rounded">components/ui/paper-{installComponent}.tsx</code>.</p>
+                <p>✦ <strong>Step 2:</strong> Import into any page: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { Button } from "@/components/ui/paper-button";`}</code></p>
+                <p>✦ <strong>Step 3:</strong> Configure any of the 6 distinct animation types via the <code className="bg-black/5 px-1 py-0.5 rounded">animationType</code> prop.</p>
+              </>
+            )}
+            {installTab === 'cli' && (
+              <>
+                <p>✦ <strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add {installComponent}</code> (or <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add --all</code> to install the complete 10-component suite).</p>
+                <p>✦ <strong>Step 2:</strong> Zero build step required—all canvas physics and audio synthesizers are bundled self-contained.</p>
+              </>
+            )}
+            {installTab === 'npm' && (
+              <>
+                <p>✦ <strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npm install paperdots-ui</code> in your package root.</p>
+                <p>✦ <strong>Step 2:</strong> Use with full TypeScript types: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { PaperDotButton, PALETTES } from 'paperdots-ui';`}</code></p>
+              </>
+            )}
+            {installTab === 'manual' && (
+              <>
+                <p>✦ Copy the component from <code className="bg-black/5 px-1 py-0.5 rounded">showcase/src/paperdots/components/PaperDot{installComponent.charAt(0).toUpperCase() + installComponent.slice(1)}.tsx</code> directly into your repo.</p>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: Component Suite with DISTINCT ANIMATIONS */}
+      <section id="components" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
+            <Zap className="w-4 h-4 text-amber-500" />
+            Distinct Component Animations
+          </div>
+          <h2 className="text-3xl font-bold font-mono tracking-tight">
+            Every Component Has Its Own Animations
+          </h2>
+          <p className="text-sm font-mono opacity-70 mt-2 max-w-xl mx-auto">
+            Switch animation modes per component to feel how hydraulic pops, ripple waves, stamps, and vortex swirls behave differently on physical paper.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Component 1: PaperDotButton (6 Distinct Animations) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotButton</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">6 Modes</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Switch click animation types in real-time:
+              </p>
+              {/* Animation Switcher Pills */}
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['hydraulic-pop', 'ripple-wave', 'stamp-press', 'confetti-drift', 'particle-vortex', 'micro-chatter'] as ButtonAnimationType[]).map((anim) => (
+                  <button
+                    key={anim}
+                    onClick={() => {
+                      setButtonAnim(anim);
+                      TactileAudio.playClick(800);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      buttonAnim === anim ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {anim.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-4 flex flex-col items-center gap-3">
+              <PaperDotButton
+                label="Click Me"
+                palette={activePalette}
+                dotShape={globalDotShape}
+                burstIntensity={globalBurstMode}
+                animationType={buttonAnim}
+                width={170}
+                height={48}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Active: <strong>{buttonAnim}</strong></span>
+          </div>
+
+          {/* Component 2: PaperDotMorph (Play vs Pause living dynamics) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotMorph</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-pink-500/10 text-pink-600 font-bold">Play/Pause Dynamic</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Play animates living equalizer waves; Pause freezes into crystalline rest; switching shapes swirls in a vortex:
+              </p>
+              {/* Shape Switcher */}
+              <div className="flex flex-wrap gap-1 mb-3">
+                {morphShapesList.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      setMorphShape(s);
+                      if (s === 'play') setMorphPlaying(true);
+                      if (s === 'pause') setMorphPlaying(false);
+                      TactileAudio.playClick(750);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded capitalize transition-all ${
+                      morphShape === s ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-2 flex flex-col items-center gap-2">
+              <PaperDotMorph
+                shape={morphShape}
+                isPlaying={morphPlaying}
+                size={110}
+                palette={activePalette}
+                dotShape={globalDotShape}
+                burstIntensity={globalBurstMode}
+                onClick={() => {
+                  if (morphShape === 'play') {
+                    setMorphShape('pause');
+                    setMorphPlaying(false);
+                  } else if (morphShape === 'pause') {
+                    setMorphShape('play');
+                    setMorphPlaying(true);
+                  }
+                }}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">
+              {morphShape === 'play' ? 'Living Equalizer Wave' : morphShape === 'pause' ? 'Crystalline Pause Brake' : 'Vortex Swirl Morph'}
+            </span>
+          </div>
+
+          {/* Component 3: PaperDotToggle (Cylinder roll, page flip, slingshot) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotToggle</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Roll / Flip / Slingshot</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Switch between different kinematic switch animations:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['cylinder-roll', 'page-flip', 'slingshot-snap'] as ToggleAnimationType[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => {
+                      setToggleAnim(t);
+                      TactileAudio.playClick(600);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      toggleAnim === t ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {t.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-6 flex justify-center">
+              <PaperDotToggle
+                checked={toggleState}
+                onChange={setToggleState}
+                animationType={toggleAnim}
+                label={toggleState ? "Active" : "Resting"}
+                palette={activePalette}
+                dotShape={globalDotShape}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Active: <strong>{toggleAnim}</strong></span>
+          </div>
+
+          {/* Component 4: PaperDotSlider (Elastic string, ink dilation, magnetic) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotSlider</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">3 Modes</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Elastic catenary string curve or velocity ink dilation:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['elastic-string', 'ink-dilation', 'magnetic-tick'] as SliderAnimationType[]).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      setSliderAnim(s);
+                      TactileAudio.playClick(650);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      sliderAnim === s ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {s.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-4 flex flex-col items-center">
+              <PaperDotSlider
+                value={sliderVal}
+                onChange={setSliderVal}
+                animationType={sliderAnim}
+                label="Ink Tension"
+                palette={activePalette}
+                dotShape={globalDotShape}
+                width={220}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Value: {sliderVal}% • Mode: <strong>{sliderAnim}</strong></span>
+          </div>
+
+          {/* Component 5: PaperDotProgress (Domino cascade, capillary bleed, strobe) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotProgress</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">Cascade / Bleed</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Domino chip jumps, wet capillary ink spreading, or traveling strobe:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['domino-cascade', 'capillary-bleed', 'strobe-pulse'] as ProgressAnimationType[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => {
+                      setProgressAnim(p);
+                      TactileAudio.playClick(680);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      progressAnim === p ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {p.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-2 flex flex-col items-center gap-3">
+              <PaperDotProgress
+                value={progressVal}
+                animationType={progressAnim}
+                palette={activePalette}
+                dotShape={globalDotShape}
+                label="Pressing Zine"
+                width={220}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setProgressVal(Math.max(0, progressVal - 15))}
+                  className="px-2.5 py-1 text-xs font-mono rounded bg-black/5 hover:bg-black/10 font-bold transition-colors"
+                >
+                  -15%
+                </button>
+                <button
+                  onClick={() => setProgressVal(Math.min(100, progressVal + 15))}
+                  className="px-2.5 py-1 text-xs font-mono rounded bg-black/5 hover:bg-black/10 font-bold transition-colors"
+                >
+                  +15%
+                </button>
+              </div>
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Mode: <strong>{progressAnim}</strong></span>
+          </div>
+
+          {/* Component 6: PaperDotInput (Typewriter recoil, focus halo, perimeter wave) */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotInput</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">Recoil & Halo</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Keystroke typewriter recoil or breathing focus margin:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['typewriter-recoil', 'focus-halo', 'perimeter-wave'] as InputAnimationType[]).map((inp) => (
+                  <button
+                    key={inp}
+                    onClick={() => {
+                      setInputAnim(inp);
+                      TactileAudio.playClick(650);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      inputAnim === inp ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {inp.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-4 flex justify-center">
+              <PaperDotInput
+                value={inputVal}
+                onChange={setInputVal}
+                animationType={inputAnim}
+                placeholder="Type to feel typewriter recoil..."
+                palette={activePalette}
+                dotShape={globalDotShape}
+                width={240}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Mode: <strong>{inputAnim}</strong></span>
+          </div>
+
+          {/* Component 7: PaperDotBadge */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotBadge</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Beacon / Shimmer</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Radiant beacon pulse, shimmer wave, or buoyant paper drift:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['beacon-pulse', 'shimmer-wave', 'float-drift'] as BadgeAnimationType[]).map((b) => (
+                  <button
+                    key={b}
+                    onClick={() => {
+                      setBadgeAnim(b);
+                      TactileAudio.playClick(600);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      badgeAnim === b ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {b.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-5 flex flex-wrap justify-center gap-2">
+              <PaperDotBadge label="Live Press" variant="primary" animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
+              <PaperDotBadge label="Edition #04" variant="secondary" animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Tap badge to pop chips</span>
+          </div>
+
+          {/* Component 8: PaperDotLoader */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotLoader</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Orbital Constellation</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-4">
+                Orbital paper-dot constellation with sinusoidal ink bleed breathing.
+              </p>
+            </div>
+            <div className="py-4 flex justify-center">
+              <PaperDotLoader size={100} palette={activePalette} dotShape={globalDotShape} label="Printing Zine..." />
+            </div>
+            <span className="text-[11px] font-mono opacity-50 text-center">Locked 60 FPS Canvas</span>
+          </div>
+
+          {/* Component 9: PaperDotCard */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotCard</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Magnetic Repulsion</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-4">
+                Card with perimeter chip lattice that pushes away as cursor hovers.
+              </p>
+            </div>
+            <div className="py-2 flex justify-center">
+              <PaperDotCard
+                title="Analog No. 04"
+                subtitle="Risograph Print"
+                palette={activePalette}
+                dotShape={globalDotShape}
+                width={240}
+                height={130}
+              >
+                <div className="flex justify-between items-center text-[10px] font-mono opacity-80 mt-2">
+                  <span>Edition 42/100</span>
+                  <span className="font-bold" style={{ color: activePalette.secondary }}>Available</span>
+                </div>
+              </PaperDotCard>
+            </div>
+            <span className="text-[11px] font-mono opacity-50 text-center">Hover border for magnetism</span>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Documentation & Integration Guide */}
+      <section id="docs" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
+            <BookOpen className="w-4 h-4 text-blue-600" />
+            Complete Documentation & Guide
+          </div>
+          <h2 className="text-3xl font-bold font-mono tracking-tight">
+            How to Integrate & Configure PaperDots
+          </h2>
+          <p className="text-sm font-mono opacity-75 mt-2 max-w-xl mx-auto">
+            Everything you need to configure multiple animation modes, light paper tokens, and custom physics in your project.
+          </p>
+        </div>
+
+        {/* Documentation Tab Nav */}
         <div
           className="rounded-2xl p-6 shadow-xs border"
           style={{
@@ -424,129 +992,208 @@ export const App: React.FC = () => {
             borderColor: activePalette.border,
           }}
         >
-          <ShadcnTabs value={shadcnTab} onValueChange={setShadcnTab} palette={activePalette} dotShape={globalDotShape}>
-            <ShadcnTabsList className="grid grid-cols-4 max-w-md mb-4">
-              <ShadcnTabsTrigger value="buttons">Buttons</ShadcnTabsTrigger>
-              <ShadcnTabsTrigger value="badges">Badges</ShadcnTabsTrigger>
-              <ShadcnTabsTrigger value="inputs">Inputs</ShadcnTabsTrigger>
-              <ShadcnTabsTrigger value="code">CLI Code</ShadcnTabsTrigger>
-            </ShadcnTabsList>
+          <div className="flex flex-wrap gap-2 border-b pb-4 mb-6" style={{ borderColor: activePalette.border }}>
+            <button
+              onClick={() => setDocsTab('quickstart')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                docsTab === 'quickstart' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+              }`}
+            >
+              1. Quick Start
+            </button>
+            <button
+              onClick={() => setDocsTab('animations')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                docsTab === 'animations' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+              }`}
+            >
+              2. Animation Settings
+            </button>
+            <button
+              onClick={() => setDocsTab('props')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                docsTab === 'props' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+              }`}
+            >
+              3. Props Reference
+            </button>
+            <button
+              onClick={() => setDocsTab('palettes')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                docsTab === 'palettes' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+              }`}
+            >
+              4. 8 Light Palettes
+            </button>
+            <button
+              onClick={() => setDocsTab('audio')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                docsTab === 'audio' ? 'bg-black text-white shadow-xs' : 'bg-black/5 opacity-70 hover:opacity-100'
+              }`}
+            >
+              5. Web Audio Haptics
+            </button>
+          </div>
 
-            {/* Tab 1: Shadcn Buttons */}
-            <ShadcnTabsContent value="buttons">
-              <div className="flex flex-col gap-4">
-                <span className="text-xs font-mono opacity-70">
-                  Standard Shadcn variants side-by-side with the new <code className="font-bold text-pink-600">variant="paper-kinetic"</code>:
-                </span>
-                <div className="flex flex-wrap items-center gap-3 py-3">
-                  <ShadcnButton
-                    variant="paper-kinetic"
-                    palette={activePalette}
-                    dotShape={globalDotShape}
-                    burstIntensity={globalBurstMode}
-                    onClick={() => TactileAudio.playPop(520)}
-                  >
-                    Paper Kinetic
-                  </ShadcnButton>
-                  <ShadcnButton variant="default" onClick={() => TactileAudio.playClick(600)}>
-                    Shadcn Default
-                  </ShadcnButton>
-                  <ShadcnButton variant="secondary" onClick={() => TactileAudio.playClick(650)}>
-                    Secondary
-                  </ShadcnButton>
-                  <ShadcnButton variant="destructive" onClick={() => TactileAudio.playClick(700)}>
-                    Destructive
-                  </ShadcnButton>
-                  <ShadcnButton variant="outline" onClick={() => TactileAudio.playClick(750)}>
-                    Outline
-                  </ShadcnButton>
-                  <ShadcnButton variant="ghost" onClick={() => TactileAudio.playClick(800)}>
-                    Ghost
-                  </ShadcnButton>
-                </div>
-              </div>
-            </ShadcnTabsContent>
+          {/* Tab 1: Quickstart */}
+          {docsTab === 'quickstart' && (
+            <div className="space-y-4 text-xs font-mono">
+              <h3 className="font-bold text-sm">Getting Started with PaperDots UI</h3>
+              <p className="opacity-80 leading-relaxed">
+                PaperDots UI works seamlessly in any React 18 or React 19 project (Next.js App Router, Vite, Astro, Remix).
+                It requires zero heavy 3D game engines or WebGL dependencies—pure 60 FPS Canvas 2D Euler physics.
+              </p>
+              <pre className="bg-[#1C1D1F] text-emerald-400 p-4 rounded-xl overflow-x-auto">
+{`// 1. Install via Shadcn Registry CLI:
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
 
-            {/* Tab 2: Shadcn Badges */}
-            <ShadcnTabsContent value="badges">
-              <div className="flex flex-col gap-4">
-                <span className="text-xs font-mono opacity-70">
-                  Pulsing physical paper chips in Shadcn badge wrappers:
-                </span>
-                <div className="flex flex-wrap items-center gap-3 py-3">
-                  <ShadcnBadge variant="paper-kinetic" palette={activePalette} dotShape={globalDotShape}>
-                    Live Paper Chip
-                  </ShadcnBadge>
-                  <ShadcnBadge variant="default">Default</ShadcnBadge>
-                  <ShadcnBadge variant="secondary">Secondary</ShadcnBadge>
-                  <ShadcnBadge variant="outline">Outline</ShadcnBadge>
-                  <ShadcnBadge variant="destructive">Critical</ShadcnBadge>
-                </div>
-              </div>
-            </ShadcnTabsContent>
-
-            {/* Tab 3: Shadcn Inputs */}
-            <ShadcnTabsContent value="inputs">
-              <div className="flex flex-col gap-4 max-w-md">
-                <span className="text-xs font-mono opacity-70">
-                  Shadcn Input with tactile kinetic particle border:
-                </span>
-                <ShadcnInput
-                  withKineticBorder
-                  value={inputVal}
-                  onChange={(e) => setInputVal(e.target.value)}
-                  placeholder="Type to see particle jitter..."
-                  palette={activePalette}
-                  dotShape={globalDotShape}
-                />
-                <ShadcnInput
-                  value={inputVal}
-                  onChange={(e) => setInputVal(e.target.value)}
-                  placeholder="Standard Shadcn Input..."
-                  palette={activePalette}
-                />
-              </div>
-            </ShadcnTabsContent>
-
-            {/* Tab 4: Drop-in Code Snippet */}
-            <ShadcnTabsContent value="code">
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-mono font-bold">components/ui/paper-button.tsx</span>
-                  <button
-                    onClick={() => copyToClipboard(`import { Button } from "@/components/ui/paper-button";\n\nexport default function Example() {\n  return (\n    <Button variant="paper-kinetic" dotShape="square">\n      Publish Zine\n    </Button>\n  );\n}`)}
-                    className="text-xs font-mono flex items-center gap-1 opacity-70 hover:opacity-100"
-                  >
-                    <Copy className="w-3 h-3" /> Copy Usage
-                  </button>
-                </div>
-                <pre className="bg-[#1C1D1F] text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto">
-{`// 1. Install or copy PaperDots into your Shadcn project
+// 2. Use in your component:
 import { Button } from "@/components/ui/paper-button";
 
-export function ZineHeader() {
+export default function MyZine() {
   return (
-    <div className="flex gap-4">
-      {/* Drops in directly like any Shadcn button with full kinetic physics */}
-      <Button variant="paper-kinetic" dotShape="square" burstIntensity="gentle">
-        Publish Zine
-      </Button>
-
-      {/* Or use regular Shadcn variants styled with your tactile paper tokens */}
-      <Button variant="outline">
-        Preview Mode
-      </Button>
-    </div>
+    <Button 
+      variant="paper-kinetic" 
+      dotShape="square" 
+      animationType="hydraulic-pop"
+      burstIntensity="gentle"
+    >
+      Publish Zine
+    </Button>
   );
 }`}
-                </pre>
+              </pre>
+            </div>
+          )}
+
+          {/* Tab 2: Animations */}
+          {docsTab === 'animations' && (
+            <div className="space-y-4 text-xs font-mono">
+              <h3 className="font-bold text-sm">Configuring Distinct Component Animations</h3>
+              <p className="opacity-80 leading-relaxed">
+                Every component supports tailored animation types. Pass the <code className="bg-black/5 px-1 py-0.5 rounded">animationType</code> prop:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-black/5">
+                  <h4 className="font-bold mb-2 text-blue-600">PaperDotButton Animations:</h4>
+                  <ul className="space-y-1 opacity-80 list-disc list-inside">
+                    <li><code className="font-bold">hydraulic-pop</code>: Radial explosion that snaps back in &lt;350ms</li>
+                    <li><code className="font-bold">ripple-wave</code>: Traveling circular wave across the button</li>
+                    <li><code className="font-bold">stamp-press</code>: Vertical letterpress plate stamp impact</li>
+                    <li><code className="font-bold">confetti-drift</code>: Upward eruptive spray of paper chips</li>
+                    <li><code className="font-bold">particle-vortex</code>: Swirling cyclone around cursor</li>
+                    <li><code className="font-bold">micro-chatter</code>: Vintage typewriter carriage tremor</li>
+                  </ul>
+                </div>
+                <div className="p-4 rounded-xl bg-black/5">
+                  <h4 className="font-bold mb-2 text-purple-600">PaperDotMorph & Others:</h4>
+                  <ul className="space-y-1 opacity-80 list-disc list-inside">
+                    <li><code className="font-bold">PaperDotMorph</code>: Play equalizer waves, crystalline pause snap, vortex shape-morphs.</li>
+                    <li><code className="font-bold">PaperDotSlider</code>: Elastic catenary string, velocity ink dilation, magnetic notch ticks.</li>
+                    <li><code className="font-bold">PaperDotToggle</code>: Cylinder roll, page flip fold, rubber slingshot.</li>
+                    <li><code className="font-bold">PaperDotProgress</code>: Domino chip jumps, capillary bleed, traveling strobe.</li>
+                  </ul>
+                </div>
               </div>
-            </ShadcnTabsContent>
-          </ShadcnTabs>
+            </div>
+          )}
+
+          {/* Tab 3: Props */}
+          {docsTab === 'props' && (
+            <div className="space-y-4 text-xs font-mono">
+              <h3 className="font-bold text-sm">Component Props Reference Table</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="border-b bg-black/5">
+                    <tr>
+                      <th className="p-2">Prop</th>
+                      <th className="p-2">Type</th>
+                      <th className="p-2">Default</th>
+                      <th className="p-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    <tr>
+                      <td className="p-2 font-bold text-blue-600">dotShape</td>
+                      <td className="p-2">'square' | 'circle' | 'diamond'</td>
+                      <td className="p-2">'square'</td>
+                      <td className="p-2">Geometry of physical paper particles</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-bold text-blue-600">animationType</td>
+                      <td className="p-2">Component-specific string</td>
+                      <td className="p-2">'hydraulic-pop'</td>
+                      <td className="p-2">Selects distinct kinetic animation routine</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-bold text-blue-600">burstIntensity</td>
+                      <td className="p-2">'none' | 'gentle' | 'confetti'</td>
+                      <td className="p-2">'gentle'</td>
+                      <td className="p-2">Magnitude of particle displacement on click</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-bold text-blue-600">palette</td>
+                      <td className="p-2">RisographPalette</td>
+                      <td className="p-2">PALETTES.risographClassic</td>
+                      <td className="p-2">Light printmaker palette configuration</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-bold text-blue-600">dotSpacing</td>
+                      <td className="p-2">number</td>
+                      <td className="p-2">7</td>
+                      <td className="p-2">Grid spacing between dots in pixels</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 4: Palettes */}
+          {docsTab === 'palettes' && (
+            <div className="space-y-4 text-xs font-mono">
+              <h3 className="font-bold text-sm">8 Authentic 100% Light Printmaker Palettes</h3>
+              <p className="opacity-80">All dark themes have been completely eliminated in favor of warm tactile paper aesthetics:</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.entries(PALETTES).map(([k, pal]) => (
+                  <div
+                    key={k}
+                    className="p-3 rounded-xl border flex flex-col gap-2"
+                    style={{ backgroundColor: pal.background, borderColor: pal.border, color: pal.dark }}
+                  >
+                    <span className="font-bold">{pal.name}</span>
+                    <div className="flex gap-1">
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.primary }} />
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.secondary }} />
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.dark }} />
+                    </div>
+                    <span className="text-[10px] opacity-70">{pal.background}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 5: Audio */}
+          {docsTab === 'audio' && (
+            <div className="space-y-4 text-xs font-mono">
+              <h3 className="font-bold text-sm">Web Audio Procedural Haptics (Zero Audio Files)</h3>
+              <p className="opacity-80 leading-relaxed">
+                PaperDots features built-in acoustic synthesizers built directly with the browser's Web Audio API.
+                Zero MP3 downloads, zero audio latency:
+              </p>
+              <ul className="space-y-2 opacity-80 list-disc list-inside">
+                <li><code className="font-bold">TactileAudio.playClick(freq)</code>: Crisp mechanical typewriter strike oscillator.</li>
+                <li><code className="font-bold">TactileAudio.playPop(freq)</code>: Hydraulic ink pop with exponential frequency downward sweep.</li>
+                <li><code className="font-bold">TactileAudio.playRustle()</code>: Filtered white noise simulating cotton paper rustle.</li>
+                <li><code className="font-bold">TactileAudio.playTick()</code>: Micro notch tick for faders and sliders.</li>
+              </ul>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Paper Studio Deep Customizer */}
+      {/* SECTION 4: Paper Studio Deep Customizer */}
       <section id="customizer" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
@@ -701,10 +1348,10 @@ export function ZineHeader() {
               palette={activePalette}
               dotShape={globalDotShape}
               burstIntensity={globalBurstMode}
+              animationType={buttonAnim}
               dotSpacing={customSpacing}
               width={200}
               height={52}
-              onClick={() => TactileAudio.playPop(520)}
             />
 
             <PaperDotSlider
@@ -723,7 +1370,7 @@ export function ZineHeader() {
         </div>
       </section>
 
-      {/* AI Prompt-to-Dots Playground */}
+      {/* SECTION 5: AI Prompt-to-Dots Playground */}
       <section id="playground" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div>
@@ -895,9 +1542,9 @@ export function ZineHeader() {
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
                       burstIntensity={globalBurstMode}
+                      animationType="hydraulic-pop"
                       width={compiledResult.dsl.dimensions.width}
                       height={compiledResult.dsl.dimensions.height}
-                      onClick={() => TactileAudio.playPop(500)}
                     />
                   )}
                   {compiledResult.dsl.componentType === 'slider' && (
@@ -1016,434 +1663,7 @@ export const MyComponent = () => {
         )}
       </section>
 
-      {/* Component Suite Explorer: 10 Components */}
-      <section id="components" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
-            <Layers className="w-4 h-4 text-blue-500" />
-            Complete Component Suite (10 Components)
-          </div>
-          <h2 className="text-3xl font-bold font-mono tracking-tight">
-            Tactile 2D Paper Components
-          </h2>
-          <p className="text-sm font-mono opacity-70 mt-2 max-w-lg mx-auto">
-            Zero heavy game engine dependencies. 60 FPS HTML5 Canvas physics with Hooke's spring integration and smooth recovery.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Component 1: PaperDotButton */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotButton</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Gentle Pop</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Reactive ink cluster that pops on click and returns smoothly in &lt;350ms.
-              </p>
-            </div>
-            <div className="py-4 flex flex-col items-center gap-3">
-              <PaperDotButton
-                label="Press Ink"
-                palette={activePalette}
-                dotShape={globalDotShape}
-                burstIntensity={globalBurstMode}
-                width={170}
-                height={48}
-              />
-              <PaperDotButton
-                label="Outline Chip"
-                variant="outline"
-                palette={activePalette}
-                dotShape={globalDotShape}
-                burstIntensity={globalBurstMode}
-                width={170}
-                height={48}
-              />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Fast return • Zero stuck state</span>
-          </div>
-
-          {/* Component 2: PaperDotSlider */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotSlider</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Spring Beads</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                String of paper beads with elastic dragging tension and audio ticks.
-              </p>
-            </div>
-            <div className="py-4 flex flex-col items-center">
-              <PaperDotSlider
-                value={sliderVal}
-                onChange={setSliderVal}
-                label="Ink Bleed Level"
-                palette={activePalette}
-                dotShape={globalDotShape}
-                width={220}
-              />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Current: {sliderVal}%</span>
-          </div>
-
-          {/* Component 3: PaperDotToggle */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotToggle</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Morph Switch</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Binary switch where dots roll across states with crisp spring momentum.
-              </p>
-            </div>
-            <div className="py-6 flex justify-center">
-              <PaperDotToggle
-                checked={toggleState}
-                onChange={setToggleState}
-                label={toggleState ? "Active" : "Muted"}
-                palette={activePalette}
-                dotShape={globalDotShape}
-              />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">State: {toggleState ? 'Active' : 'Muted'}</span>
-          </div>
-
-          {/* Component 4: PaperDotProgress */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotProgress</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">NEW</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Segmented paper progress bar composed of physical chips that light up.
-              </p>
-            </div>
-            <div className="py-3 flex flex-col items-center gap-3">
-              <PaperDotProgress
-                value={progressVal}
-                palette={activePalette}
-                dotShape={globalDotShape}
-                label="Pressing Zine"
-                width={220}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setProgressVal(Math.max(0, progressVal - 15))}
-                  className="px-2.5 py-1 text-xs font-mono rounded bg-black/5 hover:bg-black/10 font-bold transition-colors"
-                >
-                  -15%
-                </button>
-                <button
-                  onClick={() => setProgressVal(Math.min(100, progressVal + 15))}
-                  className="px-2.5 py-1 text-xs font-mono rounded bg-black/5 hover:bg-black/10 font-bold transition-colors"
-                >
-                  +15%
-                </button>
-              </div>
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Interactive value: {progressVal}%</span>
-          </div>
-
-          {/* Component 5: PaperDotInput */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotInput</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">NEW</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Tactile text input field with dynamic reactive paper chip border.
-              </p>
-            </div>
-            <div className="py-4 flex justify-center">
-              <PaperDotInput
-                value={inputVal}
-                onChange={setInputVal}
-                placeholder="Search zines..."
-                palette={activePalette}
-                dotShape={globalDotShape}
-                width={240}
-              />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Type to feel particle jitter</span>
-          </div>
-
-          {/* Component 6: PaperDotBadge */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotBadge</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">NEW</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Tactile pill status tags with live pulsing paper chips.
-              </p>
-            </div>
-            <div className="py-5 flex flex-wrap justify-center gap-2">
-              <PaperDotBadge label="Live Press" variant="primary" palette={activePalette} dotShape={globalDotShape} />
-              <PaperDotBadge label="Edition #04" variant="secondary" palette={activePalette} dotShape={globalDotShape} />
-              <PaperDotBadge label="Handmade" variant="outline" palette={activePalette} dotShape={globalDotShape} />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Pulsing physical ink chips</span>
-          </div>
-
-          {/* Component 7: PaperDotMorph */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotMorph</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Shape Shifter</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-3">
-                Smoothly morphs 90 physical particles between vector silhouettes.
-              </p>
-            </div>
-            <div className="py-2 flex flex-col items-center gap-3">
-              <PaperDotMorph
-                shape={morphShape}
-                size={110}
-                palette={activePalette}
-                dotShape={globalDotShape}
-                burstIntensity={globalBurstMode}
-              />
-              <div className="flex flex-wrap justify-center gap-1">
-                {morphShapesList.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      setMorphShape(s);
-                      TactileAudio.playClick(800);
-                    }}
-                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
-                      morphShape === s
-                        ? 'bg-black text-white font-bold'
-                        : 'bg-black/5 opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Tap to scatter • Instant return</span>
-          </div>
-
-          {/* Component 8: PaperDotLoader */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotLoader</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Constellation</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Orbital paper-dot constellation with sinusoidal ink bleed breathing.
-              </p>
-            </div>
-            <div className="py-4 flex justify-center">
-              <PaperDotLoader size={100} palette={activePalette} dotShape={globalDotShape} label="Printing Zine..." />
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Locked 60 FPS Canvas</span>
-          </div>
-
-          {/* Component 9: PaperDotCard */}
-          <div
-            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
-            style={{
-              backgroundColor: activePalette.cardBg,
-              border: `1px solid ${activePalette.border}`,
-            }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotCard</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Magnetic Border</span>
-              </div>
-              <p className="text-xs font-mono opacity-70 mb-4">
-                Card with perimeter chip lattice that pushes away as cursor hovers.
-              </p>
-            </div>
-            <div className="py-2 flex justify-center">
-              <PaperDotCard
-                title="Analog No. 04"
-                subtitle="Risograph Print"
-                palette={activePalette}
-                dotShape={globalDotShape}
-                width={240}
-                height={130}
-              >
-                <div className="flex justify-between items-center text-[10px] font-mono opacity-80 mt-2">
-                  <span>Edition 42/100</span>
-                  <span className="font-bold" style={{ color: activePalette.secondary }}>Available</span>
-                </div>
-              </PaperDotCard>
-            </div>
-            <span className="text-[11px] font-mono opacity-50 text-center">Hover border for magnetism</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Built for Julian Showcase (Theme: Build for a Friend) */}
-      <section className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
-        <div
-          className="rounded-3xl p-8 md:p-12 shadow-xs transition-colors"
-          style={{
-            backgroundColor: activePalette.cardBg,
-            border: `1px solid ${activePalette.border}`,
-            color: activePalette.dark,
-          }}
-        >
-          <div className="flex flex-col md:flex-row gap-8 items-start justify-between mb-8">
-            <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-pink-500/10 text-pink-600 mb-3">
-                <Heart className="w-3.5 h-3.5 fill-current" />
-                <span>The Story Behind PaperDots UI</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold font-mono tracking-tight mb-4">
-                "Built for Julian" — The Tactile Digital Zine
-              </h2>
-              <p className="text-sm md:text-base opacity-85 leading-relaxed">
-                Julian runs an independent risograph press and wanted to create an interactive web portfolio
-                called <em>"Analog Futures"</em>. But every modern frontend library looks like a corporate SaaS dashboard.
-                Julian asked: <em>"Why can't my buttons feel like paper chips or wet ink on heavy cotton paper?"</em>
-              </p>
-              <p className="text-sm md:text-base opacity-85 leading-relaxed mt-3">
-                Here is the actual interactive zine widget built for Julian using <strong>PaperDots UI</strong>:
-              </p>
-            </div>
-
-            {/* Julian's Interactive Zine Widget */}
-            <div
-              className="w-full md:w-[330px] rounded-2xl p-6 shadow-xs border"
-              style={{
-                backgroundColor: activePalette.background,
-                borderColor: activePalette.border,
-                color: activePalette.dark,
-              }}
-            >
-              <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: activePalette.border }}>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: activePalette.secondary }}>
-                  Analog Futures #03
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">
-                  Oct 2026
-                </span>
-              </div>
-
-              <h4 className="font-bold font-mono text-base mb-1">Sonic Architecture</h4>
-              <p className="text-xs font-mono opacity-70 mb-4">An interview on analog synthesizers and paper acoustics.</p>
-
-              {/* Interactive Player Controls */}
-              <div className="bg-black/5 p-4 rounded-xl flex flex-col items-center gap-3 mb-4">
-                <PaperDotMorph
-                  shape={zineAudioPlaying ? 'pause' : 'play'}
-                  size={64}
-                  palette={activePalette}
-                  dotShape={globalDotShape}
-                  burstIntensity={globalBurstMode}
-                  onClick={() => setZineAudioPlaying(!zineAudioPlaying)}
-                />
-                <span className="text-[11px] font-mono font-bold">
-                  {zineAudioPlaying ? 'Playing Audio Commentary...' : 'Tap Play to Listen'}
-                </span>
-                <PaperDotSlider
-                  value={sliderVal}
-                  onChange={setSliderVal}
-                  palette={activePalette}
-                  dotShape={globalDotShape}
-                  width={180}
-                  height={36}
-                />
-              </div>
-
-              {/* Progress & Like Button */}
-              <div className="flex flex-col gap-3 pt-2 border-t" style={{ borderColor: activePalette.border }}>
-                <PaperDotProgress
-                  value={zineLikes % 100}
-                  palette={activePalette}
-                  dotShape={globalDotShape}
-                  label="Community Reader Energy"
-                  width={280}
-                />
-                <div className="flex items-center justify-between">
-                  <PaperDotButton
-                    label={`❤ Like (${zineLikes})`}
-                    palette={activePalette}
-                    dotShape={globalDotShape}
-                    burstIntensity={globalBurstMode}
-                    width={140}
-                    height={40}
-                    onClick={() => {
-                      setZineLikes(zineLikes + 1);
-                      TactileAudio.playPop(520);
-                    }}
-                  />
-                  <span className="text-[10px] font-mono opacity-60">Handmade UI</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t pt-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono opacity-80" style={{ borderColor: activePalette.border }}>
-            <div>✦ "Now my digital zine feels like it was pressed by hand." — Julian</div>
-            <div className="font-bold text-pink-600">#hf26challenge #weekendchallenge</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Thinking Machines Tinker Benchmark & Open Innovation Section */}
+      {/* SECTION 6: Thinking Machines Tinker Benchmark & Open Innovation Section */}
       <section id="benchmark" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
@@ -1558,6 +1778,117 @@ export const MyComponent = () => {
             <p className="text-xs font-mono opacity-70 leading-relaxed">
               Hosted seamlessly on Render using the $50 Hacktoberfest partner credits, with high-availability static assets and backend inference.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: Built for Julian Showcase (Theme: Build for a Friend) */}
+      <section id="story" className="py-14 px-6 max-w-5xl mx-auto border-t" style={{ borderColor: activePalette.border }}>
+        <div
+          className="rounded-3xl p-8 md:p-12 shadow-xs transition-colors"
+          style={{
+            backgroundColor: activePalette.cardBg,
+            border: `1px solid ${activePalette.border}`,
+            color: activePalette.dark,
+          }}
+        >
+          <div className="flex flex-col md:flex-row gap-8 items-start justify-between mb-8">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-pink-500/10 text-pink-600 mb-3">
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span>The Story Behind PaperDots UI</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold font-mono tracking-tight mb-4">
+                "Built for Julian" — The Tactile Digital Zine
+              </h2>
+              <p className="text-sm md:text-base opacity-85 leading-relaxed">
+                Julian runs an independent risograph press and wanted to create an interactive web portfolio
+                called <em>"Analog Futures"</em>. But every modern frontend library looks like a corporate SaaS dashboard.
+                Julian asked: <em>"Why can't my buttons feel like paper chips or wet ink on heavy cotton paper?"</em>
+              </p>
+              <p className="text-sm md:text-base opacity-85 leading-relaxed mt-3">
+                Here is the actual interactive zine widget built for Julian using <strong>PaperDots UI</strong>:
+              </p>
+            </div>
+
+            {/* Julian's Interactive Zine Widget */}
+            <div
+              className="w-full md:w-[330px] rounded-2xl p-6 shadow-xs border"
+              style={{
+                backgroundColor: activePalette.background,
+                borderColor: activePalette.border,
+                color: activePalette.dark,
+              }}
+            >
+              <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: activePalette.border }}>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: activePalette.secondary }}>
+                  Analog Futures #03
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">
+                  Oct 2026
+                </span>
+              </div>
+
+              <h4 className="font-bold font-mono text-base mb-1">Sonic Architecture</h4>
+              <p className="text-xs font-mono opacity-70 mb-4">An interview on analog synthesizers and paper acoustics.</p>
+
+              {/* Interactive Player Controls with living equalizer */}
+              <div className="bg-black/5 p-4 rounded-xl flex flex-col items-center gap-3 mb-4">
+                <PaperDotMorph
+                  shape={morphPlaying ? 'pause' : 'play'}
+                  isPlaying={morphPlaying}
+                  size={64}
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  burstIntensity={globalBurstMode}
+                  onClick={() => setMorphPlaying(!morphPlaying)}
+                />
+                <span className="text-[11px] font-mono font-bold">
+                  {morphPlaying ? 'Playing Audio Commentary (Living Equalizer)' : 'Paused (Crystalline Alignment)'}
+                </span>
+                <PaperDotSlider
+                  value={sliderVal}
+                  onChange={setSliderVal}
+                  animationType="elastic-string"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={180}
+                  height={36}
+                />
+              </div>
+
+              {/* Progress & Like Button */}
+              <div className="flex flex-col gap-3 pt-2 border-t" style={{ borderColor: activePalette.border }}>
+                <PaperDotProgress
+                  value={zineLikes % 100}
+                  animationType="capillary-bleed"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  label="Community Reader Energy"
+                  width={280}
+                />
+                <div className="flex items-center justify-between">
+                  <PaperDotButton
+                    label={`❤ Like (${zineLikes})`}
+                    palette={activePalette}
+                    dotShape={globalDotShape}
+                    burstIntensity={globalBurstMode}
+                    animationType="hydraulic-pop"
+                    width={140}
+                    height={40}
+                    onClick={() => {
+                      setZineLikes(zineLikes + 1);
+                    }}
+                  />
+                  <span className="text-[10px] font-mono opacity-60">Handmade UI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono opacity-80" style={{ borderColor: activePalette.border }}>
+            <div>✦ "Now my digital zine feels like it was pressed by hand." — Julian</div>
+            <div className="font-bold text-pink-600">#hf26challenge #weekendchallenge</div>
           </div>
         </div>
       </section>

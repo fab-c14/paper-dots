@@ -1,14 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, BadgeAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
+import { TactileAudio } from '../audio';
 
 export interface PaperDotBadgeProps {
   label: string;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   variant?: 'primary' | 'secondary' | 'outline';
+  animationType?: BadgeAnimationType;
   dotPulse?: boolean;
   className?: string;
   onClick?: () => void;
@@ -17,8 +19,9 @@ export interface PaperDotBadgeProps {
 export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
   label,
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
   variant = 'primary',
+  animationType = 'beacon-pulse',
   dotPulse = true,
   className = '',
   onClick,
@@ -90,8 +93,16 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
 
       const d = dotRef.current[0];
       if (d) {
-        const pulse = dotPulse ? (Math.sin(time) + 1) * 0.5 : 0;
-        const currentRad = d.radius + pulse * 1.0;
+        let currentRad = d.radius;
+        if (dotPulse && animationType === 'beacon-pulse') {
+          const pulse = (Math.sin(time * 2) + 1) * 0.6;
+          currentRad = d.radius + pulse * 1.2;
+        } else if (animationType === 'float-drift') {
+          d.y = d.targetY + Math.sin(time) * 1.5;
+        } else if (animationType === 'shimmer-wave') {
+          d.opacity = 0.5 + Math.sin(time * 3) * 0.45;
+        }
+
         PaperTextureGenerator.drawInkDot(ctx, d.x, d.y, currentRad, d.color, d.opacity, true, dotShape);
       }
 
@@ -104,22 +115,37 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [dotPulse, dotShape]);
+  }, [width, height, dotShape, dotPulse, animationType]);
+
+  const handleClick = () => {
+    TactileAudio.playPop(620);
+    DotPhysicsEngine.triggerHydraulicPop(dotRef.current, 12, 12, 10);
+    if (onClick) onClick();
+  };
+
+  const getBadgeStyle = () => {
+    const base = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold select-none cursor-pointer';
+    return base;
+  };
 
   return (
     <div
-      onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold select-none cursor-pointer transition-transform active:scale-95 ${className}`}
+      className={`${getBadgeStyle()} ${className}`}
+      onClick={handleClick}
       style={{
-        backgroundColor: palette.cardBg || palette.background,
+        backgroundColor: palette.cardBg,
+        border: `1px solid ${palette.border}`,
         color: palette.dark,
-        border: `1px solid ${palette.border || 'rgba(0,0,0,0.1)'}`,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       }}
-      onMouseEnter={() => { pointerRef.current.isInside = true; }}
-      onMouseLeave={() => { pointerRef.current.isInside = false; }}
     >
-      <canvas ref={canvasRef} width={width} height={height} className="w-4 h-4" />
+      <div className="relative w-4 h-4 flex items-center justify-center">
+        <canvas
+          ref={canvasRef}
+          width={width}
+          height={height}
+          className="w-full h-full pointer-events-none"
+        />
+      </div>
       <span>{label}</span>
     </div>
   );

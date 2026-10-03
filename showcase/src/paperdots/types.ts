@@ -28,6 +28,9 @@ export interface Dot {
   scatterVy?: number;
   isScattered?: boolean;
   scatterTime?: number;
+  // Animation state tags
+  delayFrames?: number;
+  phaseOffset?: number;
 }
 
 export interface SpringConfig {
@@ -62,6 +65,55 @@ export interface RisographPalette {
 }
 
 export type PresetShape = 'circle' | 'square' | 'heart' | 'star' | 'play' | 'pause' | 'check' | 'arrow';
+
+// Distinct animation types for each component
+export type ButtonAnimationType =
+  | 'hydraulic-pop'
+  | 'ripple-wave'
+  | 'stamp-press'
+  | 'confetti-drift'
+  | 'particle-vortex'
+  | 'micro-chatter';
+
+export type MorphAnimationType =
+  | 'vortex-morph'
+  | 'equalizer-wave'
+  | 'crystalline-snap';
+
+export type SliderAnimationType =
+  | 'elastic-string'
+  | 'ink-dilation'
+  | 'magnetic-tick';
+
+export type ToggleAnimationType =
+  | 'cylinder-roll'
+  | 'page-flip'
+  | 'slingshot-snap';
+
+export type ProgressAnimationType =
+  | 'capillary-bleed'
+  | 'domino-cascade'
+  | 'strobe-pulse';
+
+export type BadgeAnimationType =
+  | 'beacon-pulse'
+  | 'shimmer-wave'
+  | 'float-drift';
+
+export type InputAnimationType =
+  | 'typewriter-recoil'
+  | 'focus-halo'
+  | 'perimeter-wave';
+
+export type LoaderAnimationType =
+  | 'constellation'
+  | 'sinusoidal-wheel'
+  | 'ink-bloom';
+
+export type CardAnimationType =
+  | 'magnetic-deflection'
+  | 'corner-lift'
+  | 'border-chase';
 
 export interface ComponentConfig {
   width: number;

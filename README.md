@@ -1,10 +1,10 @@
 # 🎨 PaperDots UI (`PaperDots.js`)
-### Tactile 2D Paper & Ink-Dot Physics for the Living Web — with Shadcn UI Integration
+### Tactile 2D Paper & Ink-Dot Physics with Distinct Per-Component Animations & Shadcn Registry CLI
 #### Built for Julian • Hacktoberfest Weekend Challenge 2026: *Build for a Friend*
 
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026_Live-FF7849?style=flat-square)](https://dev.to/challenges)
 [![Challenge](https://img.shields.io/badge/Theme-Build_for_a_Friend-FF48B0?style=flat-square)](https://dev.to/challenges)
-[![Shadcn UI](https://img.shields.io/badge/Shadcn_UI-Drop--In_Compatible-000000?style=flat-square&logo=shadcnui)](https://ui.shadcn.com)
+[![Shadcn CLI](https://img.shields.io/badge/Shadcn_CLI-Installable_Registry-000000?style=flat-square&logo=shadcnui)](https://ui.shadcn.com)
 [![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render)](https://render.com)
 [![Thinking Machines Tinker](https://img.shields.io/badge/Fine--Tuned_with-Tinker-0078BF?style=flat-square)](https://thinkingmachines.ai)
 [![Open Model](https://img.shields.io/badge/Core_Model-Google_Gemma_2-4285F4?style=flat-square&logo=google)](https://ai.google.dev/gemma)
@@ -21,69 +21,112 @@ When Julian set out to build an interactive web portfolio and digital zine calle
 Julian asked a simple question:
 > *"Why can't interactive web elements feel like living ink on heavy, unbleached cotton paper? Why can't a button burst into paper confetti or square chips when tapped, or an audio slider feel like physical ink beads on a paper thread?"*
 
-**PaperDots UI** solves this exact problem: a high-performance (locked 60 FPS), zero-heavy-engine tactile 2D paper UI library, with **Shadcn UI drop-in support**, backed by an open-source AI engine fine-tuned with **Thinking Machines' Tinker** that lets Julian describe components in plain English and instantly compiles them into interactive, living physical elements.
+**PaperDots UI** solves this exact problem: a high-performance (locked 60 FPS), zero-heavy-engine tactile 2D paper UI library, with **Shadcn Registry CLI installation**, **distinct per-component animations**, deep customization knobs, and an open-weight Gemma AI engine fine-tuned with **Thinking Machines' Tinker**.
 
 ---
 
-## ✨ Features & Component Suite (10 Components + Shadcn Drop-In)
+## 🚀 Quick Install (Shadcn CLI & PaperDots CLI)
 
-- **Square Chips, Circles & Diamonds**: Seamlessly toggle between tactile square paper chips (mosaic/pixel cutouts), classic stippled ink dots, and 45° angled risograph screen diamonds. Defaulted to square paper chips.
-- **Drop-In Shadcn UI Integration**: Full compatibility with modern Shadcn projects using `class-variance-authority` (`cva`), `clsx`, and `tailwind-merge` (`cn()`). Drop in `components/ui/paper-button.tsx`, `paper-badge.tsx`, `paper-input.tsx`, etc.
-- **Snappy Spring Physics (Zero Stuck State)**: Restoring Hooke's spring dynamics with automatic damping decay. Capped gentle pops and confetti that settle back smoothly in under 350ms.
-- **Paper Studio Deep Customizer**: Live real-time sliders to customize chip radius (1.4px – 4.5px), grid spacing (5px – 12px), spring stiffness ($K = 0.10 - 0.36$), and damping ratio ($0.70 - 0.90$).
-- **Synthesized Web Audio Haptics**: Built-in procedural typewriter clicks, paper rustles, and soft ink pops using the Web Audio API without external audio files.
-- **100% Light Tactile Printmaker Palettes (No Dark UI)**:
-  - *Risograph Classic* (Federal Blue, Fluorescent Pink, Warm Newsprint `#FAF7F0`)
-  - *Warm Zine Press* (Coral Ink, Forest Green, Tactile Parchment `#F5EFE6`)
-  - *Pastel Risograph* (Coral Pink, Pastel Sky Blue, Cream Cotton `#FFF9F5`)
-  - *Botanical & Ochre* (Terracotta Ochre, Sage Leaf Green, French Milled Paper `#F8F5EE`)
-  - *Matcha & Ink* (Deep Moss, Clay Ochre, Rice Paper `#F2F6F3`)
-  - *Monochrome Letterpress* (Heavy Lead Black, Midtone Grey, Cotton Paper `#F8F7F4`)
-  - *Nordic Linen Print* (Cobalt Press Blue, Nordic Amber, Unbleached Linen `#F6F8FA`)
-  - *Kraft & Rubber Stamp* (Postal Kraft Paper `#EADBCA`, Stamp Red, Postal Petrol)
-- **10 Tactile Components**:
-  1. `PaperDotButton`: Stippled ink / square chip cluster with hover ripple and hydraulic pop on tap.
-  2. `PaperDotSlider`: Kinetic string of ink beads with physical drag tension and tactile value snapping.
-  3. `PaperDotToggle`: Binary switch where dots roll across states with spring momentum.
-  4. `PaperDotMorph`: Shape-shifting particle lattice that smoothly transforms 90 physical particles between 7 silhouettes (*Heart ↔ Star ↔ Play ↔ Pause ↔ Check ↔ Arrow ↔ Circle*).
-  5. `PaperDotLoader`: Sinusoidal orbital constellation with ink bleed breathing.
-  6. `PaperDotCard`: Tactile paper container with dynamic perimeter dots that react to cursor magnetism.
-  7. `PaperDotCanvas`: Living background grid with organic paper grain and fluid mouse displacement.
-  8. `PaperDotBadge`: Tactile pill status tag with live pulsing paper chips.
-  9. `PaperDotProgress`: Segmented paper progress bar / meter composed of physical chips that light up.
-  10. `PaperDotInput`: Interactive text input field with dynamic reactive paper chip borders.
-
----
-
-## 🧩 Shadcn UI Drop-In Usage
-
-PaperDots components wrap cleanly around Shadcn patterns.
-
+### Option 1: Install via Shadcn CLI
 ```bash
-# 1. In your Shadcn project, copy the paper components
-cp -r showcase/src/paperdots/shadcn components/ui/
+# Add any component directly into your components/ui directory:
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-slider.json
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-toggle.json
 ```
 
+### Option 2: Install via PaperDots CLI
+```bash
+# Install individual component
+npx paperdots-ui add button
+
+# Or install the full 10-component suite
+npx paperdots-ui add --all
+```
+
+### Option 3: Install via NPM / PNPM
+```bash
+npm install paperdots-ui
+```
+
+---
+
+## ✨ Distinct Per-Component Animations Matrix
+
+Every component in PaperDots UI features **tailored, unique physical animations**:
+
+| Component | Distinct Animation Types | Physical Behavior |
+| :--- | :--- | :--- |
+| **`PaperDotButton`** | `hydraulic-pop`<br>`ripple-wave`<br>`stamp-press`<br>`confetti-drift`<br>`particle-vortex`<br>`micro-chatter` | • Radial hydraulic burst snapping in &lt;350ms<br>• Circular travelling wave radiating from click<br>• Letterpress mechanical impact & bounce<br>• Upward eruptive paper chip drift<br>• Cyclone swirling around cursor<br>• Vintage typewriter carriage tremor |
+| **`PaperDotMorph`** | `equalizer-wave`<br>`crystalline-snap`<br>`vortex-morph` | • **Play mode**: Living acoustic equalizer wave oscillation<br>• **Pause mode**: Crystalline geometric freeze brake<br>• **Morphing**: Ink vortex swirling transition between 7 shapes |
+| **`PaperDotSlider`** | `elastic-string`<br>`ink-dilation`<br>`magnetic-tick` | • Elastic catenary curve string bowing with drag tension<br>• Dynamic velocity-based ink bleed and radius expansion<br>• Tactile notch snap with micro-shock tremors |
+| **`PaperDotToggle`** | `cylinder-roll`<br>`page-flip`<br>`slingshot-snap` | • Tangential angular rolling of ink chips<br>• Vertical crease collapse simulating folded zine page turn<br>• Rubber band windup and high-velocity snap |
+| **`PaperDotProgress`** | `domino-cascade`<br>`capillary-bleed`<br>`strobe-pulse` | • Sequential jumping domino chip cascade<br>• Capillary ink bleed spreading along the track<br>• Traveling harmonic light wave |
+| **`PaperDotInput`** | `typewriter-recoil`<br>`focus-halo`<br>`perimeter-wave` | • Acoustic carriage recoil on every keystroke<br>• Breathing margin expansion when input is focused<br>• Perimeter particle shockwave |
+| **`PaperDotBadge`** | `beacon-pulse`<br>`shimmer-wave`<br>`float-drift` | • Rhythmic radiant beacon pulse<br>• Diagonal paper grain light sweep<br>• Buoyant floating paper leaf |
+| **`PaperDotLoader`** | `constellation`<br>`sinusoidal-wheel`<br>`ink-bloom` | • Orbital constellation with sinusoidal ink bleed breathing |
+| **`PaperDotCard`** | `magnetic-deflection`<br>`corner-lift`<br>`border-chase` | • Perimeter chip lattice with magnetic cursor repulsion |
+
+---
+
+## 🎨 100% Light Tactile Printmaker Palettes (No Dark UI)
+
+All dark themes have been completely eliminated in favor of 8 authentic printmaker paper aesthetics:
+
+- **Risograph Classic**: Federal Blue & Fluorescent Pink on unbleached warm newsprint (`#FAF7F0`)
+- **Warm Zine Press**: Coral & Forest Green on tactile parchment (`#F5EFE6`)
+- **Pastel Risograph**: Coral Pink & Sky Blue on cream cotton (`#FFF9F5`)
+- **Botanical & Ochre**: Terracotta Ochre & Sage Green on French milled paper (`#F8F5EE`)
+- **Matcha & Ink**: Deep Moss & Clay Ochre on rice paper (`#F2F6F3`)
+- **Monochrome Letterpress**: Heavy Lead Black on heavy cotton rag (`#F8F7F4`)
+- **Nordic Linen Print**: Cobalt Blue & Amber on unbleached linen (`#F6F8FA`)
+- **Kraft & Rubber Stamp**: Post Office Red & Petrol Teal on raw postal kraft (`#EADBCA`)
+
+---
+
+## 🛠️ Usage Example
+
 ```tsx
-import { Button } from "@/components/ui/paper-button";
-import { Badge } from "@/components/ui/paper-badge";
-import { Input } from "@/components/ui/paper-input";
+import { 
+  PaperDotButton, 
+  PaperDotMorph, 
+  PaperDotSlider, 
+  PaperDotProgress, 
+  PALETTES 
+} from 'paperdots-ui';
 
-export function ZineEditor() {
+export function ZineApp() {
+  const [isPlaying, setIsPlaying] = React.useState(true);
+  const [volume, setVolume] = React.useState(75);
+
   return (
-    <div className="p-8 space-y-4">
-      {/* Kinetic Paper Button with Square Chips */}
-      <Button variant="paper-kinetic" dotShape="square" burstIntensity="gentle">
-        Publish to Risograph
-      </Button>
+    <div style={{ background: PALETTES.risographClassic.background }}>
+      {/* Living Morph Play/Pause with Equalizer Wave */}
+      <PaperDotMorph
+        shape={isPlaying ? 'pause' : 'play'}
+        isPlaying={isPlaying}
+        dotShape="square"
+        size={80}
+        onClick={() => setIsPlaying(!isPlaying)}
+      />
 
-      {/* Kinetic Status Badge */}
-      <Badge variant="paper-kinetic" dotShape="square">
-        Edition 03 Live
-      </Badge>
+      {/* Button with Custom Hydraulic Pop */}
+      <PaperDotButton
+        label="Publish Zine"
+        dotShape="square"
+        animationType="hydraulic-pop"
+        burstIntensity="gentle"
+        onClick={() => console.log('Published!')}
+      />
 
-      {/* Input with Kinetic Particle Border */}
-      <Input withKineticBorder placeholder="Enter zine title..." />
+      {/* Elastic String Slider */}
+      <PaperDotSlider
+        value={volume}
+        onChange={setVolume}
+        animationType="elastic-string"
+        dotShape="square"
+        label="Monitor Volume"
+      />
     </div>
   );
 }
@@ -114,57 +157,6 @@ Evaluating representative generative UI prompts:
 
 ---
 
-## 🚀 Quickstart
-
-### 1. Installation
-
-```bash
-git clone https://github.com/your-username/paperdots-ui.git
-cd paperdots-ui/showcase
-npm install
-npm run dev
-```
-
-### 2. Using Standalone React Components
-
-```tsx
-import { PaperDotButton, PaperDotSlider, PaperDotMorph, PaperDotProgress, PALETTES } from 'paperdots-ui';
-
-export function ZineApp() {
-  return (
-    <div style={{ background: PALETTES.risographClassic.background }}>
-      {/* Square-Chip Button */}
-      <PaperDotButton
-        label="Publish Zine"
-        dotShape="square"
-        burstIntensity="gentle"
-        palette={PALETTES.risographClassic}
-        onClick={() => console.log('Zine published!')}
-      />
-
-      {/* Elastic Bead Slider */}
-      <PaperDotSlider
-        value={65}
-        dotShape="square"
-        onChange={(val) => console.log('Volume:', val)}
-        label="Ink Bleed"
-        palette={PALETTES.risographClassic}
-      />
-
-      {/* Segmented Progress Meter */}
-      <PaperDotProgress
-        value={80}
-        dotShape="square"
-        label="Transfer"
-        palette={PALETTES.risographClassic}
-      />
-    </div>
-  );
-}
-```
-
----
-
 ## 🛠️ Deploying to Render ($50 Hacktoberfest Credits)
 
 The repository includes a production-ready `render.yaml` blueprint:
@@ -173,7 +165,7 @@ The repository includes a production-ready `render.yaml` blueprint:
 2. Log into your [Render Dashboard](https://dashboard.render.com).
 3. Click **New +** → **Blueprint**, and select this repository.
 4. Render will automatically provision:
-   - **Static Site**: Fast global edge delivery for the interactive showcase and playground (`showcase/dist`).
+   - **Static Site**: Fast global edge delivery for the interactive showcase, installation hub, and registry (`showcase/dist`).
    - **Python Web Service**: The FastAPI open-model AI compiler runtime (`api/main.py`).
 
 ---

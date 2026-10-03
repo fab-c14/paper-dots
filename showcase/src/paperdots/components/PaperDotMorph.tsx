@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, PresetShape, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, PresetShape, RisographPalette, DotGeometry, MorphAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { ShapeGenerator } from '../shapes';
 import { PaperTextureGenerator } from '../paper-texture';
@@ -13,6 +13,8 @@ export interface PaperDotMorphProps {
   dotShape?: DotGeometry;
   dotCount?: number;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
+  animationType?: MorphAnimationType;
+  isPlaying?: boolean;
   className?: string;
   onClick?: () => void;
 }
@@ -21,15 +23,18 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
   shape,
   size = 120,
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
   dotCount = 90,
   burstIntensity = 'gentle',
+  animationType = 'vortex-morph',
+  isPlaying = false,
   className = '',
   onClick,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dotsRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
+  const frameCountRef = useRef<number>(0);
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -76,14 +81,18 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     dotsRef.current = dots;
   }, [size, center, dotCount, palette, dotShape]);
 
-  // Update target points when shape changes
+  // Update target points when shape changes with distinct vortex swirl transition
   useEffect(() => {
     TactileAudio.playClick(720);
     const newPoints = ShapeGenerator.getShapePoints(shape, center, center, size * 0.42, dotCount);
-    DotPhysicsEngine.morphTargets(dotsRef.current, newPoints);
-  }, [shape, center, size, dotCount]);
 
-  // Animation Loop
+    if (animationType === 'vortex-morph') {
+      DotPhysicsEngine.triggerParticleVortex(dotsRef.current, center, center, 11);
+    }
+    DotPhysicsEngine.morphTargets(dotsRef.current, newPoints);
+  }, [shape, center, size, dotCount, animationType]);
+
+  // Animation Loop with Living Play/Pause and Shape Dynamics
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -94,16 +103,35 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
 
     const render = () => {
       if (!isRunning) return;
+      frameCountRef.current++;
 
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, size, size);
 
+      // Living Shape-Specific Animations:
+      // 1. Play active: Living equalizer wave
+      if (shape === 'play' || isPlaying) {
+        DotPhysicsEngine.applySonicEqualizerWave(dotsRef.current, frameCountRef.current, 0.08, 4.5);
+      }
+      // 2. Pause active: Soft crystalline breathing pulse
+      else if (shape === 'pause') {
+        DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, center, center, 0.04, 2.5);
+      }
+      // 3. Heart shape: Gentle organic heartbeat pulse
+      else if (shape === 'heart') {
+        const beatCycle = frameCountRef.current % 75;
+        const pulse = (beatCycle > 10 && beatCycle < 22) || (beatCycle > 30 && beatCycle < 40) ? 2.8 : 0;
+        DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, center, center, 0.1, pulse);
+      }
+
+      // Physics update
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: 0.20,
         damping: 0.80,
         mass: 1.0,
       });
 
+      // Render particles
       const dots = dotsRef.current;
       for (let i = 0; i < dots.length; i++) {
         PaperTextureGenerator.drawInkDot(
@@ -127,7 +155,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, palette, dotShape]);
+  }, [size, palette, dotShape, shape, isPlaying, center]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -138,27 +166,42 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     pointerRef.current.isInside = true;
   };
 
-  const handleClick = () => {
-    TactileAudio.playPop(480);
-    if (burstIntensity !== 'none') {
-      const force = burstIntensity === 'gentle' ? 8 : 14;
-      DotPhysicsEngine.triggerScatter(
-        dotsRef.current,
-        pointerRef.current.x || center,
-        pointerRef.current.y || center,
-        force
-      );
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const forceMult = burstIntensity === 'confetti' ? 1.4 : burstIntensity === 'none' ? 0 : 1.0;
+
+    // Distinct On-Click Animations per Shape
+    if (shape === 'play') {
+      TactileAudio.playPop(580);
+      if (forceMult > 0) DotPhysicsEngine.triggerRippleWave(dotsRef.current, clickX, clickY, 16, 11 * forceMult);
+    } else if (shape === 'pause') {
+      TactileAudio.playClick(420);
+      if (forceMult > 0) DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 8 * forceMult);
+    } else if (shape === 'heart') {
+      TactileAudio.playPop(520);
+      if (forceMult > 0) DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, 14 * forceMult);
+    } else if (shape === 'star') {
+      TactileAudio.playPop(680);
+      if (forceMult > 0) DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, 15 * forceMult);
+    } else {
+      TactileAudio.playClick(600);
+      if (forceMult > 0) DotPhysicsEngine.triggerParticleVortex(dotsRef.current, clickX, clickY, 12 * forceMult);
     }
+
     if (onClick) onClick();
   };
 
   return (
-    <div className={`relative inline-block cursor-pointer select-none ${className}`} onClick={handleClick}>
+    <div className={`relative inline-block cursor-pointer select-none ${className}`}>
       <canvas
         ref={canvasRef}
         width={size}
         height={size}
-        className="rounded-2xl shadow-sm transition-transform active:scale-95"
+        className="rounded-2xl shadow-xs transition-transform active:scale-95"
+        onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerEnter={() => { pointerRef.current.isInside = true; }}
         onPointerLeave={() => { pointerRef.current.isInside = false; }}

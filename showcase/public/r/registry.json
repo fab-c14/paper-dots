@@ -1,0 +1,106 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "paperdots-ui",
+  "homepage": "https://paperdots-ui.onrender.com",
+  "items": [
+    {
+      "name": "paper-button",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Button",
+      "description": "Tactile 2D paper button with spring kinetic physics, multiple animation modes, and Web Audio haptics.",
+      "dependencies": ["class-variance-authority", "clsx", "tailwind-merge"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "ui/paper-button.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-button.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-slider",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Slider",
+      "description": "Tactile slider with elastic string beads, ink dilation, and step notch snapping.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-slider.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-slider.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-toggle",
+      "type": "registry:ui",
+      "title": "Paper Morph Switch",
+      "description": "Tactile binary switch with cylinder-roll, page-flip, and slingshot physics.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-switch.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-switch.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-badge",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Badge",
+      "description": "Tactile pill status badge with pulsing beacon paper chips and shimmer wave animations.",
+      "dependencies": ["class-variance-authority", "clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-badge.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-badge.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-input",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Input",
+      "description": "Tactile text input field with dynamic typewriter recoil and perimeter particle wave.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-input.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-input.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-progress",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Progress",
+      "description": "Segmented paper progress bar with capillary bleed and domino cascade animations.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-progress.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-progress.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-card",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Card",
+      "description": "Tactile paper container with dynamic perimeter dots that react to cursor magnetism.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-card.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-card.tsx"
+        }
+      ]
+    }
+  ]
+}

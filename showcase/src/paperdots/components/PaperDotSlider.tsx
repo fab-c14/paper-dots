@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, SliderAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
@@ -13,6 +13,7 @@ export interface PaperDotSliderProps {
   onChange: (value: number) => void;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  animationType?: SliderAnimationType;
   width?: number;
   height?: number;
   label?: string;
@@ -26,7 +27,8 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
   step = 1,
   onChange,
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
+  animationType = 'elastic-string',
   width = 240,
   height = 48,
   label,
@@ -131,8 +133,26 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
     for (let i = 0; i < thumbDots.length; i++) {
       const r = Math.sqrt(i / thumbDots.length) * thumbRadius;
       const theta = i * 2 * Math.PI * phi;
+
+      // Elastic string vertical deflection
+      let offsetY = 0;
+      if (animationType === 'elastic-string' && isDragging) {
+        offsetY = Math.sin(progress * Math.PI) * 4;
+      }
+
       thumbDots[i].targetX = thumbX + r * Math.cos(theta);
-      thumbDots[i].targetY = centerY + r * Math.sin(theta);
+      thumbDots[i].targetY = centerY + relY(r, theta) + offsetY;
+
+      // Ink dilation effect on dragging
+      if (animationType === 'ink-dilation' && isDragging) {
+        thumbDots[i].radius = thumbDots[i].baseRadius * 1.35;
+      } else {
+        thumbDots[i].radius = thumbDots[i].baseRadius;
+      }
+    }
+
+    function relY(r: number, theta: number) {
+      return r * Math.sin(theta);
     }
 
     const trackDots = trackDotsRef.current;
@@ -145,7 +165,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
         trackDots[t].opacity = 0.5;
       }
     }
-  }, [thumbX, centerY, palette]);
+  }, [thumbX, centerY, palette, isDragging, progress, animationType]);
 
   // Animation Loop
   useEffect(() => {
@@ -237,11 +257,16 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
     const finalVal = Math.max(min, Math.min(max, steppedVal));
 
     if (finalVal !== lastValRef.current) {
-      TactileAudio.playTick();
+      if (animationType === 'magnetic-tick') {
+        TactileAudio.playClick(600);
+        DotPhysicsEngine.triggerMicroChatter(thumbDotsRef.current, 4);
+      } else {
+        TactileAudio.playTick();
+      }
       lastValRef.current = finalVal;
       onChange(finalVal);
     }
-  }, [min, max, step, onChange, paddingX, width, trackWidth]);
+  }, [min, max, step, onChange, paddingX, width, trackWidth, animationType]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -284,7 +309,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
           ref={canvasRef}
           width={width}
           height={height}
-          className="rounded-lg shadow-sm"
+          className="rounded-lg shadow-xs"
         />
       </div>
     </div>

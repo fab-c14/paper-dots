@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper-button",
+  "type": "registry:ui",
+  "title": "Paper Kinetic Button",
+  "description": "Tactile 2D paper button with spring kinetic physics, multiple animation modes, and Web Audio haptics.",
+  "dependencies": ["class-variance-authority", "clsx", "tailwind-merge"],
+  "files": [
+    {
+      "path": "ui/paper-button.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/paper-button.tsx",
+      "content": "import * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { cn } from \"@/lib/utils\";\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-mono font-bold transition-all focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 select-none cursor-pointer\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-[#0078BF] text-white shadow-xs hover:bg-[#0078BF]/90 active:scale-97\",\n        secondary: \"bg-[#F5EFE6] text-[#212121] border border-black/10 hover:bg-[#EADBCA] active:scale-97\",\n        outline: \"border border-black/15 bg-white text-black shadow-xs hover:bg-black/5 active:scale-97\",\n        \"paper-kinetic\": \"p-0 bg-transparent border-none shadow-none\",\n      },\n      size: {\n        default: \"h-11 px-5 py-2\",\n        sm: \"h-9 rounded-lg px-3 text-xs\",\n        lg: \"h-12 rounded-xl px-8 text-base\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  }\n);\n\nexport interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {\n  dotShape?: 'circle' | 'square' | 'diamond';\n  burstIntensity?: 'none' | 'gentle' | 'confetti';\n  animationType?: 'hydraulic-pop' | 'ripple-wave' | 'stamp-press' | 'confetti-drift' | 'particle-vortex' | 'micro-chatter';\n}\n\nexport const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant = \"default\", size = \"default\", children, ...props }, ref) => {\n  return (\n    <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>\n      {children}\n    </button>\n  );\n});\nButton.displayName = \"Button\";\nexport { buttonVariants };"
+    }
+  ]
+}

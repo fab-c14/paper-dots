@@ -1,0 +1,32 @@
+{
+  "name": "paperdots-ui",
+  "version": "1.0.0",
+  "description": "Tactile 2D paper & ink-dot physics UI library with square chips, Shadcn registry support, and Web Audio haptics.",
+  "main": "showcase/src/paperdots/index.ts",
+  "bin": {
+    "paperdots-ui": "./scripts/paperdots-cli.js",
+    "paperdots": "./scripts/paperdots-cli.js"
+  },
+  "scripts": {
+    "dev": "npm --prefix showcase run dev",
+    "build": "npm --prefix showcase run build",
+    "cli": "node ./scripts/paperdots-cli.js"
+  },
+  "keywords": [
+    "ui",
+    "components",
+    "shadcn",
+    "paper",
+    "tactile",
+    "canvas",
+    "physics",
+    "risograph",
+    "hacktoberfest2026"
+  ],
+  "author": "Fab-c & Julian",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fab-c14/paperdots-ui"
+  }
+}

@@ -1,7 +1,7 @@
 ---
-title: "PaperDots UI: Tactile 2D Paper & Ink-Dot Physics with Shadcn Support (Built for Julian)"
+title: "PaperDots UI: Tactile 2D Paper & Ink-Dot Physics with Shadcn Registry CLI (Built for Julian)"
 published: false
-description: "Built for my friend Julian—a risograph printmaker who refused sterile corporate rectangles. An open-source 2D tactile paper UI library with square chips, Shadcn drop-in integration, and open-weight Gemma & Tinker AI at its core, deployed on Render."
+description: "Built for my friend Julian—a risograph printmaker who refused sterile corporate rectangles. An installable 2D tactile paper UI library with square chips, Shadcn registry CLI support, distinct per-component animations, and open-weight Gemma & Tinker AI at its core, deployed on Render."
 tags: "hf26challenge, weekendchallenge, devchallenge, opensource"
 cover_image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80"
 series: "Hacktoberfest 2026 Weekend Challenge"
@@ -24,39 +24,90 @@ Julian pulled up their laptop, scrolled through several popular component librar
 
 Julian isn't a shader engineer or math programmer. Manually writing numerical spring physics, Poisson-disc stippling, and canvas particle renderers from scratch was an impossible hurdle.
 
-So for this Hacktoberfest Weekend Challenge, I built **PaperDots UI** (`PaperDots.js`) specifically for Julian: a 100% light, tactile paper UI library with **square chips**, **Shadcn UI drop-in support**, deep physical customization knobs, and **open-weight Gemma fine-tuned with Thinking Machines' Tinker** at its core.
+So for this Hacktoberfest Weekend Challenge, I built **PaperDots UI** (`PaperDots.js`) specifically for Julian: a 100% light, tactile paper UI library that is **directly installable via Shadcn CLI or PaperDots CLI**, featuring **distinct per-component animations**, deep customization knobs, and **open-weight Gemma fine-tuned with Thinking Machines' Tinker** at its core.
 
 ---
 
-## 2. What We Built: 10 Living Components, Shadcn Support & Deep Customization 🛠️
+## 2. Installable via CLI & Shadcn Registry 🚀
 
-**PaperDots UI** is a lightweight, zero-heavy-game-engine 2D tactile paper UI and animation library. Every component is rendered at a locked 60 FPS on HTML5 Canvas using Hooke's spring dynamics, procedural paper grain textures, and authentic Risograph colorways.
+Instead of static code comparisons, PaperDots UI is designed to be **directly installed** into modern projects:
 
-### Key Capabilities:
-- **Square Paper Chips by Default**: Choose between tactile square paper chips (mosaic/pixel cutouts), classic stippled ink dots, or 45° risograph screen diamonds.
-- **Drop-In Shadcn UI Integration**: Full compatibility with modern Shadcn projects using `cva` and `cn()`. Drop in `components/ui/paper-button.tsx`, `paper-badge.tsx`, `paper-input.tsx`, etc.
-- **Snappy Return Physics (Zero Stuck State)**: Restoring Hooke's spring dynamics with automatic damping decay. Capped gentle pops that recover elastically in under 350ms with zero stuck state.
-- **Paper Studio Deep Customizer**: Live real-time sliders to customize chip radius (1.4px – 4.5px), grid spacing (5px – 12px), spring stiffness ($K = 0.10 - 0.36$), and damping ratio ($0.70 - 0.90$).
-- **Synthetic Web Audio Haptics**: Procedural typewriter clicks, paper rustles, and soft ink pops synthesized live in the browser via the Web Audio API with zero external audio files.
-- **100% Light Tactile Printmaker Palettes (No Dark UI)**: Strictly warm, tactile, light paper palettes: *Risograph Classic, Warm Zine Press, Pastel Risograph, Botanical & Ochre, Matcha & Ink, Monochrome Letterpress, Nordic Linen, Kraft & Rubber Stamp*.
+```bash
+# 1. Install via Shadcn Registry:
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
+npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-slider.json
 
-### The 10 Living Components:
-1. **`PaperDotButton`**: Hand-stippled ink dot / square chip cluster. Ripples under mouse movement and pops on tap before spring tension pulls it back into shape.
-2. **`PaperDotSlider`**: Kinetic string of ink beads with physical drag tension and tactile snapping for audio faders or opacity.
-3. **`PaperDotToggle`**: Binary switch where dots roll across states with spring momentum.
-4. **`PaperDotMorph`**: Shape-shifting particle lattice that smoothly transforms 90 physical particles between 7 silhouettes (*Heart ↔ Star ↔ Play ↔ Pause ↔ Check ↔ Arrow ↔ Circle*).
-5. **`PaperDotLoader`**: Hypnotic orbital constellation with sinusoidal ink bleed breathing.
-6. **`PaperDotCard`**: Tactile paper sheet with dynamic perimeter dots that push away under cursor magnetism.
-7. **`PaperDotCanvas`**: Living background grid with procedural paper grain and fluid mouse displacement.
-8. **`PaperDotBadge`**: Tactile pill status tag with live pulsing paper chips.
-9. **`PaperDotProgress`**: Segmented paper progress meter composed of physical chips that light up dynamically.
-10. **`PaperDotInput`**: Tactile text input field with dynamic reactive paper chip borders.
+# 2. Or install via PaperDots CLI:
+npx paperdots-ui add button
+npx paperdots-ui add --all
+
+# 3. Or install via npm:
+npm install paperdots-ui
+```
 
 ---
 
-## 3. Why Open-Source AI is at the Core 🧠
+## 3. What We Built: Distinct Animations for Every Component 🛠️
 
-The prompt for this challenge required that **open-source AI be at the core** of the project. Here is how PaperDots UI is powered by open models:
+Every component in PaperDots has its own unique, physical animation routines rather than generic effects:
+
+### Distinct Animation Matrix:
+- **`PaperDotButton`**: 6 distinct click modes:
+  - `hydraulic-pop`: Instant radial explosion with snappy spring return (&lt;350ms).
+  - `ripple-wave`: Circular traveling wave radiating outward from the cursor.
+  - `stamp-press`: Mechanical vertical impact with horizontal bulge and spring bounce.
+  - `confetti-drift`: Upward eruptive spray of paper chips that gently flutter down.
+  - `particle-vortex`: Swirling cyclone that spins around the click point.
+  - `micro-chatter`: Vintage typewriter carriage vibration on click.
+- **`PaperDotMorph`**:
+  - `equalizer-wave`: Living acoustic vertical wave oscillation across particles when in **Play** mode.
+  - `crystalline-snap`: Crystalline geometric freeze brake when **Paused**.
+  - `vortex-morph`: Swirling ink vortex when switching between 7 vector silhouettes (*Play, Pause, Heart, Star, Check, Arrow, Circle*).
+- **`PaperDotSlider`**:
+  - `elastic-string`: Beads bend along a catenary curve with elastic string drag tension.
+  - `ink-dilation`: Particles expand in radius with ink bleed as dragging velocity increases.
+  - `magnetic-tick`: Micro-shock tremors and crisp clicks at step intervals.
+- **`PaperDotToggle`**:
+  - `cylinder-roll`: Tangential momentum rolling.
+  - `page-flip`: Vertical crease collapse simulating turning a zine page.
+  - `slingshot-snap`: Rubber band windup with high-velocity snap.
+- **`PaperDotProgress`**:
+  - `domino-cascade`: Sequential jumping domino chips.
+  - `capillary-bleed`: Capillary ink bleed spreading along the track.
+  - `strobe-pulse`: Traveling harmonic light wave.
+- **`PaperDotInput`**:
+  - `typewriter-recoil`: Mechanical acoustic carriage recoil on each keystroke.
+  - `focus-halo`: Soft breathing margin expansion when active.
+  - `perimeter-wave`: Traveling perimeter shockwave.
+- **`PaperDotBadge`**:
+  - `beacon-pulse`: Radiant double-pulse beacon chip.
+  - `shimmer-wave`: Diagonal light sweep across chips.
+  - `float-drift`: Buoyant floating paper leaf.
+- **`PaperDotCard`**:
+  - `magnetic-deflection`: Perimeter chips deflect away from cursor magnetism.
+- **`PaperDotLoader`**:
+  - `constellation`: Orbital sinusoidal ink bleed constellation.
+
+---
+
+## 4. 100% Light Tactile Printmaker Palettes (No Dark UI) 🎨
+
+All dark themes have been completely eliminated in favor of 8 authentic printmaker paper aesthetics:
+
+- **Risograph Classic**: Federal Blue & Fluorescent Pink on unbleached warm newsprint (`#FAF7F0`)
+- **Warm Zine Press**: Coral & Forest Green on tactile parchment (`#F5EFE6`)
+- **Pastel Risograph**: Coral Pink & Sky Blue on cream cotton (`#FFF9F5`)
+- **Botanical & Ochre**: Terracotta Ochre & Sage Green on French milled paper (`#F8F5EE`)
+- **Matcha & Ink**: Deep Moss & Clay Ochre on rice paper (`#F2F6F3`)
+- **Monochrome Letterpress**: Heavy Lead Black on heavy cotton rag (`#F8F7F4`)
+- **Nordic Linen Print**: Cobalt Blue & Amber on unbleached linen (`#F6F8FA`)
+- **Kraft & Rubber Stamp**: Post Office Red & Petrol Teal on raw postal kraft (`#EADBCA`)
+
+---
+
+## 5. Why Open-Source AI is at the Core 🧠
+
+The prompt for this challenge required that **open-source AI be at the core** of the project:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -76,7 +127,7 @@ The prompt for this challenge required that **open-source AI be at the core** of
 │                   PaperDots Core Engine                     │
 │    - 60 FPS Canvas 2D Euler Spring Integrator               │
 │    - Procedural Paper Tooth & Ink Bleed Shaders             │
-│    - Shadcn cva & cn() Component Drop-in Adapters           │
+│    - Shadcn Registry & CLI Distribution                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -104,32 +155,32 @@ The prompt for this challenge required that **open-source AI be at the core** of
 
 ---
 
-## 4. Deployed on Render ($50 Hacktoberfest Credits) 🚀
+## 6. Deployed on Render ($50 Hacktoberfest Credits) 🚀
 
 To make PaperDots UI immediately accessible to Julian and the open-source community, we utilized the **$50 Render credits** from Hacktoberfest.
 
 Using a single `render.yaml` Infrastructure-as-Code blueprint, Render hosts:
-- **Global Edge Static Showcase**: Instant load times for the interactive React 19 playground and component documentation (`showcase/dist`).
+- **Global Edge Static Showcase**: Instant load times for the interactive React 19 playground, installation hub, and registry (`showcase/dist`).
 - **Python FastAPI Runtime**: High-throughput inference server for running model inference and benchmark evaluations (`api/main.py`).
 
 ---
 
-## 5. Handing It Over to Julian: What Happened? 🎉
+## 7. Handing It Over to Julian: What Happened? 🎉
 
 The best part of this challenge was handing the live playground over to Julian.
 
 I sent Julian the link to the interactive showcase, loaded up with the *"Analog Futures #03"* preset demo. 
 
-Julian tapped the coral square-chip button. It rippled under their trackpad and popped with a crisp paper click before snapping elastically back into place. They dragged the ink-bead volume slider, adjusted the customizer knobs to create their desired paper texture, and watched the progress meter illuminate like wet risograph ink.
+Julian tapped the coral square-chip button with **hydraulic pop**. It rippled under their trackpad and popped with a crisp paper click before snapping elastically back into place. They switched to the **living equalizer** play button, watched the chips dance to the audio commentary, and dragged the catenary string volume slider.
 
 Julian's exact words:
 > *"This is the first time the web hasn't felt like a plastic spreadsheet. Now my digital zine actually feels like it was pressed by hand."*
 
 ---
 
-## 6. Try It & Explore the Code 🔗
+## 8. Try It & Explore the Code 🔗
 
-- **GitHub Repository**: [github.com/your-username/paperdots-ui](https://github.com/your-username/paperdots-ui)
+- **GitHub Repository**: [github.com/fab-c14/paperdots-ui](https://github.com/fab-c14/paperdots-ui)
 - **Live Interactive Playground**: [paperdots-ui.onrender.com](https://paperdots-ui.onrender.com)
 - **Agent Session Transcript**: Saved and verified via DevRelay.
 

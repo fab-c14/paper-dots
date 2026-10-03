@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, ButtonAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
@@ -12,6 +12,7 @@ export interface PaperDotButtonProps {
   variant?: 'solid' | 'outline' | 'halftone';
   dotShape?: DotGeometry;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
+  animationType?: ButtonAnimationType;
   width?: number;
   height?: number;
   dotSpacing?: number;
@@ -24,8 +25,9 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
   onClick,
   palette = DEFAULT_PALETTE,
   variant = 'solid',
-  dotShape = 'circle',
+  dotShape = 'square',
   burstIntensity = 'gentle',
+  animationType = 'hydraulic-pop',
   width = 160,
   height = 52,
   dotSpacing = 7,
@@ -188,19 +190,48 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     setIsHovered(false);
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
-    TactileAudio.playPop(520);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const force = burstIntensity === 'confetti' ? 16 : burstIntensity === 'gentle' ? 10 : 0;
 
     if (burstIntensity !== 'none') {
-      const force = burstIntensity === 'gentle' ? 9 : 15;
-      DotPhysicsEngine.triggerScatter(
-        dotsRef.current,
-        pointerRef.current.x || width / 2,
-        pointerRef.current.y || height / 2,
-        force
-      );
+      switch (animationType) {
+        case 'hydraulic-pop':
+          DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
+          TactileAudio.playPop(520);
+          break;
+        case 'ripple-wave':
+          DotPhysicsEngine.triggerRippleWave(dotsRef.current, clickX, clickY, 18, 12);
+          TactileAudio.playRustle();
+          break;
+        case 'stamp-press':
+          DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 9);
+          TactileAudio.playClick(440);
+          break;
+        case 'confetti-drift':
+          DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, force + 3);
+          TactileAudio.playPop(620);
+          break;
+        case 'particle-vortex':
+          DotPhysicsEngine.triggerParticleVortex(dotsRef.current, clickX, clickY, 13);
+          TactileAudio.playClick(720);
+          break;
+        case 'micro-chatter':
+          DotPhysicsEngine.triggerMicroChatter(dotsRef.current, 8);
+          TactileAudio.playTick();
+          break;
+        default:
+          DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
+          TactileAudio.playPop(520);
+      }
+    } else {
+      TactileAudio.playClick(600);
     }
+
     if (onClick) onClick();
   };
 
@@ -236,9 +267,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         style={{
           color: palette.dark,
           fontFamily: '"Courier New", Courier, monospace',
-          textShadow: palette.background.startsWith('#1') || palette.background.startsWith('#0') 
-            ? '0 1px 4px rgba(0,0,0,0.9)' 
-            : '0 1px 2px rgba(255,255,255,0.8)',
+          textShadow: '0 1px 2px rgba(255,255,255,0.8)',
         }}
       >
         {label}

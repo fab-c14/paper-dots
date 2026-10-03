@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, InputAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { ShapeGenerator } from '../shapes';
@@ -12,6 +12,7 @@ export interface PaperDotInputProps {
   placeholder?: string;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  animationType?: InputAnimationType;
   width?: number;
   height?: number;
   className?: string;
@@ -22,7 +23,8 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
   onChange,
   placeholder = 'Type something...',
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
+  animationType = 'typewriter-recoil',
   width = 280,
   height = 46,
   className = '',
@@ -30,6 +32,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dotsRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
+  const frameCountRef = useRef<number>(0);
   const [isFocused, setIsFocused] = useState(false);
 
   const pointerRef = useRef<PointerState>({
@@ -84,10 +87,16 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
 
     const render = () => {
       if (!isRunning) return;
+      frameCountRef.current++;
 
       const bgColor = palette.cardBg || palette.background;
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
+
+      // Focus halo breathing
+      if (isFocused && animationType === 'focus-halo') {
+        DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, width / 2, height / 2, 0.08, 1.8);
+      }
 
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: 0.22,
@@ -118,45 +127,41 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette, dotShape]);
+  }, [width, height, palette, dotShape, isFocused, animationType]);
 
-  const handleKeyDown = () => {
-    TactileAudio.playClick(600 + Math.random() * 200);
-    // Micro jitter kick on dots when typing
-    const dots = dotsRef.current;
-    for (let i = 0; i < Math.min(6, dots.length); i++) {
-      const idx = Math.floor(Math.random() * dots.length);
-      dots[idx].vx += (Math.random() - 0.5) * 3;
-      dots[idx].vy += (Math.random() - 0.5) * 3;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = e.target.value;
+    onChange(newVal);
+
+    if (animationType === 'typewriter-recoil') {
+      TactileAudio.playTick();
+      DotPhysicsEngine.triggerMicroChatter(dotsRef.current, 5);
+    } else if (animationType === 'perimeter-wave') {
+      TactileAudio.playClick(700);
+      DotPhysicsEngine.triggerRippleWave(dotsRef.current, 10, height / 2, 14, 8);
     }
   };
 
   return (
-    <div
-      className={`relative inline-flex items-center overflow-hidden rounded-xl ${className}`}
-      style={{ width, height }}
-      onMouseEnter={() => { pointerRef.current.isInside = true; }}
-      onMouseLeave={() => { pointerRef.current.isInside = false; }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        pointerRef.current.x = e.clientX - rect.left;
-        pointerRef.current.y = e.clientY - rect.top;
-      }}
-    >
-      <canvas ref={canvasRef} width={width} height={height} className="absolute inset-0 pointer-events-none" />
+    <div className={`relative inline-block ${className}`} style={{ width, height }}>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        className="absolute inset-0 rounded-xl"
+        style={{ pointerEvents: 'none' }}
+      />
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => {
-          setIsFocused(true);
-          TactileAudio.playClick(500);
-        }}
+        onChange={handleInputChange}
+        onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="relative z-10 w-full h-full bg-transparent px-4 text-xs font-mono outline-none"
-        style={{ color: palette.dark }}
+        className="relative z-10 w-full h-full bg-transparent px-4 font-mono text-xs outline-none"
+        style={{
+          color: palette.dark,
+        }}
       />
     </div>
   );

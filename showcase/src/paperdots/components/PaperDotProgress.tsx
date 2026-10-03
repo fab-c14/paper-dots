@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, ProgressAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
@@ -9,6 +9,7 @@ export interface PaperDotProgressProps {
   segments?: number;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  animationType?: ProgressAnimationType;
   width?: number;
   height?: number;
   label?: string;
@@ -20,7 +21,8 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
   value,
   segments = 16,
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
+  animationType = 'domino-cascade',
   width = 240,
   height = 36,
   label,
@@ -30,6 +32,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dotsRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
+  const frameCountRef = useRef<number>(0);
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -80,7 +83,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
     dotsRef.current = dots;
   }, [segments, width, height, paddingX, spacing, centerY, palette, dotShape]);
 
-  // Update dots on value change
+  // Update dots on value change with cascade / bleed animation
   useEffect(() => {
     const dots = dotsRef.current;
     for (let i = 0; i < dots.length; i++) {
@@ -88,8 +91,14 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
       dots[i].color = isActive ? (i === activeSegments - 1 ? palette.secondary : palette.primary) : palette.muted;
       dots[i].opacity = isActive ? 0.95 : 0.4;
       dots[i].baseRadius = isActive ? 3.2 : 2.0;
+
+      if (animationType === 'domino-cascade' && isActive) {
+        dots[i].vy = -3 - (i % 3) * 1.5; // Domino jump
+      } else if (animationType === 'capillary-bleed' && i === activeSegments - 1) {
+        dots[i].radius = 4.5; // Lead dot ink bleed
+      }
     }
-  }, [activeSegments, palette]);
+  }, [activeSegments, palette, animationType]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -101,9 +110,23 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
 
     const render = () => {
       if (!isRunning) return;
+      frameCountRef.current++;
 
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, width, height);
+
+      // Strobe pulse wave across completed dots
+      if (animationType === 'strobe-pulse') {
+        const wavePos = (frameCountRef.current * 0.08) % activeSegments;
+        for (let i = 0; i < activeSegments; i++) {
+          const dist = Math.abs(i - wavePos);
+          if (dist < 1.8 && dotsRef.current[i]) {
+            dotsRef.current[i].radius = 3.8;
+          } else if (dotsRef.current[i]) {
+            dotsRef.current[i].radius = dotsRef.current[i].baseRadius;
+          }
+        }
+      }
 
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: 0.22,
@@ -111,16 +134,15 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
         mass: 0.8,
       });
 
-      // Connecting dash line
+      // Background track slot
       ctx.beginPath();
-      ctx.strokeStyle = palette.muted;
+      ctx.strokeStyle = palette.border;
       ctx.lineWidth = 1;
-      ctx.setLineDash([2, 3]);
       ctx.moveTo(paddingX, centerY);
       ctx.lineTo(width - paddingX, centerY);
       ctx.stroke();
-      ctx.setLineDash([]);
 
+      // Render dots
       const dots = dotsRef.current;
       for (let i = 0; i < dots.length; i++) {
         PaperTextureGenerator.drawInkDot(
@@ -144,23 +166,23 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette, paddingX, centerY, dotShape]);
+  }, [width, height, palette, paddingX, centerY, dotShape, animationType, activeSegments]);
 
   return (
     <div className={`flex flex-col gap-1 select-none ${className}`}>
       {(label || showPercent) && (
-        <div className="flex justify-between items-center text-xs font-mono font-bold px-1" style={{ color: palette.dark }}>
+        <div className="flex justify-between items-center px-1 text-xs font-mono font-bold" style={{ color: palette.dark }}>
           {label && <span>{label}</span>}
-          {showPercent && <span>{Math.round(clampedVal)}%</span>}
+          {showPercent && <span>{clampedVal}%</span>}
         </div>
       )}
-      <div
-        className="relative"
-        style={{ width, height }}
-        onMouseEnter={() => { pointerRef.current.isInside = true; }}
-        onMouseLeave={() => { pointerRef.current.isInside = false; }}
-      >
-        <canvas ref={canvasRef} width={width} height={height} className="rounded-lg shadow-inner" />
+      <div className="relative" style={{ width, height }}>
+        <canvas
+          ref={canvasRef}
+          width={width}
+          height={height}
+          className="rounded-lg shadow-2xs"
+        />
       </div>
     </div>
   );

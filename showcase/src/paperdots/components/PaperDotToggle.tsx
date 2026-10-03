@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { Dot, PointerState, RisographPalette, DotGeometry } from '../types';
+import type { Dot, PointerState, RisographPalette, DotGeometry, ToggleAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { PaperTextureGenerator } from '../paper-texture';
 import { DEFAULT_PALETTE } from '../palettes';
@@ -10,6 +10,7 @@ export interface PaperDotToggleProps {
   onChange: (checked: boolean) => void;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  animationType?: ToggleAnimationType;
   width?: number;
   height?: number;
   label?: string;
@@ -20,7 +21,8 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
   checked,
   onChange,
   palette = DEFAULT_PALETTE,
-  dotShape = 'circle',
+  dotShape = 'square',
+  animationType = 'cylinder-roll',
   width = 72,
   height = 36,
   label,
@@ -212,13 +214,32 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
 
   const toggle = () => {
     TactileAudio.playClick(checked ? 550 : 750);
-    // Impart gentle momentum kick
-    DotPhysicsEngine.triggerScatter(
-      knobDotsRef.current,
-      targetX,
-      centerY,
-      6
-    );
+
+    // Apply selected animation type to knob dots
+    if (animationType === 'cylinder-roll') {
+      const rollDir = checked ? -1 : 1;
+      for (let i = 0; i < knobDotsRef.current.length; i++) {
+        const d = knobDotsRef.current[i];
+        d.vx = rollDir * 8;
+        d.vy = (Math.random() - 0.5) * 3;
+      }
+    } else if (animationType === 'page-flip') {
+      for (let i = 0; i < knobDotsRef.current.length; i++) {
+        const d = knobDotsRef.current[i];
+        d.x = width / 2; // collapse to center like page crease
+        d.vx = (checked ? -1 : 1) * 10;
+      }
+    } else if (animationType === 'slingshot-snap') {
+      const recoilDir = checked ? 1 : -1;
+      for (let i = 0; i < knobDotsRef.current.length; i++) {
+        const d = knobDotsRef.current[i];
+        d.vx = recoilDir * 6; // wind back
+        setTimeout(() => {
+          d.vx = -recoilDir * 14; // slingshot
+        }, 60);
+      }
+    }
+
     onChange(!checked);
   };
 
