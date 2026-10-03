@@ -155,11 +155,13 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         DotPhysicsEngine.applyWaveSweep(dotsRef.current, frameCountRef.current, width, surgeRef.current);
       }
 
-      // Update physics
+      // Update physics with distinct hover dynamics
       DotPhysicsEngine.updateDots(
         dotsRef.current,
         pointerRef.current,
-        { stiffness: 0.20, damping: 0.80, mass: 1.0 }
+        { stiffness: 0.20, damping: 0.80, mass: 1.0 },
+        1,
+        animationType
       );
 
       // Render dots or squares
@@ -309,16 +311,28 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         className="absolute inset-0 rounded-xl"
         style={{ pointerEvents: 'none' }}
       />
-      <span
-        className="relative z-10 font-bold tracking-wider uppercase text-sm pointer-events-none"
+      <div
+        className="relative z-10 flex items-center justify-center px-4 py-1.5 rounded-lg pointer-events-none transition-all"
         style={{
-          color: palette.dark,
-          fontFamily: '"Courier New", Courier, monospace',
-          textShadow: '0 1px 2px rgba(255,255,255,0.8)',
+          backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.94)' : 'rgba(255, 255, 255, 0.88)',
+          backdropFilter: 'blur(4px)',
+          boxShadow: isHovered
+            ? '0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)'
+            : '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+          border: `1px solid ${isHovered ? palette.dark : 'rgba(0,0,0,0.14)'}`,
         }}
       >
-        {label}
-      </span>
+        <span
+          className="font-extrabold tracking-wider uppercase text-sm"
+          style={{
+            color: palette.dark,
+            fontFamily: '"Courier New", Courier, monospace',
+            letterSpacing: '0.08em',
+          }}
+        >
+          {label}
+        </span>
+      </div>
     </div>
   );
 };

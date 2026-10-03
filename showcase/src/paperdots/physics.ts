@@ -20,7 +20,8 @@ export class DotPhysicsEngine {
     dots: Dot[],
     pointer: PointerState,
     defaultSpring: SpringConfig,
-    dt: number = 1
+    dt: number = 1,
+    animationType: string = 'hydraulic-pop'
   ): void {
     const pRadiusSq = pointer.radius * pointer.radius;
 
@@ -86,28 +87,79 @@ export class DotPhysicsEngine {
         dot.vx = (dot.vx + fx / m) * d;
         dot.vy = (dot.vy + fy / m) * d;
 
-        // Pointer magnetic interaction
+        // DIVERSE TACTILE HOVER REACTIONS PER ANIMATION TYPE
         if (pointer.isInside) {
           const dx = dot.x - pointer.x;
           const dy = dot.y - pointer.y;
           const distSq = dx * dx + dy * dy;
 
-          if (distSq < pRadiusSq && distSq > 0.1) {
+          if (distSq < pRadiusSq && distSq > 0.01) {
             const dist = Math.sqrt(distSq);
-            // Smooth cubic falloff curve
             const factor = Math.max(0, 1 - dist / pointer.radius);
-            const force = (pointer.isDown ? 15 : 7) * factor * factor;
+            const force = (pointer.isDown ? 14 : 7) * factor * factor;
+            const anim = (animationType || '').toLowerCase();
 
-            dot.vx += (dx / dist) * force;
-            dot.vy += (dy / dist) * force;
-
-            // Subtle kinetic scale
-            dot.radius = dot.baseRadius * (1 + factor * 0.3);
+            if (anim.includes('glow') || anim.includes('fade')) {
+              // 1. GLOW-FADE: Zero positional repulsion! In-place luminous ink blooming
+              dot.radius = dot.baseRadius * (1 + factor * 0.95);
+              dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.45);
+            } else if (anim.includes('pulse') || anim.includes('breathe') || anim.includes('smooth')) {
+              // 2. SMOOTH-PULSE: Rhythmic breathing dilation without scattering
+              const breathe = Math.sin(Date.now() * 0.009 + (dot.phaseOffset || 0)) * 0.5 + 0.5;
+              dot.radius = dot.baseRadius * (1 + factor * 0.7 * breathe);
+              dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.3 * breathe);
+            } else if (anim.includes('snake') || anim.includes('trail') || anim.includes('slither')) {
+              // 3. SNAKE-TRAIL: Magnetic attraction & slithering transverse wake toward cursor
+              const angle = Math.atan2(dy, dx);
+              const perpWave = Math.sin(Date.now() * 0.012 + (dot.phaseOffset || 0)) * 3.5;
+              dot.vx += (-Math.cos(angle) * force * 0.75 + Math.sin(angle) * perpWave);
+              dot.vy += (-Math.sin(angle) * force * 0.75 - Math.cos(angle) * perpWave);
+              dot.radius = dot.baseRadius * (1 + factor * 0.35);
+            } else if (anim.includes('wrap') || anim.includes('border') || anim.includes('orbit')) {
+              // 4. BORDER-WRAP: Orbital vortex around cursor
+              dot.vx += (-dy / dist) * force * 1.35;
+              dot.vy += (dx / dist) * force * 1.35;
+              dot.radius = dot.baseRadius * (1 + factor * 0.4);
+            } else if (anim.includes('vortex') || anim.includes('swirl') || anim.includes('spiral')) {
+              // 5. PARTICLE-VORTEX: Planetary cyclonic swirl around pointer
+              dot.vx += (-dy / dist) * force * 1.5;
+              dot.vy += (dx / dist) * force * 1.5;
+              dot.radius = dot.baseRadius * (1 + factor * 0.5);
+            } else if (anim.includes('magnetic') || anim.includes('detent') || anim.includes('elastic') || anim.includes('tick')) {
+              // 6. MAGNETIC ATTRACTION: Dots pull toward cursor like iron filings
+              dot.vx -= (dx / dist) * force * 0.85;
+              dot.vy -= (dy / dist) * force * 0.85;
+              dot.radius = dot.baseRadius * (1 + factor * 0.4);
+            } else if (anim.includes('equalizer') || anim.includes('frequency') || anim.includes('bars')) {
+              // 7. EQUALIZER: Upward vertical frequency surge under cursor
+              dot.vy -= force * 1.8;
+              dot.radius = dot.baseRadius * (1 + factor * 0.45);
+              dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.4);
+            } else if (anim.includes('typewriter') || anim.includes('recoil')) {
+              // 8. TYPEWRITER: Mechanical letterpress key-strike depression
+              dot.radius = Math.max(1.0, dot.baseRadius * (1 - factor * 0.45));
+              dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.35);
+            } else if (anim.includes('wave') || anim.includes('sweep')) {
+              // 9. WAVE-SWEEP: Directional transverse wake along wave propagation axis
+              dot.vy += Math.sin((dot.x - pointer.x) * 0.12) * force * 1.4;
+              dot.radius = dot.baseRadius * (1 + factor * 0.35);
+            } else if (anim.includes('radar')) {
+              // 10. RADAR: Cursor focuses beam, illuminating reticle dots
+              dot.radius = dot.baseRadius * (1 + factor * 0.65);
+              dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.6);
+            } else {
+              // 11. HYDRAULIC-POP / DEFAULT: Gentle cushion displacement with spring recovery
+              dot.vx += (dx / dist) * (force * 0.6);
+              dot.vy += (dy / dist) * (force * 0.6);
+              dot.radius = dot.baseRadius * (1 + factor * 0.25);
+            }
           } else {
             dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+            dot.opacity += (dot.baseOpacity - dot.opacity) * 0.15;
           }
         } else {
           dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+          dot.opacity += (dot.baseOpacity - dot.opacity) * 0.15;
         }
 
         // Numerical step

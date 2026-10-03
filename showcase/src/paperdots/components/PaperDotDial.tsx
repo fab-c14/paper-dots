@@ -156,25 +156,33 @@ export const PaperDotDial: React.FC<PaperDotDialProps> = ({
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Apply physics to dots
+      // Apply physics to dots with distinct hover dynamics
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: animationType === 'elastic-snap' ? 0.35 : 0.25,
         damping: animationType === 'elastic-snap' ? 0.72 : 0.80,
         mass: 1.0,
-      });
+      }, 1, animationType);
 
       // Render dots
       dotsRef.current.forEach((dot) => {
         PaperTextureGenerator.drawInkDot(ctx, dot.x, dot.y, dot.radius, dot.color, dot.opacity, true, dot.shape);
       });
 
-      // Center value readout
+      // Center value readout plate
       ctx.globalAlpha = 1.0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.beginPath();
+      ctx.roundRect(center - 18, center - 11, 36, 22, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
       ctx.fillStyle = palette.dark;
-      ctx.font = 'bold 11px monospace';
+      ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${Math.round(currentValue)}`, center, center - 2);
+      ctx.fillText(`${Math.round(currentValue)}`, center, center);
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -185,7 +193,7 @@ export const PaperDotDial: React.FC<PaperDotDialProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, center, radius, currentValue, palette]);
+  }, [size, center, radius, currentValue, palette, animationType]);
 
   const updateValueFromDelta = useCallback((deltaY: number) => {
     const range = max - min;
@@ -250,8 +258,12 @@ export const PaperDotDial: React.FC<PaperDotDialProps> = ({
       />
       {label && (
         <span
-          className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1 opacity-70"
-          style={{ color: palette.dark }}
+          className="text-[10px] font-mono font-extrabold uppercase tracking-wider mt-1 px-2.5 py-0.5 rounded shadow-2xs border"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.90)',
+            color: palette.dark,
+            borderColor: 'rgba(0, 0, 0, 0.12)',
+          }}
         >
           {label}
         </span>

@@ -91,7 +91,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
         stiffness: 0.25,
         damping: 0.78,
         mass: 0.6,
-      });
+      }, 1, animationType);
 
       const d = dotRef.current[0];
       if (d) {
@@ -126,7 +126,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
   };
 
   const getBadgeStyle = () => {
-    const base = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold select-none cursor-pointer';
+    const base = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold select-none cursor-pointer shadow-2xs';
     return base;
   };
 
@@ -148,7 +148,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
           className="w-full h-full pointer-events-none"
         />
       </div>
-      <span>{label}</span>
+      <span className="tracking-wider uppercase text-[11px] font-extrabold">{label}</span>
     </div>
   );
 };

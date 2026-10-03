@@ -152,12 +152,12 @@ export const PaperDotTabs: React.FC<PaperDotTabsProps> = ({
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Apply physics to stipple dots
+      // Apply physics to stipple dots with distinct hover dynamics
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: animationType === 'spring-elastic' ? 0.32 : 0.22,
         damping: animationType === 'spring-elastic' ? 0.72 : 0.82,
         mass: 1.0,
-      });
+      }, 1, animationType);
 
       // Draw indicator dots
       dotsRef.current.forEach((dot) => {
@@ -174,7 +174,7 @@ export const PaperDotTabs: React.FC<PaperDotTabsProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, activeIdx, tabWidth, palette, activePrimary]);
+  }, [width, height, activeIdx, tabWidth, palette, activePrimary, animationType]);
 
   const handleTabClick = (idx: number) => {
     if (idx !== activeIdx) {
@@ -208,7 +208,7 @@ export const PaperDotTabs: React.FC<PaperDotTabsProps> = ({
         height={height}
         className="absolute inset-0 pointer-events-none"
       />
-      <div className="relative z-10 flex h-full p-1 items-center">
+      <div className="relative z-10 flex h-full p-1 items-center gap-1">
         {items.map((item, idx) => {
           const isSelected = idx === activeIdx;
           return (
@@ -216,9 +216,11 @@ export const PaperDotTabs: React.FC<PaperDotTabsProps> = ({
               key={idx}
               type="button"
               onClick={() => handleTabClick(idx)}
-              className="flex-1 h-full flex items-center justify-center text-xs font-mono font-bold tracking-tight rounded-lg transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-black/20"
+              className={`flex-1 h-full flex items-center justify-center text-xs font-mono font-extrabold uppercase tracking-wider rounded-lg transition-all cursor-pointer outline-none ${isSelected ? 'shadow-2xs border' : 'opacity-70 hover:opacity-100'}`}
               style={{
-                color: isSelected ? activePrimary : palette.dark + 'AA',
+                color: palette.dark,
+                backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.88)' : 'transparent',
+                borderColor: isSelected ? 'rgba(0, 0, 0, 0.12)' : 'transparent',
               }}
             >
               {item}

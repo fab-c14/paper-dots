@@ -129,12 +129,18 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
         DotPhysicsEngine.applySmoothPulse(dotsRef.current, frameCountRef.current, center, center, pulseProgressRef.current);
       }
 
-      // Physics update
-      DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
-        stiffness: 0.20,
-        damping: 0.80,
-        mass: 1.0,
-      });
+      // Physics update with distinct hover dynamics
+      DotPhysicsEngine.updateDots(
+        dotsRef.current,
+        pointerRef.current,
+        {
+          stiffness: 0.20,
+          damping: 0.80,
+          mass: 1.0,
+        },
+        1,
+        shape === 'heart' ? 'smooth-pulse' : (animationType || 'particle-vortex')
+      );
 
       // Render particles
       const dots = dotsRef.current;
@@ -211,6 +217,16 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
         onPointerEnter={() => { pointerRef.current.isInside = true; }}
         onPointerLeave={() => { pointerRef.current.isInside = false; }}
       />
+      <span
+        className="absolute bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase pointer-events-none whitespace-nowrap shadow-2xs border"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.90)',
+          color: palette.dark,
+          borderColor: 'rgba(0, 0, 0, 0.12)',
+        }}
+      >
+        {shape.toUpperCase()}
+      </span>
     </div>
   );
 };

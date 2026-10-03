@@ -165,13 +165,13 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
         stiffness: 0.22,
         damping: 0.80,
         mass: 1.0,
-      });
+      }, 1, animationType);
 
       DotPhysicsEngine.updateDots(knobDotsRef.current, pointerRef.current, {
         stiffness: 0.30,
         damping: 0.75,
         mass: 0.7,
-      });
+      }, 1, animationType);
 
       // Draw border dots
       const border = borderDotsRef.current;
@@ -263,12 +263,24 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
         />
       </div>
       {label && (
-        <span
-          className="text-sm font-mono font-semibold"
-          style={{ color: palette.dark }}
-        >
-          {label}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className="text-xs font-mono font-extrabold uppercase tracking-wider"
+            style={{ color: palette.dark }}
+          >
+            {label}
+          </span>
+          <span
+            className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase shadow-2xs border"
+            style={{
+              backgroundColor: checked ? 'rgba(0, 169, 92, 0.12)' : 'rgba(0,0,0,0.06)',
+              color: checked ? '#00805A' : palette.muted,
+              borderColor: checked ? '#00A95C' : 'rgba(0,0,0,0.12)',
+            }}
+          >
+            {checked ? 'ON' : 'OFF'}
+          </span>
+        </div>
       )}
     </div>
   );

@@ -188,13 +188,13 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
         stiffness: 0.20,
         damping: 0.80,
         mass: 1.0,
-      });
+      }, 1, animationType);
 
       DotPhysicsEngine.updateDots(thumbDotsRef.current, pointerRef.current, {
         stiffness: 0.28,
         damping: 0.76,
         mass: 0.8,
-      });
+      }, 1, animationType);
 
       // Connecting tactile string line
       ctx.beginPath();
@@ -292,11 +292,22 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
   };
 
   return (
-    <div className={`flex flex-col gap-1 select-none ${className}`}>
+    <div className={`flex flex-col gap-1.5 select-none ${className}`}>
       {label && (
-        <div className="flex justify-between items-center px-1 text-xs font-mono font-bold" style={{ color: palette.dark }}>
-          <span>{label}</span>
-          <span>{value}</span>
+        <div className="flex justify-between items-center px-1 text-xs font-mono font-extrabold uppercase tracking-wider" style={{ color: palette.dark }}>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-xs" style={{ backgroundColor: inkColor || palette.primary }} />
+            {label}
+          </span>
+          <span
+            className="px-2 py-0.5 rounded text-[11px] font-bold shadow-2xs border"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.90)',
+              borderColor: 'rgba(0,0,0,0.12)',
+            }}
+          >
+            {value}%
+          </span>
         </div>
       )}
       <div

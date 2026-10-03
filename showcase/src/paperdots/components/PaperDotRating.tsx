@@ -128,12 +128,12 @@ export const PaperDotRating: React.FC<PaperDotRatingProps> = ({
         }
       });
 
-      // Apply physics
+      // Apply physics with distinct hover dynamics
       DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
         stiffness: 0.25,
         damping: 0.78,
         mass: 1.0,
-      });
+      }, 1, animationType);
 
       // Render dots
       dotsRef.current.forEach((dot) => {
@@ -184,19 +184,30 @@ export const PaperDotRating: React.FC<PaperDotRatingProps> = ({
 
   return (
     <div
-      className={`relative inline-block select-none cursor-pointer py-1 ${className}`}
-      style={{ width, height }}
+      className={`relative inline-flex items-center gap-3 select-none cursor-pointer py-1 ${className}`}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerDown={handleClick}
       title={`${displayValue} of ${max} ${shape}s`}
     >
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-        className="block"
-      />
+      <div style={{ width, height }}>
+        <canvas
+          ref={canvasRef}
+          width={width}
+          height={height}
+          className="block"
+        />
+      </div>
+      <span
+        className="px-2 py-0.5 rounded text-[11px] font-mono font-extrabold uppercase shadow-2xs border whitespace-nowrap"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.90)',
+          color: palette.dark,
+          borderColor: 'rgba(0, 0, 0, 0.12)',
+        }}
+      >
+        {displayValue}/{max} {shape.toUpperCase()}S
+      </span>
     </div>
   );
 };

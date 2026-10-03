@@ -104,7 +104,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
         stiffness: 0.22,
         damping: 0.78,
         mass: 0.9,
-      });
+      }, 1, animationType);
 
       const dots = dotsRef.current;
       for (let i = 0; i < dots.length; i++) {
@@ -160,7 +160,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="relative z-10 w-full h-full bg-transparent px-4 font-mono text-xs outline-none"
+        className="relative z-10 w-full h-full bg-transparent px-4 font-mono text-xs font-bold tracking-wide outline-none placeholder:opacity-40"
         style={{
           color: palette.dark,
         }}

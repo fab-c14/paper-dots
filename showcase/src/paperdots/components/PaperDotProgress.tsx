@@ -134,7 +134,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
         stiffness: 0.22,
         damping: 0.78,
         mass: 0.8,
-      });
+      }, 1, animationType);
 
       // Background track slot
       ctx.beginPath();
@@ -171,11 +171,26 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
   }, [width, height, palette, paddingX, centerY, dotShape, animationType, activeSegments]);
 
   return (
-    <div className={`flex flex-col gap-1 select-none ${className}`}>
+    <div className={`flex flex-col gap-1.5 select-none ${className}`}>
       {(label || showPercent) && (
-        <div className="flex justify-between items-center px-1 text-xs font-mono font-bold" style={{ color: palette.dark }}>
-          {label && <span>{label}</span>}
-          {showPercent && <span>{clampedVal}%</span>}
+        <div className="flex justify-between items-center px-1 text-xs font-mono font-extrabold uppercase tracking-wider" style={{ color: palette.dark }}>
+          {label && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-xs" style={{ backgroundColor: inkColor || palette.primary }} />
+              {label}
+            </span>
+          )}
+          {showPercent && (
+            <span
+              className="px-2 py-0.5 rounded text-[11px] font-bold shadow-2xs border"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.90)',
+                borderColor: 'rgba(0,0,0,0.12)',
+              }}
+            >
+              {clampedVal}%
+            </span>
+          )}
         </div>
       )}
       <div className="relative" style={{ width, height }}>

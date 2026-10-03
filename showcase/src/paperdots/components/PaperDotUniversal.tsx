@@ -751,28 +751,91 @@ const GenerativePaperDotCanvas: React.FC<{
         }
       });
 
-      // Apply Euler spring physics & mouse interaction
-      DotPhysicsEngine.updateDots(dotsRef.current, pointerRef.current, {
-        stiffness: dsl.physics?.stiffness || 0.24,
-        damping: dsl.physics?.damping || 0.78,
-        mass: 1.0,
-      });
+      // Apply Euler spring physics & mouse interaction with distinct hover dynamics
+      DotPhysicsEngine.updateDots(
+        dotsRef.current,
+        pointerRef.current,
+        {
+          stiffness: dsl.physics?.stiffness || 0.24,
+          damping: dsl.physics?.damping || 0.78,
+          mass: 1.0,
+        },
+        1,
+        animationType
+      );
 
       // Render dots
       dotsRef.current.forEach((dot) => {
         PaperTextureGenerator.drawInkDot(ctx, dot.x, dot.y, dot.radius, dot.color, dot.opacity, true, dot.shape);
       });
 
-      // Monospace Component Label & Animation Badge
+      // Keypad numerical overlay
+      if (isKeypad) {
+        const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
+        const padCols = 3;
+        const padRows = 4;
+        const padW = (width - 40) / padCols;
+        const padH = (height - 40) / padRows;
+        ctx.fillStyle = palette.dark;
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (let r = 0; r < padRows; r++) {
+          for (let c = 0; c < padCols; c++) {
+            const idx = r * padCols + c;
+            const kx = 20 + c * padW + padW / 2;
+            const ky = 20 + r * padH + padH / 2;
+            ctx.fillText(keys[idx], kx, ky);
+          }
+        }
+      }
+
+      // Top Header Plate: Crisp Letterpress Pill over dots/squares
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.beginPath();
+      ctx.roundRect(10, 8, width - 20, 24, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
       ctx.fillStyle = palette.dark;
-      ctx.font = 'bold 10px monospace';
+      ctx.font = 'bold 11px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText((dsl.label || dsl.componentType).toUpperCase(), 12, 16);
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText((dsl.label || dsl.componentType).toUpperCase(), 18, 24);
 
       ctx.fillStyle = activePrimary;
-      ctx.font = '9px monospace';
+      ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(dsl.animationType || 'kinetic-spring', width - 12, 16);
+      ctx.fillText(`[${(dsl.animationType || 'kinetic-spring').toUpperCase()}]`, width - 18, 24);
+
+      // Bottom HUD Readout Plate: Prominent status text visible over dots/squares
+      const hudY = height - 26;
+      let hudText = 'TACTILE LIVING COMPONENT • HOVER FOR KINETIC EFFECT';
+      if (isEqualizer) hudText = 'EQ SPECTRUM • 12 BANDS • HOVER TO SURGE';
+      else if (isRadar) hudText = 'RADAR SCAN • 360° SWEEP • HOVER TO LOCK';
+      else if (isSpiral) hudText = 'GALAXY VORTEX • HOVER FOR CYCLONIC SWIRL';
+      else if (isWaveform) hudText = 'ACOUSTIC WAVE • HOVER FOR TRANSVERSE WAKE';
+      else if (isMatrix) hudText = 'MATRIX RAIN • 60 FPS • RISOGRAPH CASCADE';
+      else if (isPendulum) hudText = 'HARMONIC PENDULUM • GRAVITY OSCILLATION';
+      else if (isHeartbeat) hudText = 'CARDIAC RHYTHM • 74 BPM • ORGANIC BREATHING';
+      else if (animationType.includes('glow') || animationType.includes('fade')) hudText = 'LUMINOUS BLOOM • HOVER TO DILATE INK';
+      else if (animationType.includes('snake') || animationType.includes('trail')) hudText = 'SERPENTINE WAKE • HOVER TO DRAW SLITHER';
+      else if (animationType.includes('wrap') || animationType.includes('border')) hudText = 'ORBITAL WRAP • HOVER TO ACCELERATE';
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+      ctx.beginPath();
+      ctx.roundRect(10, hudY, width - 20, 18, 4);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = palette.dark;
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(hudText, width / 2, hudY + 12);
 
       animFrameRef.current = requestAnimationFrame(render);
     };
