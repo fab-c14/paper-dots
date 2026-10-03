@@ -1,7 +1,8 @@
 services:
   # 1. PaperDots UI Interactive Showcase & Playground (Static Site)
-  - type: static
+  - type: web
     name: paperdots-ui-showcase
+    runtime: static
     buildCommand: cd showcase && npm install && npm run build
     staticPublishPath: showcase/dist
     headers:
