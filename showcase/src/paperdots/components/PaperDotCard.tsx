@@ -11,6 +11,7 @@ export interface PaperDotCardProps {
   children?: React.ReactNode;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  inkColor?: string;
   width?: number;
   height?: number;
   className?: string;
@@ -22,6 +23,7 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
   children,
   palette = DEFAULT_PALETTE,
   dotShape = 'circle',
+  inkColor,
   width = 300,
   height = 180,
   className = '',
@@ -59,7 +61,7 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
         vy: 0,
         radius: 2.2,
         baseRadius: 2.2,
-        color: i % 4 === 0 ? palette.secondary : palette.primary,
+        color: inkColor ? inkColor : (i % 4 === 0 ? palette.secondary : palette.primary),
         opacity: 0.85,
         baseOpacity: 0.85,
         mass: 1.0,
@@ -71,7 +73,7 @@ export const PaperDotCard: React.FC<PaperDotCardProps> = ({
     }
 
     dotsRef.current = dots;
-  }, [width, height, palette, dotShape]);
+  }, [width, height, palette, dotShape, inkColor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -1,5 +1,26 @@
 import type { RisographPalette } from './types';
 
+export interface SpotInk {
+  name: string;
+  hex: string;
+  category: 'primary' | 'neon' | 'earth' | 'metallic';
+}
+
+export const SPOT_INKS: Record<string, SpotInk> = {
+  fluorescentPink: { name: 'Fluo Pink', hex: '#FF48B0', category: 'neon' },
+  federalBlue: { name: 'Federal Blue', hex: '#0078BF', category: 'primary' },
+  sunflower: { name: 'Sunflower Yellow', hex: '#FFE800', category: 'primary' },
+  mintSeafoam: { name: 'Mint Seafoam', hex: '#2EC4B6', category: 'primary' },
+  scarletRed: { name: 'Scarlet Ink', hex: '#E63946', category: 'primary' },
+  violetPurple: { name: 'Purple Violet', hex: '#7209B7', category: 'primary' },
+  tealTurquoise: { name: 'Medium Teal', hex: '#00A896', category: 'primary' },
+  emeraldGreen: { name: 'Forest Green', hex: '#2D6A4F', category: 'earth' },
+  coralOrange: { name: 'Bright Coral', hex: '#FF6B6B', category: 'primary' },
+  warmOchre: { name: 'Gold Ochre', hex: '#D4A373', category: 'earth' },
+  terracotta: { name: 'Terracotta', hex: '#C05621', category: 'earth' },
+  carbonBlack: { name: 'Soy Carbon', hex: '#1C1D1F', category: 'primary' },
+};
+
 export const PALETTES: Record<string, RisographPalette> = {
   risographClassic: {
     name: 'Risograph Classic',
@@ -36,6 +57,66 @@ export const PALETTES: Record<string, RisographPalette> = {
     dark: '#2B2D42',          // Deep Navy ink
     light: '#FFD93D',         // Buttercup Yellow
     muted: '#C1C8E4',         // Lavender wash
+  },
+  fluorescentNeon: {
+    name: 'Fluorescent Neon',
+    background: '#FAFBFD',    // Crisp bleached newsprint
+    cardBg: '#FFFFFF',
+    border: 'rgba(255, 72, 176, 0.20)',
+    paperGrain: 'rgba(40, 40, 60, 0.03)',
+    primary: '#FF48B0',       // Hot Fluo Pink
+    secondary: '#00B4D8',     // Electric Cyan
+    dark: '#111827',          // Ink Black
+    light: '#FFE800',         // Acid Yellow
+    muted: '#94A3B8',         // Cool grey
+  },
+  lavenderLilac: {
+    name: 'Lavender & Rose',
+    background: '#FAF5FF',    // Lilac cotton rag
+    cardBg: '#FFFFFF',
+    border: 'rgba(124, 58, 237, 0.16)',
+    paperGrain: 'rgba(124, 58, 237, 0.03)',
+    primary: '#7C3AED',       // Royal Violet
+    secondary: '#FB7185',     // Rose Quartz
+    dark: '#2E1065',          // Deep purple sumi
+    light: '#F5D0FE',         // Pale orchid
+    muted: '#C4B5FD',         // Halftone violet
+  },
+  seafoamCoral: {
+    name: 'Seafoam & Coral',
+    background: '#F0FDFA',    // Sea salt paper
+    cardBg: '#FFFFFF',
+    border: 'rgba(15, 118, 110, 0.16)',
+    paperGrain: 'rgba(15, 118, 110, 0.03)',
+    primary: '#0F766E',       // Deep Seafoam
+    secondary: '#F43F5E',     // Living Coral
+    dark: '#134E4A',          // Tidal Pine
+    light: '#CCFBF1',         // Pale aqua
+    muted: '#99F6E4',         // Washed mint
+  },
+  sunflowerNavy: {
+    name: 'Sunflower & Navy',
+    background: '#FEFCE8',    // Warm cream silk
+    cardBg: '#FFFFFF',
+    border: 'rgba(30, 58, 138, 0.16)',
+    paperGrain: 'rgba(202, 138, 4, 0.04)',
+    primary: '#1E3A8A',       // Prussian Navy
+    secondary: '#EAB308',     // Sunflower Yellow
+    dark: '#0F172A',          // Deep ink
+    light: '#FEF08A',         // Pale yellow
+    muted: '#93C5FD',         // Washed blue
+  },
+  terracottaSun: {
+    name: 'Terracotta & Ochre',
+    background: '#FFFDF7',    // Sunbleached parchment
+    cardBg: '#FFFFFF',
+    border: 'rgba(194, 65, 12, 0.16)',
+    paperGrain: 'rgba(194, 65, 12, 0.04)',
+    primary: '#C2410C',       // Tuscan Terracotta
+    secondary: '#D97706',     // Amber Ochre
+    dark: '#431407',          // Raw Umber
+    light: '#FED7AA',         // Baked clay
+    muted: '#FDBA74',         // Sandy wash
   },
   botanicalOchre: {
     name: 'Botanical & Ochre',

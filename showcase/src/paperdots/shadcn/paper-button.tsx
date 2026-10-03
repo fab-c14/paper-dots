@@ -43,6 +43,7 @@ export interface ButtonProps
   dotShape?: DotGeometry;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
   animationType?: ButtonAnimationType;
+  inkColor?: string;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -56,6 +57,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       dotShape = "square",
       burstIntensity = "gentle",
       animationType = "hydraulic-pop",
+      inkColor,
       onClick,
       ...props
     },
@@ -74,6 +76,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           dotShape={dotShape}
           burstIntensity={burstIntensity}
           animationType={animationType}
+          inkColor={inkColor}
           width={w}
           height={h}
           onClick={onClick as () => void}

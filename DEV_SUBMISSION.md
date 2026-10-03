@@ -90,18 +90,40 @@ Every component in PaperDots has its own unique, physical animation routines rat
 
 ---
 
-## 4. 100% Light Tactile Printmaker Palettes (No Dark UI) 🎨
+## 4. 100% Light Tactile Printmaker Palettes & Spot Inks (No Dark UI) 🎨
 
-All dark themes have been completely eliminated in favor of 8 authentic printmaker paper aesthetics:
+All dark themes have been completely eliminated in favor of 13 authentic printmaker paper aesthetics, paired with **12 authentic Risograph spot inks**:
 
+### 13 Light Tactile Paper Palettes:
 - **Risograph Classic**: Federal Blue & Fluorescent Pink on unbleached warm newsprint (`#FAF7F0`)
 - **Warm Zine Press**: Coral & Forest Green on tactile parchment (`#F5EFE6`)
 - **Pastel Risograph**: Coral Pink & Sky Blue on cream cotton (`#FFF9F5`)
+- **Fluorescent Neon**: High-voltage neon ink on bright unbleached bond (`#FAFAFA`)
+- **Lavender Lilac**: Deep Violet & Sunflower Yellow on soft lavender paper (`#F8F6FC`)
+- **Seafoam Coral**: Mint Seafoam & Living Coral on ocean spray paper (`#F4F9F8`)
+- **Sunflower Navy**: Solar Sunflower & Deep Indigo on warm maize paper (`#FFFDF5`)
+- **Terracotta Sun**: Adobe Terracotta & Sunshine Yellow on baked clay paper (`#FAF5EE`)
 - **Botanical & Ochre**: Terracotta Ochre & Sage Green on French milled paper (`#F8F5EE`)
 - **Matcha & Ink**: Deep Moss & Clay Ochre on rice paper (`#F2F6F3`)
 - **Monochrome Letterpress**: Heavy Lead Black on heavy cotton rag (`#F8F7F4`)
 - **Nordic Linen Print**: Cobalt Blue & Amber on unbleached linen (`#F6F8FA`)
 - **Kraft & Rubber Stamp**: Post Office Red & Petrol Teal on raw postal kraft (`#EADBCA`)
+
+### 12 Authentic Risograph Spot Inks (`SPOT_INKS`):
+Julian prints with physical soy and rice bran ink drums. Developers can set `inkColor?: string` directly on any component to dye chips independently of the paper background:
+- **Fluo Pink** (`#FF48B0`) • **Federal Blue** (`#0078BF`) • **Sunflower Yellow** (`#FFE800`)
+- **Mint Seafoam** (`#2EC4B6`) • **Scarlet Ink** (`#E63946`) • **Purple Violet** (`#7209B7`)
+- **Medium Teal** (`#00A896`) • **Forest Green** (`#2D6A4F`) • **Bright Coral** (`#FF6B6B`)
+- **Gold Ochre** (`#D4A373`) • **Terracotta** (`#C05621`) • **Soy Carbon** (`#1C1D1F`)
+
+```tsx
+// Dye any component directly with authentic spot inks:
+<Button inkColor={SPOT_INKS.fluorescentPink.hex} animationType="hydraulic-pop">
+  Hot Pink Edition
+</Button>
+<PaperDotToggle inkColor={SPOT_INKS.mintSeafoam.hex} animationType="slingshot-snap" />
+<PaperDotBadge inkColor={SPOT_INKS.terracotta.hex} label="Zine #12" />
+```
 
 ---
 

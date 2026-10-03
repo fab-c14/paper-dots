@@ -13,6 +13,7 @@ export interface PaperDotInputProps {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   animationType?: InputAnimationType;
+  inkColor?: string;
   width?: number;
   height?: number;
   className?: string;
@@ -25,6 +26,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
   palette = DEFAULT_PALETTE,
   dotShape = 'square',
   animationType = 'typewriter-recoil',
+  inkColor,
   width = 280,
   height = 46,
   className = '',
@@ -63,7 +65,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
         vy: 0,
         radius: 2.0,
         baseRadius: 2.0,
-        color: isFocused ? palette.primary : palette.muted,
+        color: isFocused ? (inkColor || palette.primary) : palette.muted,
         opacity: isFocused ? 0.9 : 0.6,
         baseOpacity: isFocused ? 0.9 : 0.6,
         mass: 0.9,
@@ -75,7 +77,7 @@ export const PaperDotInput: React.FC<PaperDotInputProps> = ({
     }
 
     dotsRef.current = dots;
-  }, [width, height, isFocused, palette, dotShape]);
+  }, [width, height, isFocused, palette, dotShape, inkColor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

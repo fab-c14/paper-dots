@@ -9,6 +9,7 @@ export interface PaperDotLoaderProps {
   dotShape?: DotGeometry;
   dotCount?: number;
   speed?: number;
+  inkColor?: string;
   label?: string;
   className?: string;
 }
@@ -19,6 +20,7 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
   dotShape = 'circle',
   dotCount = 16,
   speed = 1.0,
+  inkColor,
   label = 'Inking...',
   className = '',
 }) => {
@@ -52,7 +54,7 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
         const y = center + Math.sin(theta) * curRadius;
 
         const dotSize = 2.4 + (Math.sin(theta - time) + 1) * 1.5;
-        const color = i % 2 === 0 ? palette.primary : palette.secondary;
+        const color = inkColor ? inkColor : (i % 2 === 0 ? palette.primary : palette.secondary);
         const opacity = 0.45 + (Math.sin(theta - time) + 1) * 0.3;
 
         PaperTextureGenerator.drawInkDot(ctx, x, y, dotSize, color, opacity, true, dotShape);
@@ -67,7 +69,7 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, palette, dotCount, speed, center, radius, dotShape]);
+  }, [size, palette, dotCount, speed, center, radius, dotShape, inkColor]);
 
   return (
     <div className={`flex flex-col items-center justify-center gap-2 select-none ${className}`}>

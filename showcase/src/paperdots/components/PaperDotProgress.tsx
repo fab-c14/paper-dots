@@ -10,6 +10,7 @@ export interface PaperDotProgressProps {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   animationType?: ProgressAnimationType;
+  inkColor?: string;
   width?: number;
   height?: number;
   label?: string;
@@ -23,6 +24,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
   palette = DEFAULT_PALETTE,
   dotShape = 'square',
   animationType = 'domino-cascade',
+  inkColor,
   width = 240,
   height = 36,
   label,
@@ -58,7 +60,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
     for (let i = 0; i < segments; i++) {
       const x = paddingX + i * spacing;
       const isActive = i < activeSegments;
-      const color = isActive ? palette.primary : palette.muted;
+      const color = isActive ? (inkColor || palette.primary) : palette.muted;
 
       dots.push({
         id: `prog-${i}`,
@@ -81,14 +83,14 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
       });
     }
     dotsRef.current = dots;
-  }, [segments, width, height, paddingX, spacing, centerY, palette, dotShape]);
+  }, [segments, width, height, paddingX, spacing, centerY, palette, dotShape, activeSegments, inkColor]);
 
   // Update dots on value change with cascade / bleed animation
   useEffect(() => {
     const dots = dotsRef.current;
     for (let i = 0; i < dots.length; i++) {
       const isActive = i < activeSegments;
-      dots[i].color = isActive ? (i === activeSegments - 1 ? palette.secondary : palette.primary) : palette.muted;
+      dots[i].color = isActive ? (inkColor || (i === activeSegments - 1 ? palette.secondary : palette.primary)) : palette.muted;
       dots[i].opacity = isActive ? 0.95 : 0.4;
       dots[i].baseRadius = isActive ? 3.2 : 2.0;
 
@@ -98,7 +100,7 @@ export const PaperDotProgress: React.FC<PaperDotProgressProps> = ({
         dots[i].radius = 4.5; // Lead dot ink bleed
       }
     }
-  }, [activeSegments, palette, animationType]);
+  }, [activeSegments, palette, animationType, inkColor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -9,6 +9,7 @@ export interface InputProps
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   withKineticBorder?: boolean;
+  inkColor?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -19,6 +20,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       palette = DEFAULT_PALETTE,
       dotShape = "square",
       withKineticBorder = false,
+      inkColor,
       value,
       onChange,
       placeholder,
@@ -41,6 +43,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           placeholder={placeholder}
           palette={palette}
           dotShape={dotShape}
+          inkColor={inkColor}
           className={className}
         />
       );

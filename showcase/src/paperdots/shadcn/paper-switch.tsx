@@ -11,6 +11,7 @@ export interface SwitchProps {
   className?: string;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  inkColor?: string;
   label?: string;
 }
 
@@ -23,6 +24,7 @@ export const Switch = React.forwardRef<HTMLDivElement, SwitchProps>(
       className,
       palette = DEFAULT_PALETTE,
       dotShape = "square",
+      inkColor,
       label,
     },
     ref
@@ -43,6 +45,7 @@ export const Switch = React.forwardRef<HTMLDivElement, SwitchProps>(
           }}
           palette={palette}
           dotShape={dotShape}
+          inkColor={inkColor}
           label={label}
         />
       </div>

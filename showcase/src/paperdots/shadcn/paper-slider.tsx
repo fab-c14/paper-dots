@@ -13,6 +13,7 @@ export interface SliderProps {
   onValueChange?: (value: number[]) => void;
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  inkColor?: string;
   width?: number;
   label?: string;
   className?: string;
@@ -29,6 +30,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
       onValueChange,
       palette = DEFAULT_PALETTE,
       dotShape = "square",
+      inkColor,
       width = 240,
       label,
       className,
@@ -49,6 +51,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
           }}
           palette={palette}
           dotShape={dotShape}
+          inkColor={inkColor}
           width={width}
           label={label}
         />

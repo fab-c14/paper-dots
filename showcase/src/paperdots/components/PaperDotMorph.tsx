@@ -14,6 +14,7 @@ export interface PaperDotMorphProps {
   dotCount?: number;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
   animationType?: MorphAnimationType;
+  inkColor?: string;
   isPlaying?: boolean;
   className?: string;
   onClick?: () => void;
@@ -27,6 +28,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
   dotCount = 90,
   burstIntensity = 'gentle',
   animationType = 'vortex-morph',
+  inkColor,
   isPlaying = false,
   className = '',
   onClick,
@@ -67,7 +69,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
         vy: 0,
         radius: 2.6,
         baseRadius: 2.6,
-        color: i % 3 === 0 ? palette.secondary : palette.primary,
+        color: inkColor ? inkColor : (i % 3 === 0 ? palette.secondary : palette.primary),
         opacity: 0.9,
         baseOpacity: 0.9,
         mass: 0.8 + Math.random() * 0.4,
@@ -79,7 +81,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     }
 
     dotsRef.current = dots;
-  }, [size, center, dotCount, palette, dotShape]);
+  }, [size, center, dotCount, palette, dotShape, inkColor, shape]);
 
   // Update target points when shape changes with distinct vortex swirl transition
   useEffect(() => {

@@ -31,6 +31,7 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
+  inkColor?: string;
 }
 
 export function Badge({
@@ -39,6 +40,7 @@ export function Badge({
   children,
   palette = DEFAULT_PALETTE,
   dotShape = "square",
+  inkColor,
   ...props
 }: BadgeProps) {
   if (variant === "paper-kinetic") {
@@ -48,6 +50,7 @@ export function Badge({
         label={labelText}
         palette={palette}
         dotShape={dotShape}
+        inkColor={inkColor}
         className={className}
       />
     );

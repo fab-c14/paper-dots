@@ -8,6 +8,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   withKineticBorder?: boolean;
+  inkColor?: string;
   width?: number;
   height?: number;
 }
@@ -19,6 +20,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       palette = DEFAULT_PALETTE,
       dotShape = "square",
       withKineticBorder = false,
+      inkColor,
       width = 320,
       height = 200,
       children,
@@ -31,6 +33,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         <PaperDotCard
           palette={palette}
           dotShape={dotShape}
+          inkColor={inkColor}
           width={width}
           height={height}
           className={className}

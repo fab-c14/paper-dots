@@ -13,6 +13,7 @@ export interface PaperDotButtonProps {
   dotShape?: DotGeometry;
   burstIntensity?: 'none' | 'gentle' | 'confetti';
   animationType?: ButtonAnimationType;
+  inkColor?: string;
   width?: number;
   height?: number;
   dotSpacing?: number;
@@ -28,6 +29,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
   dotShape = 'square',
   burstIntensity = 'gentle',
   animationType = 'hydraulic-pop',
+  inkColor,
   width = 160,
   height = 52,
   dotSpacing = 7,
@@ -50,6 +52,8 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     isInside: false,
     radius: 35,
   });
+
+  const activePrimary = inkColor || palette.primary;
 
   // Initialize dot lattice
   useEffect(() => {
@@ -84,7 +88,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         if (variant === 'outline' && !isBorder) continue;
 
         const baseRad = isBorder ? 2.4 : variant === 'halftone' ? (r % 2 === 0 ? 1.8 : 2.5) : 2.1;
-        const dotColor = isBorder ? palette.primary : (c + r) % 3 === 0 ? palette.secondary : palette.primary;
+        const dotColor = isBorder ? activePrimary : (c + r) % 3 === 0 ? palette.secondary : activePrimary;
 
         dots.push({
           id: id++,
@@ -109,7 +113,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     }
 
     dotsRef.current = dots;
-  }, [width, height, dotSpacing, palette, variant, dotShape]);
+  }, [width, height, dotSpacing, palette, variant, dotShape, activePrimary]);
 
   // Canvas animation loop
   useEffect(() => {

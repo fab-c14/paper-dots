@@ -12,6 +12,7 @@ export interface PaperDotBadgeProps {
   variant?: 'primary' | 'secondary' | 'outline';
   animationType?: BadgeAnimationType;
   dotPulse?: boolean;
+  inkColor?: string;
   className?: string;
   onClick?: () => void;
 }
@@ -23,6 +24,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
   variant = 'primary',
   animationType = 'beacon-pulse',
   dotPulse = true,
+  inkColor,
   className = '',
   onClick,
 }) => {
@@ -46,7 +48,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
   });
 
   useEffect(() => {
-    const color = variant === 'secondary' ? palette.secondary : palette.primary;
+    const color = inkColor || (variant === 'secondary' ? palette.secondary : palette.primary);
     dotRef.current = [
       {
         id: 'badge-dot',
@@ -68,7 +70,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
         shape: dotShape,
       },
     ];
-  }, [palette, variant, dotShape]);
+  }, [palette, variant, dotShape, inkColor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

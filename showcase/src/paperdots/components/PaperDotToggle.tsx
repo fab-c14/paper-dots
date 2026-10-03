@@ -11,6 +11,7 @@ export interface PaperDotToggleProps {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   animationType?: ToggleAnimationType;
+  inkColor?: string;
   width?: number;
   height?: number;
   label?: string;
@@ -23,6 +24,7 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
   palette = DEFAULT_PALETTE,
   dotShape = 'square',
   animationType = 'cylinder-roll',
+  inkColor,
   width = 72,
   height = 36,
   label,
@@ -109,7 +111,7 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
         vy: 0,
         radius: i === 0 ? 3.0 : 2.0,
         baseRadius: i === 0 ? 3.0 : 2.0,
-        color: checked ? palette.secondary : palette.dark,
+        color: checked ? (inkColor || palette.secondary) : palette.dark,
         opacity: 0.95,
         baseOpacity: 0.95,
         mass: 0.7,
@@ -120,7 +122,7 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
       });
     }
     knobDotsRef.current = knobDots;
-  }, [width, height, radius, centerY, palette, dotShape]);
+  }, [width, height, radius, centerY, palette, dotShape, checked, inkColor]);
 
   // Update knob position and colors on checked state change
   useEffect(() => {
@@ -133,16 +135,16 @@ export const PaperDotToggle: React.FC<PaperDotToggleProps> = ({
       const theta = i * 2 * Math.PI * phi;
       knobDots[i].targetX = targetX + r * Math.cos(theta);
       knobDots[i].targetY = centerY + r * Math.sin(theta);
-      knobDots[i].color = checked ? palette.secondary : palette.dark;
+      knobDots[i].color = checked ? (inkColor || palette.secondary) : palette.dark;
     }
 
     // Border tint
     const border = borderDotsRef.current;
     for (let b = 0; b < border.length; b++) {
-      border[b].color = checked ? palette.primary : palette.muted;
+      border[b].color = checked ? (inkColor || palette.primary) : palette.muted;
       border[b].opacity = checked ? 0.9 : 0.6;
     }
-  }, [checked, targetX, centerY, radius, palette]);
+  }, [checked, targetX, centerY, radius, palette, inkColor]);
 
   // Animation Loop
   useEffect(() => {

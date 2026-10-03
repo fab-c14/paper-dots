@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   PALETTES,
   DEFAULT_PALETTE,
+  SPOT_INKS,
   PaperDotButton,
   PaperDotSlider,
   PaperDotToggle,
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
   const [globalDotShape, setGlobalDotShape] = useState<DotGeometry>('square'); // Default to squares
   const [globalBurstMode, setGlobalBurstMode] = useState<'gentle' | 'confetti' | 'none'>('gentle');
   const [isAudioMuted, setIsAudioMuted] = useState<boolean>(false);
+  const [customInkColor, setCustomInkColor] = useState<string | null>(null);
 
   // Deep Customization Knobs
   const [customRadius, setCustomRadius] = useState<number>(2.4);
@@ -296,6 +298,32 @@ export const App: React.FC = () => {
               {Object.entries(PALETTES).map(([key, pal]) => (
                 <option key={key} value={key} className="bg-white text-black">
                   {pal.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Spot Ink Override Selector */}
+          <div className="flex items-center gap-1.5 bg-black/5 p-1 rounded-xl">
+            <span
+              className="w-3 h-3 rounded-full ml-1 border border-black/20 shrink-0"
+              style={{ backgroundColor: customInkColor || activePalette.primary }}
+            />
+            <select
+              value={customInkColor || ''}
+              onChange={(e) => {
+                setCustomInkColor(e.target.value ? e.target.value : null);
+                TactileAudio.playClick(650);
+              }}
+              className="bg-transparent text-xs font-mono font-bold outline-none cursor-pointer pr-1"
+              style={{ color: activePalette.dark }}
+            >
+              <option value="" className="bg-white text-black">
+                Spot Ink: Palette
+              </option>
+              {Object.entries(SPOT_INKS).map(([key, ink]) => (
+                <option key={key} value={ink.hex} className="bg-white text-black">
+                  {ink.name} ({ink.hex})
                 </option>
               ))}
             </select>
@@ -599,6 +627,7 @@ export const App: React.FC = () => {
               <PaperDotButton
                 label="Click Me"
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 burstIntensity={globalBurstMode}
                 animationType={buttonAnim}
@@ -651,6 +680,7 @@ export const App: React.FC = () => {
                 isPlaying={morphPlaying}
                 size={110}
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 burstIntensity={globalBurstMode}
                 onClick={() => {
@@ -709,6 +739,7 @@ export const App: React.FC = () => {
                 animationType={toggleAnim}
                 label={toggleState ? "Active" : "Resting"}
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
               />
             </div>
@@ -755,6 +786,7 @@ export const App: React.FC = () => {
                 animationType={sliderAnim}
                 label="Ink Tension"
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 width={220}
               />
@@ -800,6 +832,7 @@ export const App: React.FC = () => {
                 value={progressVal}
                 animationType={progressAnim}
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 label="Pressing Zine"
                 width={220}
@@ -862,6 +895,7 @@ export const App: React.FC = () => {
                 animationType={inputAnim}
                 placeholder="Type to feel typewriter recoil..."
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 width={240}
               />
@@ -903,8 +937,8 @@ export const App: React.FC = () => {
               </div>
             </div>
             <div className="py-5 flex flex-wrap justify-center gap-2">
-              <PaperDotBadge label="Live Press" variant="primary" animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
-              <PaperDotBadge label="Edition #04" variant="secondary" animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
+              <PaperDotBadge label="Live Press" variant="primary" inkColor={customInkColor || undefined} animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
+              <PaperDotBadge label="Edition #04" variant="secondary" inkColor={customInkColor || undefined} animationType={badgeAnim} palette={activePalette} dotShape={globalDotShape} />
             </div>
             <span className="text-[11px] font-mono opacity-60 text-center">Tap badge to pop chips</span>
           </div>
@@ -927,7 +961,7 @@ export const App: React.FC = () => {
               </p>
             </div>
             <div className="py-4 flex justify-center">
-              <PaperDotLoader size={100} palette={activePalette} dotShape={globalDotShape} label="Printing Zine..." />
+              <PaperDotLoader size={100} palette={activePalette} inkColor={customInkColor || undefined} dotShape={globalDotShape} label="Printing Zine..." />
             </div>
             <span className="text-[11px] font-mono opacity-50 text-center">Locked 60 FPS Canvas</span>
           </div>
@@ -954,6 +988,7 @@ export const App: React.FC = () => {
                 title="Analog No. 04"
                 subtitle="Risograph Print"
                 palette={activePalette}
+                inkColor={customInkColor || undefined}
                 dotShape={globalDotShape}
                 width={240}
                 height={130}
@@ -965,6 +1000,220 @@ export const App: React.FC = () => {
               </PaperDotCard>
             </div>
             <span className="text-[11px] font-mono opacity-50 text-center">Hover border for magnetism</span>
+          </div>
+        </div>
+
+        {/* SECTION 2B: Authentic Risograph Spot Inks Studio */}
+        <div className="mt-14 border-t pt-10" style={{ borderColor: activePalette.border }}>
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-2">
+              <Palette className="w-4 h-4 text-pink-500" />
+              12 Authentic Risograph Spot Inks
+            </div>
+            <h3 className="text-2xl font-bold font-mono tracking-tight">
+              Vibrant Spot Inks — Color Any Component
+            </h3>
+            <p className="text-sm font-mono opacity-70 mt-1 max-w-xl mx-auto">
+              Julian's studio prints with genuine Soy &amp; Rice bran spot ink drums. Set <code className="bg-black/5 px-1 py-0.5 rounded font-bold">inkColor</code> on any component to dye chips independently of the paper background.
+            </p>
+          </div>
+
+          {/* Physical Ink Drums Rack */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-8">
+            {Object.entries(SPOT_INKS).map(([key, ink]) => (
+              <button
+                key={key}
+                onClick={() => {
+                  setCustomInkColor(ink.hex);
+                  TactileAudio.playClick(700);
+                }}
+                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                  customInkColor === ink.hex
+                    ? 'ring-2 ring-black shadow-sm scale-102 font-bold'
+                    : 'hover:shadow-xs opacity-90 hover:opacity-100'
+                }`}
+                style={{
+                  backgroundColor: activePalette.cardBg,
+                  borderColor: activePalette.border,
+                }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className="w-6 h-6 rounded-md shadow-xs border border-black/10 flex items-center justify-center text-white text-[10px] font-bold"
+                    style={{ backgroundColor: ink.hex }}
+                  >
+                    ■
+                  </div>
+                  <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-black/5 opacity-70">
+                    {ink.category}
+                  </span>
+                </div>
+                <div>
+                  <div className="font-mono text-xs" style={{ color: activePalette.dark }}>
+                    {ink.name}
+                  </div>
+                  <div className="font-mono text-[10px] opacity-60">
+                    {ink.hex}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Multi-Color Living Components Gallery */}
+          <div className="rounded-2xl p-6 border shadow-xs" style={{ backgroundColor: activePalette.cardBg, borderColor: activePalette.border }}>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 border-b pb-4" style={{ borderColor: activePalette.border }}>
+              <div>
+                <h4 className="font-mono font-bold text-base">Live Multi-Color Component Gallery</h4>
+                <p className="text-xs font-mono opacity-70">Every component dyed in a physical spot ink drum with distinct animation:</p>
+              </div>
+              {customInkColor && (
+                <button
+                  onClick={() => {
+                    setCustomInkColor(null);
+                    TactileAudio.playClick(500);
+                  }}
+                  className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-black/5 hover:bg-black/10 transition-colors"
+                >
+                  Reset Active Ink Override
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
+              {/* 1. Fluo Pink Hydraulic Pop */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.fluorescentPink.hex }}>
+                  ● Fluo Pink (#FF48B0)
+                </span>
+                <PaperDotButton
+                  label="Fluo Hot Pop"
+                  inkColor={SPOT_INKS.fluorescentPink.hex}
+                  animationType="hydraulic-pop"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={44}
+                />
+                <span className="text-[10px] font-mono opacity-50">Hydraulic Pop</span>
+              </div>
+
+              {/* 2. Federal Blue Ripple Wave */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.federalBlue.hex }}>
+                  ● Federal Blue (#0078BF)
+                </span>
+                <PaperDotButton
+                  label="Ocean Wave"
+                  inkColor={SPOT_INKS.federalBlue.hex}
+                  animationType="ripple-wave"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={44}
+                />
+                <span className="text-[10px] font-mono opacity-50">Ripple Wave</span>
+              </div>
+
+              {/* 3. Sunflower Yellow Stamp Press */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold text-amber-700">
+                  ● Sunflower Gold (#FFE800)
+                </span>
+                <PaperDotButton
+                  label="Gold Press"
+                  inkColor={SPOT_INKS.sunflower.hex}
+                  animationType="stamp-press"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={44}
+                />
+                <span className="text-[10px] font-mono opacity-50">Stamp Press</span>
+              </div>
+
+              {/* 4. Mint Seafoam Slingshot Toggle */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.mintSeafoam.hex }}>
+                  ● Mint Seafoam (#2EC4B6)
+                </span>
+                <PaperDotToggle
+                  checked={toggleState}
+                  onChange={setToggleState}
+                  inkColor={SPOT_INKS.mintSeafoam.hex}
+                  animationType="slingshot-snap"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                />
+                <span className="text-[10px] font-mono opacity-50">Slingshot Toggle</span>
+              </div>
+
+              {/* 5. Scarlet Red Confetti Drift */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.scarletRed.hex }}>
+                  ● Scarlet Red (#E63946)
+                </span>
+                <PaperDotButton
+                  label="Scarlet Drift"
+                  inkColor={SPOT_INKS.scarletRed.hex}
+                  animationType="confetti-drift"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={44}
+                />
+                <span className="text-[10px] font-mono opacity-50">Confetti Drift</span>
+              </div>
+
+              {/* 6. Purple Violet Vortex Swirl */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.violetPurple.hex }}>
+                  ● Purple Violet (#7209B7)
+                </span>
+                <PaperDotButton
+                  label="Violet Vortex"
+                  inkColor={SPOT_INKS.violetPurple.hex}
+                  animationType="particle-vortex"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={44}
+                />
+                <span className="text-[10px] font-mono opacity-50">Particle Vortex</span>
+              </div>
+
+              {/* 7. Forest Green Domino Progress */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.emeraldGreen.hex }}>
+                  ● Forest Green (#2D6A4F)
+                </span>
+                <PaperDotProgress
+                  value={progressVal}
+                  inkColor={SPOT_INKS.emeraldGreen.hex}
+                  animationType="domino-cascade"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                  width={150}
+                  height={32}
+                />
+                <span className="text-[10px] font-mono opacity-50">Domino Cascade</span>
+              </div>
+
+              {/* 8. Terracotta Earth Badge */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
+                <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.terracotta.hex }}>
+                  ● Terracotta Earth (#C05621)
+                </span>
+                <PaperDotBadge
+                  label="Zine #12"
+                  inkColor={SPOT_INKS.terracotta.hex}
+                  animationType="beacon-pulse"
+                  palette={activePalette}
+                  dotShape={globalDotShape}
+                />
+                <span className="text-[10px] font-mono opacity-50">Beacon Pulse Badge</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1138,6 +1387,12 @@ export default function MyZine() {
                       <td className="p-2">Light printmaker palette configuration</td>
                     </tr>
                     <tr>
+                      <td className="p-2 font-bold text-blue-600">inkColor</td>
+                      <td className="p-2">string (hex or CSS color)</td>
+                      <td className="p-2">undefined (uses palette.primary)</td>
+                      <td className="p-2">Direct spot ink override (e.g. SPOT_INKS.fluorescentPink.hex or '#FF48B0')</td>
+                    </tr>
+                    <tr>
                       <td className="p-2 font-bold text-blue-600">dotSpacing</td>
                       <td className="p-2">number</td>
                       <td className="p-2">7</td>
@@ -1149,27 +1404,59 @@ export default function MyZine() {
             </div>
           )}
 
-          {/* Tab 4: Palettes */}
+          {/* Tab 4: Palettes & Spot Inks */}
           {docsTab === 'palettes' && (
-            <div className="space-y-4 text-xs font-mono">
-              <h3 className="font-bold text-sm">8 Authentic 100% Light Printmaker Palettes</h3>
-              <p className="opacity-80">All dark themes have been completely eliminated in favor of warm tactile paper aesthetics:</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Object.entries(PALETTES).map(([k, pal]) => (
-                  <div
-                    key={k}
-                    className="p-3 rounded-xl border flex flex-col gap-2"
-                    style={{ backgroundColor: pal.background, borderColor: pal.border, color: pal.dark }}
-                  >
-                    <span className="font-bold">{pal.name}</span>
-                    <div className="flex gap-1">
-                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.primary }} />
-                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.secondary }} />
-                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.dark }} />
+            <div className="space-y-6 text-xs font-mono">
+              <div>
+                <h3 className="font-bold text-sm mb-1">13 Authentic 100% Light Printmaker Palettes</h3>
+                <p className="opacity-80">All dark themes have been completely eliminated in favor of warm tactile paper aesthetics:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                  {Object.entries(PALETTES).map(([k, pal]) => (
+                    <div
+                      key={k}
+                      className="p-3 rounded-xl border flex flex-col gap-2"
+                      style={{ backgroundColor: pal.background, borderColor: pal.border, color: pal.dark }}
+                    >
+                      <span className="font-bold">{pal.name}</span>
+                      <div className="flex gap-1">
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.primary }} />
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.secondary }} />
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: pal.dark }} />
+                      </div>
+                      <span className="text-[10px] opacity-70">{pal.background}</span>
                     </div>
-                    <span className="text-[10px] opacity-70">{pal.background}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Spot Inks Documentation */}
+              <div className="border-t pt-4" style={{ borderColor: activePalette.border }}>
+                <h3 className="font-bold text-sm mb-1">12 Physical Risograph Spot Inks (SPOT_INKS)</h3>
+                <p className="opacity-80 mb-3">
+                  Julian prints with 12 distinct spot ink drums. Pass any <code className="bg-black/5 px-1 py-0.5 rounded font-bold">inkColor</code> prop to dye components independently:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+                  {Object.entries(SPOT_INKS).map(([k, ink]) => (
+                    <div
+                      key={k}
+                      className="p-2.5 rounded-lg border flex flex-col gap-1.5"
+                      style={{ backgroundColor: activePalette.cardBg, borderColor: activePalette.border }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-3.5 h-3.5 rounded-sm shrink-0 border border-black/10" style={{ backgroundColor: ink.hex }} />
+                        <span className="font-bold text-[11px] truncate">{ink.name}</span>
+                      </div>
+                      <code className="text-[10px] opacity-70">{ink.hex}</code>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-[#1C1D1F] text-emerald-400 p-3.5 rounded-xl text-xs space-y-1">
+                  <p className="text-white/60">// How to dye individual components with authentic spot ink:</p>
+                  <p><span className="text-purple-400">import</span> &#123; Button, SPOT_INKS &#125; <span className="text-purple-400">from</span> <span className="text-amber-300">"@/components/ui/paper-button"</span>;</p>
+                  <p><span className="text-white/60">// In your JSX:</span></p>
+                  <p>&lt;<span className="text-blue-400">Button</span> <span className="text-amber-200">inkColor</span>=&#123;SPOT_INKS.fluorescentPink.hex&#125; <span className="text-amber-200">animationType</span>=<span className="text-amber-300">"hydraulic-pop"</span>&gt;Publish Zine&lt;/<span className="text-blue-400">Button</span>&gt;</p>
+                </div>
               </div>
             </div>
           )}
@@ -1314,14 +1601,55 @@ export default function MyZine() {
               </div>
             </div>
 
+            {/* Spot Ink Selection */}
+            <div>
+              <div className="flex justify-between text-xs font-mono font-bold mb-1.5">
+                <span>Spot Ink Cylinder:</span>
+                <span className="font-bold" style={{ color: customInkColor || activePalette.primary }}>
+                  {customInkColor ? Object.values(SPOT_INKS).find(i => i.hex === customInkColor)?.name || customInkColor : 'Palette Primary'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => {
+                    setCustomInkColor(null);
+                    TactileAudio.playClick(500);
+                  }}
+                  className={`px-2 py-1 text-[10px] font-mono rounded-md border transition-all ${
+                    !customInkColor ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                  }`}
+                  style={{ borderColor: activePalette.border }}
+                >
+                  Default
+                </button>
+                {Object.entries(SPOT_INKS).map(([k, ink]) => (
+                  <button
+                    key={k}
+                    title={`${ink.name} (${ink.hex})`}
+                    onClick={() => {
+                      setCustomInkColor(ink.hex);
+                      TactileAudio.playClick(650);
+                    }}
+                    className={`w-6 h-6 rounded-md border transition-all flex items-center justify-center text-white text-[9px] font-bold ${
+                      customInkColor === ink.hex ? 'ring-2 ring-black scale-110 shadow-xs' : 'opacity-85 hover:opacity-100'
+                    }`}
+                    style={{ backgroundColor: ink.hex, borderColor: 'rgba(0,0,0,0.15)' }}
+                  >
+                    {customInkColor === ink.hex ? '✓' : ''}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Reset Button */}
-            <div className="pt-2">
+            <div className="pt-2 flex gap-2">
               <button
                 onClick={() => {
                   setCustomRadius(2.4);
                   setCustomSpacing(7);
                   setCustomStiffness(0.20);
                   setCustomDamping(0.80);
+                  setCustomInkColor(null);
                   TactileAudio.playClick(500);
                 }}
                 className="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-black/5 hover:bg-black/10 transition-colors"
@@ -1346,6 +1674,7 @@ export default function MyZine() {
             <PaperDotButton
               label="Test Customized Button"
               palette={activePalette}
+              inkColor={customInkColor || undefined}
               dotShape={globalDotShape}
               burstIntensity={globalBurstMode}
               animationType={buttonAnim}
@@ -1358,6 +1687,7 @@ export default function MyZine() {
               value={sliderVal}
               onChange={setSliderVal}
               palette={activePalette}
+              inkColor={customInkColor || undefined}
               dotShape={globalDotShape}
               width={220}
               label="Live Slider"

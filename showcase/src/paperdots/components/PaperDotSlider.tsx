@@ -14,6 +14,7 @@ export interface PaperDotSliderProps {
   palette?: RisographPalette;
   dotShape?: DotGeometry;
   animationType?: SliderAnimationType;
+  inkColor?: string;
   width?: number;
   height?: number;
   label?: string;
@@ -29,6 +30,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
   palette = DEFAULT_PALETTE,
   dotShape = 'square',
   animationType = 'elastic-string',
+  inkColor,
   width = 240,
   height = 48,
   label,
@@ -111,7 +113,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
         vy: 0,
         radius: i === 0 ? 3.4 : 2.2,
         baseRadius: i === 0 ? 3.4 : 2.2,
-        color: i % 2 === 0 ? palette.primary : palette.secondary,
+        color: inkColor ? inkColor : (i % 2 === 0 ? palette.primary : palette.secondary),
         opacity: 0.95,
         baseOpacity: 0.95,
         mass: 0.8,
@@ -122,7 +124,7 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
       });
     }
     thumbDotsRef.current = thumbDots;
-  }, [width, height, min, max, palette, trackWidth, centerY, dotShape]);
+  }, [width, height, min, max, palette, trackWidth, centerY, dotShape, inkColor]);
 
   // Update thumb positions when value changes
   useEffect(() => {
@@ -158,14 +160,14 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
     const trackDots = trackDotsRef.current;
     for (let t = 0; t < trackDots.length; t++) {
       if (trackDots[t].x <= thumbX) {
-        trackDots[t].color = palette.primary;
+        trackDots[t].color = inkColor || palette.primary;
         trackDots[t].opacity = 0.9;
       } else {
         trackDots[t].color = palette.muted;
         trackDots[t].opacity = 0.5;
       }
     }
-  }, [thumbX, centerY, palette, isDragging, progress, animationType]);
+  }, [thumbX, centerY, palette, isDragging, progress, animationType, inkColor]);
 
   // Animation Loop
   useEffect(() => {
