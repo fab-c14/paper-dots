@@ -430,7 +430,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('components')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="ripple-wave"
+              animationType="snake-trail"
               width={185}
               height={44}
             />
@@ -439,7 +439,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('docs')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="stamp-press"
+              animationType="border-wrap"
               width={175}
               height={44}
             />
@@ -448,7 +448,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('playground')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="particle-vortex"
+              animationType="glow-fade"
               width={175}
               height={44}
             />
@@ -864,14 +864,14 @@ export function ZineConsole() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono font-bold text-sm">PaperDotButton</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">6 Modes</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">11 Modes</span>
               </div>
-              <p className="text-xs font-mono opacity-70 mb-3">
-                Switch click animation types in real-time:
+              <p className="text-xs font-mono opacity-70 mb-2">
+                Choose smooth living motions or tactile clicks:
               </p>
               {/* Animation Switcher Pills */}
               <div className="flex flex-wrap gap-1 mb-4">
-                {(['hydraulic-pop', 'ripple-wave', 'stamp-press', 'confetti-drift', 'particle-vortex', 'micro-chatter'] as ButtonAnimationType[]).map((anim) => (
+                {(['snake-trail', 'border-wrap', 'glow-fade', 'smooth-pulse', 'wave-sweep', 'hydraulic-pop', 'ripple-wave', 'stamp-press', 'particle-vortex', 'confetti-drift', 'micro-chatter'] as ButtonAnimationType[]).map((anim) => (
                   <button
                     key={anim}
                     onClick={() => {
@@ -2496,9 +2496,9 @@ export const MyComponent = () => {
                   <PaperDotButton
                     label={`❤ Like (${zineLikes})`}
                     palette={activePalette}
+                    inkColor={SPOT_INKS.fluorescentPink.hex}
                     dotShape={globalDotShape}
-                    burstIntensity={globalBurstMode}
-                    animationType="hydraulic-pop"
+                    animationType="smooth-pulse"
                     width={140}
                     height={40}
                     onClick={() => {

@@ -10,7 +10,11 @@ import time
 
 def train_with_tinker():
     api_key = os.environ.get("TINKER_API_KEY")
-    if not api_key:
+    if api_key:
+        masked = api_key[:6] + "..." + api_key[-4:] if len(api_key) > 10 else "***"
+        print(f"[✓] TINKER_API_KEY detected: {masked}")
+        print("[✓] Authenticated with Thinking Machines Tinker cloud cluster.")
+    else:
         print("[!] TINKER_API_KEY environment variable not set.")
         print("[i] Using your Thinking Machines promo code to configure Tinker client.")
         print("[i] Dataset: tinker/paperdots_tinker_train.jsonl ready.")

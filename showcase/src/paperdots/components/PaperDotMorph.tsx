@@ -37,6 +37,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
   const dotsRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
   const frameCountRef = useRef<number>(0);
+  const pulseProgressRef = useRef<number>(0);
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -110,6 +111,10 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, size, size);
 
+      if (pulseProgressRef.current > 0) {
+        pulseProgressRef.current = Math.max(0, pulseProgressRef.current - 0.04);
+      }
+
       // Living Shape-Specific Animations:
       // 1. Play active: Living equalizer wave
       if (shape === 'play' || isPlaying) {
@@ -119,11 +124,9 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       else if (shape === 'pause') {
         DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, center, center, 0.04, 2.5);
       }
-      // 3. Heart shape: Gentle organic heartbeat pulse
+      // 3. Heart shape: Smooth wobble-free organic cardiac dilation
       else if (shape === 'heart') {
-        const beatCycle = frameCountRef.current % 75;
-        const pulse = (beatCycle > 10 && beatCycle < 22) || (beatCycle > 30 && beatCycle < 40) ? 2.8 : 0;
-        DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, center, center, 0.1, pulse);
+        DotPhysicsEngine.applySmoothPulse(dotsRef.current, frameCountRef.current, center, center, pulseProgressRef.current);
       }
 
       // Physics update
@@ -183,8 +186,8 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       TactileAudio.playClick(420);
       if (forceMult > 0) DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 8 * forceMult);
     } else if (shape === 'heart') {
-      TactileAudio.playPop(520);
-      if (forceMult > 0) DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, 14 * forceMult);
+      TactileAudio.playClick(460);
+      pulseProgressRef.current = 1.0;
     } else if (shape === 'star') {
       TactileAudio.playPop(680);
       if (forceMult > 0) DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, 15 * forceMult);

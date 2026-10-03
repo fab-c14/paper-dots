@@ -115,6 +115,10 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     dotsRef.current = dots;
   }, [width, height, dotSpacing, palette, variant, dotShape, activePrimary]);
 
+  const frameCountRef = useRef<number>(0);
+  const pulseProgressRef = useRef<number>(0);
+  const surgeRef = useRef<number>(0);
+
   // Canvas animation loop
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -126,9 +130,30 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
 
     const render = () => {
       if (!isRunning) return;
+      frameCountRef.current++;
+
+      if (pulseProgressRef.current > 0) {
+        pulseProgressRef.current = Math.max(0, pulseProgressRef.current - 0.04);
+      }
+      if (surgeRef.current > 0) {
+        surgeRef.current = Math.max(0, surgeRef.current - 0.04);
+      }
 
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, width, height);
+
+      // Living animation dynamic behaviors
+      if (animationType === 'snake-trail') {
+        DotPhysicsEngine.applySnakeTrail(dotsRef.current, frameCountRef.current, width, height, surgeRef.current);
+      } else if (animationType === 'border-wrap') {
+        DotPhysicsEngine.applyBorderWrap(dotsRef.current, frameCountRef.current, width, height, surgeRef.current);
+      } else if (animationType === 'glow-fade') {
+        DotPhysicsEngine.applyGlowFade(dotsRef.current, frameCountRef.current, pulseProgressRef.current);
+      } else if (animationType === 'smooth-pulse') {
+        DotPhysicsEngine.applySmoothPulse(dotsRef.current, frameCountRef.current, width / 2, height / 2, pulseProgressRef.current);
+      } else if (animationType === 'wave-sweep') {
+        DotPhysicsEngine.applyWaveSweep(dotsRef.current, frameCountRef.current, width, surgeRef.current);
+      }
 
       // Update physics
       DotPhysicsEngine.updateDots(
@@ -169,7 +194,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, palette, dotShape]);
+  }, [width, height, palette, dotShape, animationType]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -200,40 +225,58 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    const force = burstIntensity === 'confetti' ? 16 : burstIntensity === 'gentle' ? 10 : 0;
-
-    if (burstIntensity !== 'none') {
-      switch (animationType) {
-        case 'hydraulic-pop':
-          DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
-          TactileAudio.playPop(520);
-          break;
-        case 'ripple-wave':
-          DotPhysicsEngine.triggerRippleWave(dotsRef.current, clickX, clickY, 18, 12);
-          TactileAudio.playRustle();
-          break;
-        case 'stamp-press':
-          DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 9);
-          TactileAudio.playClick(440);
-          break;
-        case 'confetti-drift':
-          DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, force + 3);
-          TactileAudio.playPop(620);
-          break;
-        case 'particle-vortex':
-          DotPhysicsEngine.triggerParticleVortex(dotsRef.current, clickX, clickY, 13);
-          TactileAudio.playClick(720);
-          break;
-        case 'micro-chatter':
-          DotPhysicsEngine.triggerMicroChatter(dotsRef.current, 8);
-          TactileAudio.playTick();
-          break;
-        default:
-          DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
-          TactileAudio.playPop(520);
-      }
+    // 1. Smooth living animations: zero scattering, elegant continuous tactile reactions
+    if (animationType === 'snake-trail') {
+      surgeRef.current = 1.0;
+      TactileAudio.playRustle();
+    } else if (animationType === 'border-wrap') {
+      surgeRef.current = 1.0;
+      TactileAudio.playTick();
+    } else if (animationType === 'glow-fade') {
+      pulseProgressRef.current = 1.0;
+      TactileAudio.playClick(520);
+    } else if (animationType === 'smooth-pulse') {
+      pulseProgressRef.current = 1.0;
+      TactileAudio.playClick(440);
+    } else if (animationType === 'wave-sweep') {
+      surgeRef.current = 1.0;
+      TactileAudio.playRustle();
     } else {
-      TactileAudio.playClick(600);
+      // 2. Tactile mechanical impulses
+      const force = burstIntensity === 'confetti' ? 16 : burstIntensity === 'gentle' ? 10 : 0;
+      if (burstIntensity !== 'none') {
+        switch (animationType) {
+          case 'hydraulic-pop':
+            DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
+            TactileAudio.playPop(520);
+            break;
+          case 'ripple-wave':
+            DotPhysicsEngine.triggerRippleWave(dotsRef.current, clickX, clickY, 18, 12);
+            TactileAudio.playRustle();
+            break;
+          case 'stamp-press':
+            DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 9);
+            TactileAudio.playClick(440);
+            break;
+          case 'confetti-drift':
+            DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, force + 3);
+            TactileAudio.playPop(620);
+            break;
+          case 'particle-vortex':
+            DotPhysicsEngine.triggerParticleVortex(dotsRef.current, clickX, clickY, 13);
+            TactileAudio.playClick(720);
+            break;
+          case 'micro-chatter':
+            DotPhysicsEngine.triggerMicroChatter(dotsRef.current, 8);
+            TactileAudio.playTick();
+            break;
+          default:
+            DotPhysicsEngine.triggerHydraulicPop(dotsRef.current, clickX, clickY, force);
+            TactileAudio.playPop(520);
+        }
+      } else {
+        TactileAudio.playClick(600);
+      }
     }
 
     if (onClick) onClick();

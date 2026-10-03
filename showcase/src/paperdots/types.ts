@@ -66,16 +66,22 @@ export interface RisographPalette {
 
 export type PresetShape = 'circle' | 'square' | 'heart' | 'star' | 'play' | 'pause' | 'check' | 'arrow';
 
-// Distinct animation types for each component
 export type ButtonAnimationType =
+  | 'snake-trail'
+  | 'border-wrap'
+  | 'glow-fade'
+  | 'smooth-pulse'
+  | 'wave-sweep'
   | 'hydraulic-pop'
   | 'ripple-wave'
   | 'stamp-press'
-  | 'confetti-drift'
   | 'particle-vortex'
+  | 'confetti-drift'
   | 'micro-chatter';
 
 export type MorphAnimationType =
+  | 'smooth-heartbeat'
+  | 'glow-bloom'
   | 'vortex-morph'
   | 'equalizer-wave'
   | 'crystalline-snap';

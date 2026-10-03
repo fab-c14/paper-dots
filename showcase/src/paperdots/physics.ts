@@ -319,6 +319,175 @@ export class DotPhysicsEngine {
   }
 
   /**
+   * 9. Snake Trail: Serpentine traveling pulse through matrix/perimeter dots.
+   */
+  public static applySnakeTrail(
+    dots: Dot[],
+    frame: number,
+    width: number,
+    _height: number,
+    surge: number = 0
+  ): void {
+    const cols = Math.max(1, Math.round(width / 7));
+    const speed = surge > 0 ? 3.0 : 0.8;
+    const totalSlots = dots.length + 15;
+    const snakeHead = (frame * speed) % totalSlots;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      if (dot.isScattered) continue;
+
+      const c = Math.round(dot.targetX / 7);
+      const r = Math.round(dot.targetY / 7);
+      const serpIdx = r * cols + (r % 2 === 0 ? c : Math.max(0, cols - 1 - c));
+      const distFromHead = (serpIdx - snakeHead + totalSlots) % totalSlots;
+
+      if (distFromHead < 12) {
+        const t = 1 - distFromHead / 12;
+        dot.radius = dot.baseRadius * (1 + t * 0.8);
+        dot.opacity = Math.min(1.0, dot.baseOpacity + t * 0.35);
+        dot.y = dot.targetY - t * 2.2;
+      } else {
+        dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+        dot.opacity += (dot.baseOpacity * 0.7 - dot.opacity) * 0.1;
+        dot.y += (dot.targetY - dot.y) * 0.2;
+      }
+    }
+  }
+
+  /**
+   * 10. Border Wrap: Luminous ribbon wrapping smoothly around outer perimeter.
+   */
+  public static applyBorderWrap(
+    dots: Dot[],
+    frame: number,
+    width: number,
+    height: number,
+    surge: number = 0
+  ): void {
+    const P = 2 * (width + height);
+    const speed = surge > 0 ? 9.0 : 3.2;
+    const head = (frame * speed) % P;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      if (dot.isScattered) continue;
+
+      const x = dot.targetX;
+      const y = dot.targetY;
+      const isTop = y <= 14;
+      const isBottom = y >= height - 14;
+      const isLeft = x <= 14;
+      const isRight = x >= width - 14;
+
+      if (isTop || isBottom || isLeft || isRight) {
+        let perimDist = 0;
+        if (isTop) perimDist = x;
+        else if (isRight) perimDist = width + y;
+        else if (isBottom) perimDist = width + height + (width - x);
+        else if (isLeft) perimDist = 2 * width + height + (height - y);
+
+        const dist = (perimDist - head + P) % P;
+        if (dist < 50) {
+          const factor = 1 - dist / 50;
+          dot.radius = dot.baseRadius * (1 + factor * 0.95);
+          dot.opacity = 1.0;
+        } else {
+          dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+          dot.opacity += (dot.baseOpacity * 0.75 - dot.opacity) * 0.1;
+        }
+      } else {
+        dot.opacity += (dot.baseOpacity * 0.5 - dot.opacity) * 0.1;
+        dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+      }
+    }
+  }
+
+  /**
+   * 11. Glow Fade: Smooth breathing ink bloom and soft continuous fade (zero scatter/burst).
+   */
+  public static applyGlowFade(
+    dots: Dot[],
+    frame: number,
+    pulseProgress: number = 0
+  ): void {
+    const cycle = (frame * 0.04) % (Math.PI * 2);
+    const breath = 0.5 + 0.5 * Math.sin(cycle);
+    const extra = pulseProgress > 0 ? Math.sin(pulseProgress * Math.PI) * 0.6 : 0;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      if (dot.isScattered) continue;
+
+      dot.radius = dot.baseRadius * (1.0 + (breath * 0.32 + extra));
+      dot.opacity = Math.min(1.0, 0.45 + breath * 0.45 + extra * 0.35);
+      dot.x += (dot.targetX - dot.x) * 0.2;
+      dot.y += (dot.targetY - dot.y) * 0.2;
+    }
+  }
+
+  /**
+   * 12. Smooth Pulse: Wobble-free harmonic dilation (crafted for Hearts, Badges, and Tactile Pills).
+   */
+  public static applySmoothPulse(
+    dots: Dot[],
+    frame: number,
+    centroidX: number,
+    centroidY: number,
+    pulseProgress: number = 0
+  ): void {
+    const beatTime = (frame * 0.05) % (Math.PI * 2);
+    const baseBeat =
+      Math.max(0, Math.sin(beatTime)) * 0.16 +
+      Math.max(0, Math.sin(beatTime * 2 + 0.2)) * 0.07;
+    const clickBoost = pulseProgress > 0 ? Math.sin(pulseProgress * Math.PI) * 0.32 : 0;
+    const totalScale = 1.0 + baseBeat + clickBoost;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      if (dot.isScattered) continue;
+
+      const dx = dot.targetX - centroidX;
+      const dy = dot.targetY - centroidY;
+      dot.x = centroidX + dx * totalScale;
+      dot.y = centroidY + dy * totalScale;
+      dot.radius = dot.baseRadius * (1.0 + (baseBeat + clickBoost) * 0.45);
+      dot.opacity = Math.min(1.0, dot.baseOpacity + (baseBeat + clickBoost) * 0.2);
+    }
+  }
+
+  /**
+   * 13. Wave Sweep: Laminar ink wave rolling smoothly across the x-axis.
+   */
+  public static applyWaveSweep(
+    dots: Dot[],
+    frame: number,
+    width: number,
+    surge: number = 0
+  ): void {
+    const speed = surge > 0 ? 5.5 : 2.5;
+    const waveX = (frame * speed) % (width + 60) - 30;
+    const waveWidth = 35;
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      if (dot.isScattered) continue;
+
+      const dist = Math.abs(dot.targetX - waveX);
+      if (dist < waveWidth) {
+        const t = 1 - dist / waveWidth;
+        dot.radius = dot.baseRadius * (1 + t * 0.7);
+        dot.opacity = Math.min(1.0, dot.baseOpacity + t * 0.3);
+        dot.y = dot.targetY - t * 2.5;
+      } else {
+        dot.radius += (dot.baseRadius - dot.radius) * 0.15;
+        dot.opacity += (dot.baseOpacity * 0.75 - dot.opacity) * 0.1;
+        dot.y += (dot.targetY - dot.y) * 0.2;
+      }
+    }
+  }
+
+  /**
    * Smoothly morphs dots to new target coordinates.
    */
   public static morphTargets(dots: Dot[], newPositions: { x: number; y: number }[]): void {
