@@ -17,6 +17,8 @@ import { PaperDotProgress } from './PaperDotProgress';
 import { PaperDotInput } from './PaperDotInput';
 import { PaperDotCard } from './PaperDotCard';
 import { PaperDotCanvas } from './PaperDotCanvas';
+import { PaperDotCheckbox } from './PaperDotCheckbox';
+import { PaperDotRadio } from './PaperDotRadio';
 
 export interface PaperDotUniversalProps {
   dsl: PaperDotComponentDSL;
@@ -47,6 +49,7 @@ export const PaperDotUniversal: React.FC<PaperDotUniversalProps> = ({
         burstIntensity={dsl.burstIntensity || globalBurstMode}
         animationType={dsl.animationType as any || 'hydraulic-pop'}
         inkColor={dsl.inkColor}
+        hoverColor={dsl.hoverColor}
         width={dsl.dimensions?.width}
         height={dsl.dimensions?.height}
         className={className}
@@ -79,6 +82,34 @@ export const PaperDotUniversal: React.FC<PaperDotUniversalProps> = ({
         palette={palette}
         dotShape={dotShape}
         animationType={dsl.animationType as any || 'cylinder-roll'}
+        inkColor={dsl.inkColor}
+        className={className}
+      />
+    );
+  }
+
+  if (compType === 'checkbox') {
+    return (
+      <PaperDotCheckbox
+        checked={true}
+        onChange={() => {}}
+        label={dsl.label || 'Publish Option'}
+        palette={palette}
+        dotShape={dotShape}
+        inkColor={dsl.inkColor}
+        className={className}
+      />
+    );
+  }
+
+  if (compType === 'radio') {
+    return (
+      <PaperDotRadio
+        checked={true}
+        onChange={() => {}}
+        label={dsl.label || 'Selected Option'}
+        palette={palette}
+        dotShape={dotShape}
         inkColor={dsl.inkColor}
         className={className}
       />
@@ -764,9 +795,18 @@ const GenerativePaperDotCanvas: React.FC<{
         animationType
       );
 
-      // Render dots
+      // Render dots with hover dynamic behaviors (color shift, bloom, scale)
+      const isHovered = pointerRef.current.isInside;
       dotsRef.current.forEach((dot) => {
-        PaperTextureGenerator.drawInkDot(ctx, dot.x, dot.y, dot.radius, dot.color, dot.opacity, true, dot.shape);
+        let drawColor = dot.color;
+        let drawRadius = dot.radius;
+        if (isHovered && dsl.hoverColor) {
+          drawColor = dsl.hoverColor;
+        }
+        if (isHovered && (dsl.hoverBehavior === 'bloom' || dsl.hoverBehavior === 'scale')) {
+          drawRadius = dot.radius * 1.35;
+        }
+        PaperTextureGenerator.drawInkDot(ctx, dot.x, dot.y, drawRadius, drawColor, dot.opacity, true, dot.shape);
       });
 
       // Keypad numerical overlay
@@ -790,52 +830,17 @@ const GenerativePaperDotCanvas: React.FC<{
         }
       }
 
-      // Top Header Plate: Crisp Letterpress Pill over dots/squares
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-      ctx.beginPath();
-      ctx.roundRect(10, 8, width - 20, 24, 6);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
+      // Clean, elegant label at top left & animation tag at top right
       ctx.fillStyle = palette.dark;
       ctx.font = 'bold 11px monospace';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText((dsl.label || dsl.componentType).toUpperCase(), 18, 24);
+      ctx.fillText((dsl.label || dsl.componentType).toUpperCase(), 14, 20);
 
-      ctx.fillStyle = activePrimary;
+      ctx.fillStyle = (isHovered && dsl.hoverColor) ? dsl.hoverColor : activePrimary;
       ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(`[${(dsl.animationType || 'kinetic-spring').toUpperCase()}]`, width - 18, 24);
-
-      // Bottom HUD Readout Plate: Prominent status text visible over dots/squares
-      const hudY = height - 26;
-      let hudText = 'TACTILE LIVING COMPONENT • HOVER FOR KINETIC EFFECT';
-      if (isEqualizer) hudText = 'EQ SPECTRUM • 12 BANDS • HOVER TO SURGE';
-      else if (isRadar) hudText = 'RADAR SCAN • 360° SWEEP • HOVER TO LOCK';
-      else if (isSpiral) hudText = 'GALAXY VORTEX • HOVER FOR CYCLONIC SWIRL';
-      else if (isWaveform) hudText = 'ACOUSTIC WAVE • HOVER FOR TRANSVERSE WAKE';
-      else if (isMatrix) hudText = 'MATRIX RAIN • 60 FPS • RISOGRAPH CASCADE';
-      else if (isPendulum) hudText = 'HARMONIC PENDULUM • GRAVITY OSCILLATION';
-      else if (isHeartbeat) hudText = 'CARDIAC RHYTHM • 74 BPM • ORGANIC BREATHING';
-      else if (animationType.includes('glow') || animationType.includes('fade')) hudText = 'LUMINOUS BLOOM • HOVER TO DILATE INK';
-      else if (animationType.includes('snake') || animationType.includes('trail')) hudText = 'SERPENTINE WAKE • HOVER TO DRAW SLITHER';
-      else if (animationType.includes('wrap') || animationType.includes('border')) hudText = 'ORBITAL WRAP • HOVER TO ACCELERATE';
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-      ctx.beginPath();
-      ctx.roundRect(10, hudY, width - 20, 18, 4);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.fillStyle = palette.dark;
-      ctx.font = 'bold 9px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(hudText, width / 2, hudY + 12);
+      ctx.fillText(dsl.animationType || 'kinetic-spring', width - 14, 20);
 
       animFrameRef.current = requestAnimationFrame(render);
     };

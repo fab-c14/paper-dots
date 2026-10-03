@@ -32,8 +32,10 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
   const dotRef = useRef<Dot[]>([]);
   const animFrameRef = useRef<number | null>(null);
 
-  const width = 24;
-  const height = 24;
+  // Increased size for tactile visibility and punch
+  const width = 32;
+  const height = 32;
+  const center = 16;
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -44,7 +46,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
     vy: 0,
     isDown: false,
     isInside: false,
-    radius: 15,
+    radius: 20,
   });
 
   useEffect(() => {
@@ -52,14 +54,14 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
     dotRef.current = [
       {
         id: 'badge-dot',
-        x: 12,
-        y: 12,
-        targetX: 12,
-        targetY: 12,
+        x: center,
+        y: center,
+        targetX: center,
+        targetY: center,
         vx: 0,
         vy: 0,
-        radius: 3.5,
-        baseRadius: 3.5,
+        radius: 5.0,
+        baseRadius: 5.0,
         color,
         opacity: 0.95,
         baseOpacity: 0.95,
@@ -70,7 +72,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
         shape: dotShape,
       },
     ];
-  }, [palette, variant, dotShape, inkColor]);
+  }, [palette, variant, dotShape, inkColor, center]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -97,12 +99,12 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
       if (d) {
         let currentRad = d.radius;
         if (dotPulse && animationType === 'beacon-pulse') {
-          const pulse = (Math.sin(time * 2) + 1) * 0.6;
-          currentRad = d.radius + pulse * 1.2;
+          const pulse = (Math.sin(time * 2) + 1) * 0.5;
+          currentRad = d.baseRadius + pulse * 2.2;
         } else if (animationType === 'float-drift') {
-          d.y = d.targetY + Math.sin(time) * 1.5;
+          d.y = d.targetY + Math.sin(time) * 2.0;
         } else if (animationType === 'shimmer-wave') {
-          d.opacity = 0.5 + Math.sin(time * 3) * 0.45;
+          d.opacity = 0.45 + Math.sin(time * 3) * 0.5;
         }
 
         PaperTextureGenerator.drawInkDot(ctx, d.x, d.y, currentRad, d.color, d.opacity, true, dotShape);
@@ -121,18 +123,13 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
 
   const handleClick = () => {
     TactileAudio.playPop(620);
-    DotPhysicsEngine.triggerHydraulicPop(dotRef.current, 12, 12, 10);
+    DotPhysicsEngine.triggerHydraulicPop(dotRef.current, center, center, 12);
     if (onClick) onClick();
-  };
-
-  const getBadgeStyle = () => {
-    const base = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold select-none cursor-pointer shadow-2xs';
-    return base;
   };
 
   return (
     <div
-      className={`${getBadgeStyle()} ${className}`}
+      className={`inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-extrabold select-none cursor-pointer shadow-2xs hover:shadow-xs transition-shadow ${className}`}
       onClick={handleClick}
       style={{
         backgroundColor: palette.cardBg,
@@ -140,7 +137,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
         color: palette.dark,
       }}
     >
-      <div className="relative w-4 h-4 flex items-center justify-center">
+      <div className="relative w-5 h-5 flex items-center justify-center shrink-0">
         <canvas
           ref={canvasRef}
           width={width}
@@ -148,7 +145,7 @@ export const PaperDotBadge: React.FC<PaperDotBadgeProps> = ({
           className="w-full h-full pointer-events-none"
         />
       </div>
-      <span className="tracking-wider uppercase text-[11px] font-extrabold">{label}</span>
+      <span className="tracking-wider uppercase text-xs font-extrabold">{label}</span>
     </div>
   );
 };

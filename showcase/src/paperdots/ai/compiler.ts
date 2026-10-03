@@ -55,6 +55,42 @@ export class PaperDotsAICompiler {
       // Local server not running; proceed immediately with client-side synthesis
     }
 
+    // Direct JSON DSL Specification parsing (Allows developers/users to pass ANY valid design specification directly)
+    const trimmed = prompt.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(trimmed) as Partial<PaperDotComponentDSL>;
+        if (parsed && (parsed.componentType || parsed.id)) {
+          const dsl: PaperDotComponentDSL = {
+            id: parsed.id || `comp-${Date.now()}`,
+            componentType: parsed.componentType || 'button',
+            label: parsed.label || 'Interactive Component',
+            paletteKey: parsed.paletteKey || 'risographClassic',
+            shape: parsed.shape || 'circle',
+            dotShape: parsed.dotShape || 'circle',
+            burstIntensity: parsed.burstIntensity || 'none',
+            animationType: parsed.animationType || 'glow-fade',
+            inkColor: parsed.inkColor,
+            hoverColor: parsed.hoverColor,
+            hoverBehavior: parsed.hoverBehavior || 'glow-fade',
+            clickBehavior: parsed.clickBehavior,
+            physics: parsed.physics || { stiffness: 0.22, damping: 0.80, mass: 1.0, jitter: 0.08 },
+            dimensions: parsed.dimensions || { width: 240, height: 120 },
+            dotStyling: parsed.dotStyling || { baseRadius: 2.6, spacing: 7, inkBleed: true, paperGrainIntensity: 0.05 },
+            description: parsed.description || `Custom DSL specification component: ${parsed.componentType}`,
+          };
+          return {
+            prompt,
+            dsl,
+            generatedBy: 'heuristic-local-engine',
+            inferenceTimeMs: Math.round(performance.now() - startTime),
+          };
+        }
+      } catch {
+        // Not JSON, continue with natural language synthesis
+      }
+    }
+
     const lower = prompt.toLowerCase();
 
     // 1. Comprehensive Component Type Resolution (Standard + Novel Generative)
@@ -81,9 +117,11 @@ export class PaperDotsAICompiler {
       componentType = 'rating';
     } else if (lower.includes('dial') || lower.includes('knob') || lower.includes('potentiometer') || lower.includes('rotary')) {
       componentType = 'dial';
-    } else if (lower.includes('slider') || lower.includes('volume') || lower.includes('fader') || lower.includes('range')) {
-      componentType = 'slider';
-    } else if (lower.includes('toggle') || lower.includes('switch') || lower.includes('checkbox')) {
+    } else if (lower.includes('checkbox') || lower.includes('check box') || lower.includes('checkmark')) {
+      componentType = 'checkbox';
+    } else if (lower.includes('radio') || lower.includes('radio button') || lower.includes('option button')) {
+      componentType = 'radio';
+    } else if (lower.includes('toggle') || lower.includes('switch')) {
       componentType = 'toggle';
     } else if (lower.includes('badge') || lower.includes('tag') || lower.includes('pill') || lower.includes('status')) {
       componentType = 'badge';
@@ -230,28 +268,105 @@ export class PaperDotsAICompiler {
       }
     }
 
-    // 7. Spot Ink Color Resolution
-    let inkColor: string | undefined = undefined;
-    if (lower.includes('pink') || lower.includes('fluorescent')) inkColor = '#FF48B0';
-    else if (lower.includes('blue') || lower.includes('federal') || lower.includes('cobalt')) inkColor = '#0078BF';
-    else if (lower.includes('yellow') || lower.includes('sunflower')) inkColor = '#FFD800';
-    else if (lower.includes('mint') || lower.includes('seafoam')) inkColor = '#00A95C';
-    else if (lower.includes('red') || lower.includes('scarlet')) inkColor = '#F15060';
-    else if (lower.includes('purple') || lower.includes('violet')) inkColor = '#765BA7';
-    else if (lower.includes('green') || lower.includes('emerald')) inkColor = '#00805A';
-    else if (lower.includes('terracotta') || lower.includes('clay') || lower.includes('orange')) inkColor = '#BB6B00';
-    else if (lower.includes('burgundy')) inkColor = '#5E2028';
-    else if (lower.includes('teal')) inkColor = '#00838A';
-    else if (lower.includes('gold') || lower.includes('bronze')) inkColor = '#8E6F3E';
-    else if (lower.includes('black') || lower.includes('soy') || lower.includes('lead')) inkColor = '#1C1D1F';
+    // 7. Spot Ink & Dynamic Hover Color Resolution (Hex codes + Named Risograph Inks)
+    const colorMap: Record<string, string> = {
+      pink: '#FF48B0',
+      fluorescent: '#FF48B0',
+      magenta: '#FF48B0',
+      blue: '#0078BF',
+      federal: '#0078BF',
+      cobalt: '#0078BF',
+      sapphire: '#0078BF',
+      yellow: '#FFD800',
+      sunflower: '#FFD800',
+      amber: '#FFD800',
+      cyan: '#00A95C',
+      mint: '#00A95C',
+      seafoam: '#00A95C',
+      red: '#F15060',
+      scarlet: '#F15060',
+      crimson: '#F15060',
+      purple: '#765BA7',
+      violet: '#765BA7',
+      lavender: '#765BA7',
+      green: '#00805A',
+      emerald: '#00805A',
+      lime: '#00A95C',
+      orange: '#BB6B00',
+      terracotta: '#BB6B00',
+      clay: '#BB6B00',
+      burgundy: '#5E2028',
+      plum: '#5E2028',
+      teal: '#00838A',
+      aqua: '#00838A',
+      gold: '#8E6F3E',
+      bronze: '#8E6F3E',
+      black: '#1C1D1F',
+      charcoal: '#1C1D1F',
+      soy: '#1C1D1F',
+      lead: '#1C1D1F',
+    };
 
-    // 8. Dimensions
+    let inkColor: string | undefined = undefined;
+    let hoverColor: string | undefined = undefined;
+
+    // Detect explicit hover color: e.g. "turns amber on hover", "hover color #FFD800", "shifts to cobalt on hover", "glows cyan on hover"
+    const hoverMatch = prompt.match(/(?:turns?|shifts?|glows?|hover(?:\s+color)?(?:\s+to)?)\s+(#[0-9a-fA-F]{3,6}|amber|emerald|pink|blue|yellow|cyan|red|violet|purple|green|gold|orange|mint|teal|black|cobalt|crimson)/i)
+      || prompt.match(/hover\s*(?:is|:|=)\s*(#[0-9a-fA-F]{3,6}|amber|emerald|pink|blue|yellow|cyan|red|violet|purple|green|gold|orange|mint|teal|black|cobalt|crimson)/i);
+
+    if (hoverMatch) {
+      const matched = hoverMatch[1].toLowerCase();
+      hoverColor = matched.startsWith('#') ? matched : colorMap[matched] || matched;
+    }
+
+    // Detect base ink color
+    const hexMatch = prompt.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
+    if (hexMatch && (!hoverColor || hexMatch[0].toLowerCase() !== hoverColor.toLowerCase())) {
+      inkColor = hexMatch[0];
+    } else {
+      for (const [name, hex] of Object.entries(colorMap)) {
+        if (lower.includes(name) && (!hoverMatch || !hoverMatch[0].toLowerCase().includes(name))) {
+          inkColor = hex;
+          break;
+        }
+      }
+    }
+
+    // Hover & Click Behavior Resolution
+    let hoverBehavior: 'glow-fade' | 'bloom' | 'color-shift' | 'shimmer' | 'scale' | 'none' = 'glow-fade';
+    if (lower.includes('bloom') || lower.includes('swell') || lower.includes('dilate')) {
+      hoverBehavior = 'bloom';
+    } else if (lower.includes('shimmer')) {
+      hoverBehavior = 'shimmer';
+    } else if (lower.includes('scale') || lower.includes('grow')) {
+      hoverBehavior = 'scale';
+    } else if (hoverColor || lower.includes('color shift') || lower.includes('shifts') || lower.includes('turns')) {
+      hoverBehavior = 'color-shift';
+    }
+
+    let clickBehavior: 'hydraulic-pop' | 'ripple' | 'elastic-snap' | 'burst' | 'toggle' = 'hydraulic-pop';
+    if (lower.includes('ripple')) clickBehavior = 'ripple';
+    else if (lower.includes('elastic') || lower.includes('snap')) clickBehavior = 'elastic-snap';
+    else if (lower.includes('confetti') || lower.includes('burst') || lower.includes('scatter')) clickBehavior = 'burst';
+    else if (componentType === 'toggle' || componentType === 'checkbox' || componentType === 'radio') clickBehavior = 'toggle';
+
+    // 8. Dimensions (with support for explicit WxH e.g. 260x140)
     let width = 180;
     let height = 52;
-    let dotRadius = 2.4;
+    let dotRadius = 2.6;
     let dotSpacing = 7;
 
-    switch (componentType) {
+    const dimMatch = prompt.match(/(\d{2,4})\s*[x×]\s*(\d{2,4})/);
+    if (dimMatch) {
+      width = parseInt(dimMatch[1], 10);
+      height = parseInt(dimMatch[2], 10);
+    } else {
+      switch (componentType) {
+        case 'checkbox':
+        case 'radio':
+          width = 180;
+          height = 38;
+          break;
       case 'equalizer':
         width = 300;
         height = 150;
@@ -339,6 +454,7 @@ export class PaperDotsAICompiler {
         height = 140;
         break;
     }
+  }
 
     // 9. Extract Label
     let label = 'Action';
@@ -363,6 +479,10 @@ export class PaperDotsAICompiler {
       label = 'Cardiac Rhythm';
     } else if (componentType === 'keypad') {
       label = 'Tactile Keypad';
+    } else if (componentType === 'checkbox') {
+      label = 'Enable Option';
+    } else if (componentType === 'radio') {
+      label = 'Select Option';
     } else if (componentType === 'slider') {
       label = lower.includes('volume') ? 'Volume' : 'Level';
     } else if (componentType === 'badge') {
@@ -391,6 +511,9 @@ export class PaperDotsAICompiler {
       burstIntensity,
       animationType,
       inkColor,
+      hoverColor,
+      hoverBehavior,
+      clickBehavior,
       physics: {
         stiffness,
         damping,

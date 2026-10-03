@@ -108,27 +108,10 @@ export class DotPhysicsEngine {
               const breathe = Math.sin(Date.now() * 0.009 + (dot.phaseOffset || 0)) * 0.5 + 0.5;
               dot.radius = dot.baseRadius * (1 + factor * 0.7 * breathe);
               dot.opacity = Math.min(1.0, dot.baseOpacity + factor * 0.3 * breathe);
-            } else if (anim.includes('snake') || anim.includes('trail') || anim.includes('slither')) {
-              // 3. SNAKE-TRAIL: Magnetic attraction & slithering transverse wake toward cursor
-              const angle = Math.atan2(dy, dx);
-              const perpWave = Math.sin(Date.now() * 0.012 + (dot.phaseOffset || 0)) * 3.5;
-              dot.vx += (-Math.cos(angle) * force * 0.75 + Math.sin(angle) * perpWave);
-              dot.vy += (-Math.sin(angle) * force * 0.75 - Math.cos(angle) * perpWave);
-              dot.radius = dot.baseRadius * (1 + factor * 0.35);
-            } else if (anim.includes('wrap') || anim.includes('border') || anim.includes('orbit')) {
-              // 4. BORDER-WRAP: Orbital vortex around cursor
-              dot.vx += (-dy / dist) * force * 1.35;
-              dot.vy += (dx / dist) * force * 1.35;
-              dot.radius = dot.baseRadius * (1 + factor * 0.4);
-            } else if (anim.includes('vortex') || anim.includes('swirl') || anim.includes('spiral')) {
-              // 5. PARTICLE-VORTEX: Planetary cyclonic swirl around pointer
-              dot.vx += (-dy / dist) * force * 1.5;
-              dot.vy += (dx / dist) * force * 1.5;
-              dot.radius = dot.baseRadius * (1 + factor * 0.5);
             } else if (anim.includes('magnetic') || anim.includes('detent') || anim.includes('elastic') || anim.includes('tick')) {
-              // 6. MAGNETIC ATTRACTION: Dots pull toward cursor like iron filings
-              dot.vx -= (dx / dist) * force * 0.85;
-              dot.vy -= (dy / dist) * force * 0.85;
+              // 3. MAGNETIC DETENT: Dots pull gently toward cursor like soft iron filings
+              dot.vx -= (dx / dist) * force * 0.35;
+              dot.vy -= (dy / dist) * force * 0.35;
               dot.radius = dot.baseRadius * (1 + factor * 0.4);
             } else if (anim.includes('equalizer') || anim.includes('frequency') || anim.includes('bars')) {
               // 7. EQUALIZER: Upward vertical frequency surge under cursor

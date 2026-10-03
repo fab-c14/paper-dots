@@ -168,16 +168,8 @@ export const PaperDotDial: React.FC<PaperDotDialProps> = ({
         PaperTextureGenerator.drawInkDot(ctx, dot.x, dot.y, dot.radius, dot.color, dot.opacity, true, dot.shape);
       });
 
-      // Center value readout plate
+      // Center value readout
       ctx.globalAlpha = 1.0;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-      ctx.beginPath();
-      ctx.roundRect(center - 18, center - 11, 36, 22, 6);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
       ctx.fillStyle = palette.dark;
       ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'center';
@@ -258,12 +250,8 @@ export const PaperDotDial: React.FC<PaperDotDialProps> = ({
       />
       {label && (
         <span
-          className="text-[10px] font-mono font-extrabold uppercase tracking-wider mt-1 px-2.5 py-0.5 rounded shadow-2xs border"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.90)',
-            color: palette.dark,
-            borderColor: 'rgba(0, 0, 0, 0.12)',
-          }}
+          className="text-[11px] font-mono font-bold uppercase tracking-wider mt-1 opacity-80"
+          style={{ color: palette.dark }}
         >
           {label}
         </span>

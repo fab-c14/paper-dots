@@ -14,6 +14,7 @@ export interface PaperDotButtonProps {
   burstIntensity?: 'none' | 'gentle' | 'confetti';
   animationType?: ButtonAnimationType;
   inkColor?: string;
+  hoverColor?: string;
   width?: number;
   height?: number;
   dotSpacing?: number;
@@ -28,8 +29,9 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
   variant = 'solid',
   dotShape = 'square',
   burstIntensity = 'gentle',
-  animationType = 'hydraulic-pop',
+  animationType = 'glow-fade',
   inkColor,
+  hoverColor,
   width = 160,
   height = 52,
   dotSpacing = 7,
@@ -87,7 +89,7 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1;
         if (variant === 'outline' && !isBorder) continue;
 
-        const baseRad = isBorder ? 2.4 : variant === 'halftone' ? (r % 2 === 0 ? 1.8 : 2.5) : 2.1;
+        const baseRad = isBorder ? 2.8 : variant === 'halftone' ? (r % 2 === 0 ? 2.2 : 3.0) : 2.5;
         const dotColor = isBorder ? activePrimary : (c + r) % 3 === 0 ? palette.secondary : activePrimary;
 
         dots.push({
@@ -168,12 +170,13 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
       const dots = dotsRef.current;
       for (let i = 0; i < dots.length; i++) {
         const d = dots[i];
+        const dotCol = (isHovered && hoverColor) ? hoverColor : d.color;
         PaperTextureGenerator.drawInkDot(
           ctx,
           d.x,
           d.y,
           d.radius,
-          d.color,
+          dotCol,
           d.opacity,
           true,
           d.shape || dotShape
@@ -311,28 +314,17 @@ export const PaperDotButton: React.FC<PaperDotButtonProps> = ({
         className="absolute inset-0 rounded-xl"
         style={{ pointerEvents: 'none' }}
       />
-      <div
-        className="relative z-10 flex items-center justify-center px-4 py-1.5 rounded-lg pointer-events-none transition-all"
+      <span
+        className="relative z-10 font-bold tracking-wider uppercase text-sm pointer-events-none"
         style={{
-          backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.94)' : 'rgba(255, 255, 255, 0.88)',
-          backdropFilter: 'blur(4px)',
-          boxShadow: isHovered
-            ? '0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)'
-            : '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
-          border: `1px solid ${isHovered ? palette.dark : 'rgba(0,0,0,0.14)'}`,
+          color: palette.dark,
+          fontFamily: '"Courier New", Courier, monospace',
+          textShadow: '0 1px 2px rgba(255,255,255,0.9), 0 0 8px rgba(245,242,235,0.85)',
+          letterSpacing: '0.06em',
         }}
       >
-        <span
-          className="font-extrabold tracking-wider uppercase text-sm"
-          style={{
-            color: palette.dark,
-            fontFamily: '"Courier New", Courier, monospace',
-            letterSpacing: '0.08em',
-          }}
-        >
-          {label}
-        </span>
-      </div>
+        {label}
+      </span>
     </div>
   );
 };

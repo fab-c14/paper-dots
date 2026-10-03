@@ -199,12 +199,8 @@ export const PaperDotRating: React.FC<PaperDotRatingProps> = ({
         />
       </div>
       <span
-        className="px-2 py-0.5 rounded text-[11px] font-mono font-extrabold uppercase shadow-2xs border whitespace-nowrap"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.90)',
-          color: palette.dark,
-          borderColor: 'rgba(0, 0, 0, 0.12)',
-        }}
+        className="text-[11px] font-mono font-bold uppercase tracking-wider whitespace-nowrap opacity-75"
+        style={{ color: palette.dark }}
       >
         {displayValue}/{max} {shape.toUpperCase()}S
       </span>

@@ -15,10 +15,10 @@ export interface PaperDotLoaderProps {
 }
 
 export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
-  size = 100,
+  size = 110,
   palette = DEFAULT_PALETTE,
   dotShape = 'circle',
-  dotCount = 16,
+  dotCount = 12,
   speed = 1.0,
   inkColor,
   label = 'Inking...',
@@ -27,7 +27,8 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const center = size / 2;
-  const radius = size * 0.32;
+  const ringRadius = size * 0.34;
+  const baseDotSize = Math.max(3.2, size * 0.036);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,24 +42,51 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
     const render = () => {
       if (!isRunning) return;
 
-      time += 0.03 * speed;
+      time += 0.035 * speed;
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, size, size);
 
+      // Subtle track circle guide
+      ctx.beginPath();
+      ctx.arc(center, center, ringRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = palette.border || 'rgba(0,0,0,0.06)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Head position moving around the circle [0 .. dotCount)
+      const head = (time * speed * 2.6) % dotCount;
+
       for (let i = 0; i < dotCount; i++) {
-        const theta = (i / dotCount) * Math.PI * 2 + time;
-        const wave = Math.sin(time * 2 + i * 0.5);
-        const curRadius = radius + wave * 4;
+        // Fixed static circular positions with equal spacing
+        const angle = (i / dotCount) * Math.PI * 2 - Math.PI / 2;
+        const x = center + Math.cos(angle) * ringRadius;
+        const y = center + Math.sin(angle) * ringRadius;
 
-        const x = center + Math.cos(theta) * curRadius;
-        const y = center + Math.sin(theta) * curRadius;
+        // Circular distance behind the wave head
+        let diff = (head - i) % dotCount;
+        if (diff < 0) diff += dotCount;
 
-        const dotSize = 2.4 + (Math.sin(theta - time) + 1) * 1.5;
-        const color = inkColor ? inkColor : (i % 2 === 0 ? palette.primary : palette.secondary);
-        const opacity = 0.45 + (Math.sin(theta - time) + 1) * 0.3;
+        // Swell envelope: dot swells up, then resets back to base size
+        let swell = 0;
+        if (diff < 3.2) {
+          swell = Math.pow(1 - diff / 3.2, 2.2);
+        }
 
-        PaperTextureGenerator.drawInkDot(ctx, x, y, dotSize, color, opacity, true, dotShape);
+        const dotRadius = baseDotSize * (1 + swell * 1.5);
+        const opacity = 0.32 + swell * 0.68;
+        const color = swell > 0.25 ? (inkColor || palette.primary) : palette.muted;
+
+        PaperTextureGenerator.drawInkDot(ctx, x, y, dotRadius, color, opacity, true, dotShape);
       }
+
+      // Draw subtle paper fiber overlay
+      const paperPattern = PaperTextureGenerator.getPaperPattern(0.03);
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      ctx.drawImage(paperPattern, 0, 0, size, size);
+      ctx.restore();
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -69,10 +97,10 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, palette, dotCount, speed, center, radius, dotShape, inkColor]);
+  }, [size, palette, dotCount, speed, center, ringRadius, baseDotSize, dotShape, inkColor]);
 
   return (
-    <div className={`flex flex-col items-center justify-center gap-2 select-none ${className}`}>
+    <div className={`flex flex-col items-center justify-center gap-2.5 select-none ${className}`}>
       <canvas
         ref={canvasRef}
         width={size}
@@ -81,7 +109,7 @@ export const PaperDotLoader: React.FC<PaperDotLoaderProps> = ({
       />
       {label && (
         <span
-          className="text-xs font-mono font-bold tracking-widest uppercase animate-pulse"
+          className="text-xs font-mono font-bold tracking-widest uppercase opacity-75"
           style={{ color: palette.dark }}
         >
           {label}

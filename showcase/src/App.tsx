@@ -12,9 +12,10 @@ import {
   PaperDotBadge,
   PaperDotProgress,
   PaperDotInput,
-  PaperDotTabs,
   PaperDotRating,
   PaperDotDial,
+  PaperDotCheckbox,
+  PaperDotRadio,
   PaperDotUniversal,
   TactileAudio,
 } from './paperdots';
@@ -27,7 +28,6 @@ import type {
   ProgressAnimationType,
   BadgeAnimationType,
   InputAnimationType,
-  TabsAnimationType,
   RatingAnimationType,
   DialAnimationType,
 } from './paperdots';
@@ -49,6 +49,7 @@ import {
   BookOpen,
   Download,
   Activity,
+  Sparkles,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -73,7 +74,9 @@ export const App: React.FC = () => {
   const [copiedInstallCmd, setCopiedInstallCmd] = useState<boolean>(false);
 
   // Distinct Animation Type States for every component
-  const [buttonAnim, setButtonAnim] = useState<ButtonAnimationType>('hydraulic-pop');
+  const [buttonAnim, setButtonAnim] = useState<ButtonAnimationType>('glow-fade');
+  const [checkboxVal, setCheckboxVal] = useState<boolean>(true);
+  const [radioSelection, setRadioSelection] = useState<string>('standard');
   const [morphShape, setMorphShape] = useState<PresetShape>('play');
   const [morphPlaying, setMorphPlaying] = useState<boolean>(true);
   const [sliderAnim, setSliderAnim] = useState<SliderAnimationType>('elastic-string');
@@ -81,7 +84,6 @@ export const App: React.FC = () => {
   const [progressAnim, setProgressAnim] = useState<ProgressAnimationType>('domino-cascade');
   const [inputAnim, setInputAnim] = useState<InputAnimationType>('typewriter-recoil');
   const [badgeAnim, setBadgeAnim] = useState<BadgeAnimationType>('beacon-pulse');
-  const [tabsAnim, setTabsAnim] = useState<TabsAnimationType>('crawl-slide');
   const [ratingAnim, setRatingAnim] = useState<RatingAnimationType>('bloom-expand');
   const [dialAnim, setDialAnim] = useState<DialAnimationType>('radial-sweep');
 
@@ -90,7 +92,6 @@ export const App: React.FC = () => {
   const [progressVal, setProgressVal] = useState<number>(45);
   const [toggleState, setToggleState] = useState<boolean>(true);
   const [inputVal, setInputVal] = useState<string>('Analog Futures Issue #03');
-  const [tabsIdx, setTabsIdx] = useState<number>(0);
   const [ratingVal, setRatingVal] = useState<number>(5);
   const [dialVal, setDialVal] = useState<number>(72);
   
@@ -121,6 +122,7 @@ export const App: React.FC = () => {
   );
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
   const [compiledResult, setCompiledResult] = useState<PromptToComponentResult | null>(null);
+  const [dslEditorText, setDslEditorText] = useState<string>('');
   const [activeCodeTab, setActiveCodeTab] = useState<'preview' | 'dsl' | 'react'>('preview');
 
   const [tinkerServerConnected, setTinkerServerConnected] = useState<boolean>(false);
@@ -140,6 +142,7 @@ export const App: React.FC = () => {
     try {
       const result = await PaperDotsAICompiler.compilePrompt(text);
       setCompiledResult(result);
+      setDslEditorText(JSON.stringify(result.dsl, null, 2));
     } finally {
       setIsCompiling(false);
     }
@@ -164,16 +167,15 @@ export const App: React.FC = () => {
   }, []);
 
   const samplePrompts = [
-    "An audio equalizer with bouncing dot columns",
-    "A 360-degree radar sweep scanner with emerald dots",
-    "A celestial galaxy spiral vortex with cosmic rotation",
-    "A continuous sinusoidal waveform oscilloscope",
-    "A cascading digital matrix rain with paper jitter",
+    "A 360-degree radar sweep with emerald dots that turns amber on hover with blooming dots",
+    "A glowing button labeled 'Stamp Proof' with glow-fade hover and hot pink ink",
+    "A tactile stippled checkbox labeled 'Auto-Print' that shifts to cobalt ink on hover",
+    "An audio equalizer with bouncing emerald bars and rustle sound",
+    "A celestial galaxy spiral vortex with cosmic rotation and stippled particles",
+    "A continuous sinusoidal waveform oscilloscope with cyan ink",
+    "A cascading digital matrix rain with paper jitter and 0.28 bouncy stiffness",
+    "A cardiac rhythm heartbeat monitor with crimson ink and smooth pulse",
     "A harmonic pendulum metronome with smooth gravity swing",
-    "A cardiac rhythm heartbeat monitor with zero burst",
-    "A button with snakey animation and fluorescent pink ink",
-    "A button having wrapping glowing in fade labeled 'Stamp Proof'",
-    "A smooth heart with pink ink and wobble-free pulse",
   ];
 
   const morphShapesList: PresetShape[] = ['play', 'pause', 'heart', 'star', 'check', 'arrow', 'circle'];
@@ -437,7 +439,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('install')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="hydraulic-pop"
+              animationType="glow-fade"
               width={175}
               height={44}
             />
@@ -446,7 +448,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('components')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="snake-trail"
+              animationType="glow-fade"
               width={185}
               height={44}
             />
@@ -455,7 +457,7 @@ export const App: React.FC = () => {
               onClick={() => scrollTo('docs')}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="border-wrap"
+              animationType="glow-fade"
               width={175}
               height={44}
             />
@@ -820,7 +822,7 @@ export function ZineConsole() {
               onClick={() => copyToClipboard(getInstallCommand())}
               palette={activePalette}
               dotShape={globalDotShape}
-              animationType="hydraulic-pop"
+              animationType="glow-fade"
               width={150}
               height={36}
             />
@@ -890,7 +892,7 @@ export function ZineConsole() {
               </p>
               {/* Animation Switcher Pills */}
               <div className="flex flex-wrap gap-1 mb-4">
-                {(['snake-trail', 'border-wrap', 'glow-fade', 'smooth-pulse', 'wave-sweep', 'hydraulic-pop', 'ripple-wave', 'stamp-press', 'particle-vortex', 'confetti-drift', 'micro-chatter'] as ButtonAnimationType[]).map((anim) => (
+                {(['glow-fade', 'smooth-pulse', 'hydraulic-pop', 'stamp-press', 'micro-chatter'] as ButtonAnimationType[]).map((anim) => (
                   <button
                     key={anim}
                     onClick={() => {
@@ -1285,7 +1287,7 @@ export function ZineConsole() {
             <span className="text-[11px] font-mono opacity-50 text-center">Hover border for magnetism</span>
           </div>
 
-          {/* Component 10: PaperDotTabs */}
+          {/* Component 10: PaperDotCheckbox & PaperDotRadio */}
           <div
             className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
             style={{
@@ -1295,42 +1297,51 @@ export function ZineConsole() {
           >
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-sm">PaperDotTabs</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Kinetic Segmented</span>
+                <span className="font-mono font-bold text-sm">PaperDotCheckbox & Radio</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold">Tactile Controls</span>
               </div>
               <p className="text-xs font-mono opacity-70 mb-3">
-                Crawling stipple dot bed with Euler spring sliding between tab segments:
+                Tactile risograph inputs with spring check bloom and expanding radio detents:
               </p>
-              <div className="flex flex-wrap gap-1 mb-4">
-                {(['crawl-slide', 'spring-elastic', 'glow-fade'] as TabsAnimationType[]).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => {
-                      setTabsAnim(t);
-                      TactileAudio.playClick(620);
-                    }}
-                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
-                      tabsAnim === t ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    {t.replace('-', ' ')}
-                  </button>
-                ))}
+            </div>
+            <div className="py-2 flex flex-col gap-3">
+              {/* Checkbox */}
+              <div className="p-3 rounded-xl bg-black/5 flex items-center justify-between">
+                <PaperDotCheckbox
+                  checked={checkboxVal}
+                  onChange={setCheckboxVal}
+                  label="Risograph Spot Foil"
+                  palette={activePalette}
+                  inkColor={customInkColor || activePalette.primary}
+                  dotShape={globalDotShape}
+                />
+                <span className="text-[10px] font-mono opacity-60 font-bold">{checkboxVal ? 'CHECKED' : 'UNCHECKED'}</span>
+              </div>
+
+              {/* Radio Group */}
+              <div className="p-3 rounded-xl bg-black/5 flex flex-col gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase opacity-60">Zine Edition Radio:</span>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <PaperDotRadio
+                    checked={radioSelection === 'standard'}
+                    onChange={() => setRadioSelection('standard')}
+                    label="Standard 80 GSM"
+                    palette={activePalette}
+                    inkColor={customInkColor || activePalette.primary}
+                    dotShape={globalDotShape}
+                  />
+                  <PaperDotRadio
+                    checked={radioSelection === 'archival'}
+                    onChange={() => setRadioSelection('archival')}
+                    label="Archival 180 GSM"
+                    palette={activePalette}
+                    inkColor={customInkColor || activePalette.secondary}
+                    dotShape={globalDotShape}
+                  />
+                </div>
               </div>
             </div>
-            <div className="py-4 flex justify-center">
-              <PaperDotTabs
-                items={['Zine Press', 'Halftones', 'Prints']}
-                activeIndex={tabsIdx}
-                onChange={setTabsIdx}
-                animationType={tabsAnim}
-                palette={activePalette}
-                inkColor={customInkColor || undefined}
-                dotShape={globalDotShape}
-                width={280}
-              />
-            </div>
-            <span className="text-[11px] font-mono opacity-60 text-center">Active: <strong>{['Zine Press', 'Halftones', 'Prints'][tabsIdx]}</strong></span>
+            <span className="text-[11px] font-mono opacity-60 text-center">Selection: <strong>{radioSelection.toUpperCase()}</strong> • Foil: <strong>{checkboxVal ? 'ON' : 'OFF'}</strong></span>
           </div>
 
           {/* Component 11: PaperDotRating */}
@@ -1585,38 +1596,38 @@ export function ZineConsole() {
                 <span className="text-[10px] font-mono opacity-50">Slingshot Toggle</span>
               </div>
 
-              {/* 5. Scarlet Red Confetti Drift */}
+              {/* 5. Scarlet Red Stamp Press */}
               <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
                 <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.scarletRed.hex }}>
                   ● Scarlet Red (#E63946)
                 </span>
                 <PaperDotButton
-                  label="Scarlet Drift"
+                  label="Scarlet Press"
                   inkColor={SPOT_INKS.scarletRed.hex}
-                  animationType="confetti-drift"
+                  animationType="stamp-press"
                   palette={activePalette}
                   dotShape={globalDotShape}
                   width={150}
                   height={44}
                 />
-                <span className="text-[10px] font-mono opacity-50">Confetti Drift</span>
+                <span className="text-[10px] font-mono opacity-50">Stamp Press</span>
               </div>
 
-              {/* 6. Purple Violet Vortex Swirl */}
+              {/* 6. Purple Violet Luminous Bloom */}
               <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-dashed text-center" style={{ borderColor: activePalette.border }}>
                 <span className="text-[10px] font-mono font-bold" style={{ color: SPOT_INKS.violetPurple.hex }}>
                   ● Purple Violet (#7209B7)
                 </span>
                 <PaperDotButton
-                  label="Violet Vortex"
+                  label="Violet Bloom"
                   inkColor={SPOT_INKS.violetPurple.hex}
-                  animationType="particle-vortex"
+                  animationType="glow-fade"
                   palette={activePalette}
                   dotShape={globalDotShape}
                   width={150}
                   height={44}
                 />
-                <span className="text-[10px] font-mono opacity-50">Particle Vortex</span>
+                <span className="text-[10px] font-mono opacity-50">Luminous Bloom</span>
               </div>
 
               {/* 7. Forest Green Domino Progress */}
@@ -1761,32 +1772,27 @@ export default function MyZine() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-black/5">
-                  <h4 className="font-bold mb-2 text-blue-600">PaperDotButton (11 Modes):</h4>
+                  <h4 className="font-bold mb-2 text-blue-600">PaperDotButton Tactile Modes:</h4>
                   <ul className="space-y-1 opacity-80 list-disc list-inside">
-                    <li><code className="font-bold">snake-trail</code>: Smooth continuous perimeter crawling slither</li>
-                    <li><code className="font-bold">border-wrap</code>: Orbital stipple boundary loop</li>
-                    <li><code className="font-bold">glow-fade</code>: Ambient breathing fade in & out</li>
-                    <li><code className="font-bold">smooth-pulse</code>: Gentle non-burst harmonic pulse</li>
-                    <li><code className="font-bold">wave-sweep</code>: Squeegee printmaker ink transfer sweep</li>
-                    <li><code className="font-bold">hydraulic-pop</code>: Radial explosion that snaps back in &lt;350ms</li>
-                    <li><code className="font-bold">ripple-wave</code>: Traveling circular wave across the button</li>
+                    <li><code className="font-bold">glow-fade</code>: Luminous in-place ink blooming (zero scatter)</li>
+                    <li><code className="font-bold">smooth-pulse</code>: Gentle non-burst harmonic breathing pulse</li>
+                    <li><code className="font-bold">hydraulic-pop</code>: Tactile mechanical cushion and soft return</li>
                     <li><code className="font-bold">stamp-press</code>: Vertical letterpress plate stamp impact</li>
-                    <li><code className="font-bold">confetti-drift</code>: Upward eruptive spray of paper chips</li>
-                    <li><code className="font-bold">particle-vortex</code>: Swirling cyclone around cursor</li>
-                    <li><code className="font-bold">micro-chatter</code>: Vintage typewriter carriage tremor</li>
+                    <li><code className="font-bold">micro-chatter</code>: Vintage typewriter carriage tooth tremor</li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-xl bg-black/5">
                   <h4 className="font-bold mb-2 text-purple-600">Kinetic Controls & Inputs:</h4>
                   <ul className="space-y-1 opacity-80 list-disc list-inside">
-                    <li><code className="font-bold">PaperDotTabs</code>: <span className="opacity-90">crawl-slide, spring-elastic, glow-fade</span></li>
+                    <li><code className="font-bold">PaperDotCheckbox</code>: <span className="opacity-90">tactile stipple border with blooming checkmark</span></li>
+                    <li><code className="font-bold">PaperDotRadio</code>: <span className="opacity-90">circular stipple ring with expanding detent</span></li>
                     <li><code className="font-bold">PaperDotRating</code>: <span className="opacity-90">bloom-expand, smooth-pulse, harmonic-wave</span></li>
                     <li><code className="font-bold">PaperDotDial</code>: <span className="opacity-90">radial-sweep, magnetic-detent, elastic-snap</span></li>
                     <li><code className="font-bold">PaperDotSlider</code>: <span className="opacity-90">elastic-string, ink-dilation, magnetic-tick</span></li>
-                    <li><code className="font-bold">PaperDotToggle</code>: <span className="opacity-90">cylinder-roll, page-flip, slingshot-snap</span></li>
+                    <li><code className="font-bold">PaperDotToggle</code>: <span className="opacity-90">smooth glide, roll, page-flip, slingshot</span></li>
                     <li><code className="font-bold">PaperDotProgress</code>: <span className="opacity-90">domino-cascade, capillary-bleed, strobe-pulse</span></li>
                     <li><code className="font-bold">PaperDotInput</code>: <span className="opacity-90">typewriter-recoil, focus-halo, perimeter-wave</span></li>
-                    <li><code className="font-bold">PaperDotMorph</code>: <span className="opacity-90">smooth-pulse (wobble-free hearts), vortex-morph, equalizer-wave</span></li>
+                    <li><code className="font-bold">PaperDotMorph</code>: <span className="opacity-90">hover play/pause morph, living equalizer wave</span></li>
                   </ul>
                 </div>
               </div>
@@ -2203,7 +2209,7 @@ export default function MyZine() {
               label={isCompiling ? "Compiling..." : "Compile DSL"}
               onClick={() => handleCompile()}
               disabled={isCompiling}
-              animationType="hydraulic-pop"
+              animationType="glow-fade"
               dotShape={globalDotShape}
               burstIntensity={globalBurstMode}
               inkColor={customInkColor || activePalette.primary}
@@ -2304,6 +2310,18 @@ export default function MyZine() {
                     Ink: <strong style={{ color: compiledResult.dsl.inkColor }}>{compiledResult.dsl.inkColor}</strong>
                   </span>
                 )}
+                {compiledResult.dsl.hoverColor && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full border border-black/20 shadow-2xs inline-block" style={{ backgroundColor: compiledResult.dsl.hoverColor }} />
+                    Hover: <strong style={{ color: compiledResult.dsl.hoverColor }}>{compiledResult.dsl.hoverColor}</strong>
+                  </span>
+                )}
+                {compiledResult.dsl.hoverBehavior && (
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                    Hover: <strong className="text-pink-600">{compiledResult.dsl.hoverBehavior}</strong>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -2336,11 +2354,55 @@ export default function MyZine() {
               </div>
             )}
 
-            {/* Tab 2: Compiled DSL (JSON) */}
+            {/* Tab 2: Compiled DSL (JSON & Interactive Editor) */}
             {activeCodeTab === 'dsl' && (
-              <pre className="bg-[#1C1D1F] text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-[300px]">
-                {JSON.stringify(compiledResult.dsl, null, 2)}
-              </pre>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between text-xs font-mono opacity-80">
+                  <span>Edit any property (colors, hoverColor, hoverBehavior, physics, dimensions) or paste your own custom DSL:</span>
+                  <button
+                    onClick={() => {
+                      if (compiledResult) {
+                        setDslEditorText(JSON.stringify(compiledResult.dsl, null, 2));
+                        TactileAudio.playClick(600);
+                      }
+                    }}
+                    className="px-2 py-0.5 rounded bg-black/5 hover:bg-black/10 transition-colors"
+                  >
+                    Reset to Last Compile
+                  </button>
+                </div>
+                <textarea
+                  value={dslEditorText}
+                  onChange={(e) => setDslEditorText(e.target.value)}
+                  className="bg-[#1C1D1F] text-emerald-400 p-4 rounded-xl text-xs font-mono w-full min-h-[260px] outline-none border border-black/30 focus:border-emerald-500/50 resize-y"
+                  spellCheck={false}
+                />
+                <div className="flex justify-end gap-2">
+                  <PaperDotButton
+                    label="Apply Custom DSL"
+                    onClick={() => {
+                      try {
+                        const parsed = JSON.parse(dslEditorText);
+                        setCompiledResult({
+                          prompt: 'Custom Declarative DSL',
+                          dsl: parsed,
+                          generatedBy: 'heuristic-local-engine',
+                          inferenceTimeMs: 1,
+                        });
+                        setActiveCodeTab('preview');
+                        TactileAudio.playPop(720);
+                      } catch {
+                        alert('Invalid JSON DSL format. Please check syntax.');
+                      }
+                    }}
+                    animationType="glow-fade"
+                    width={180}
+                    height={42}
+                    palette={activePalette}
+                    inkColor={activePalette.primary}
+                  />
+                </div>
+              </div>
             )}
 
             {/* Tab 3: React Usage Code */}

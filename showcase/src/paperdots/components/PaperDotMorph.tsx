@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Dot, PointerState, PresetShape, RisographPalette, DotGeometry, MorphAnimationType } from '../types';
 import { DotPhysicsEngine } from '../physics';
 import { ShapeGenerator } from '../shapes';
@@ -22,10 +22,10 @@ export interface PaperDotMorphProps {
 
 export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
   shape,
-  size = 120,
+  size = 130,
   palette = DEFAULT_PALETTE,
   dotShape = 'square',
-  dotCount = 90,
+  dotCount = 96,
   burstIntensity = 'gentle',
   animationType = 'vortex-morph',
   inkColor,
@@ -38,6 +38,14 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
   const animFrameRef = useRef<number | null>(null);
   const frameCountRef = useRef<number>(0);
   const pulseProgressRef = useRef<number>(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Dynamic hover toggle: hovering over 'play' morphs to 'pause', and vice-versa
+  let activeShape = shape;
+  if (isHovered) {
+    if (shape === 'play') activeShape = 'pause';
+    else if (shape === 'pause') activeShape = 'play';
+  }
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -48,14 +56,14 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     vy: 0,
     isDown: false,
     isInside: false,
-    radius: 35,
+    radius: 40,
   });
 
   const center = size / 2;
 
-  // Initialize dots with initial shape
+  // Initialize dots with initial shape (generous, crisp size)
   useEffect(() => {
-    const points = ShapeGenerator.getShapePoints(shape, center, center, size * 0.42, dotCount);
+    const points = ShapeGenerator.getShapePoints(shape, center, center, size * 0.44, dotCount);
     const dots: Dot[] = [];
 
     for (let i = 0; i < points.length; i++) {
@@ -68,15 +76,15 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
         targetY: pt.y,
         vx: 0,
         vy: 0,
-        radius: 2.6,
-        baseRadius: 2.6,
+        radius: 3.2,
+        baseRadius: 3.2,
         color: inkColor ? inkColor : (i % 3 === 0 ? palette.secondary : palette.primary),
-        opacity: 0.9,
-        baseOpacity: 0.9,
+        opacity: 0.92,
+        baseOpacity: 0.92,
         mass: 0.8 + Math.random() * 0.4,
-        stiffness: 0.20 + Math.random() * 0.05,
+        stiffness: 0.22 + Math.random() * 0.05,
         damping: 0.78,
-        jitter: 0.15,
+        jitter: 0.12,
         shape: dotShape,
       });
     }
@@ -84,16 +92,16 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     dotsRef.current = dots;
   }, [size, center, dotCount, palette, dotShape, inkColor, shape]);
 
-  // Update target points when shape changes with distinct vortex swirl transition
+  // Update target points when active shape changes (including hover morph play <-> pause)
   useEffect(() => {
-    TactileAudio.playClick(720);
-    const newPoints = ShapeGenerator.getShapePoints(shape, center, center, size * 0.42, dotCount);
+    TactileAudio.playClick(activeShape === 'pause' ? 520 : 720);
+    const newPoints = ShapeGenerator.getShapePoints(activeShape, center, center, size * 0.44, dotCount);
 
     if (animationType === 'vortex-morph') {
-      DotPhysicsEngine.triggerParticleVortex(dotsRef.current, center, center, 11);
+      DotPhysicsEngine.triggerParticleVortex(dotsRef.current, center, center, 10);
     }
     DotPhysicsEngine.morphTargets(dotsRef.current, newPoints);
-  }, [shape, center, size, dotCount, animationType]);
+  }, [activeShape, center, size, dotCount, animationType]);
 
   // Animation Loop with Living Play/Pause and Shape Dynamics
   useEffect(() => {
@@ -108,54 +116,64 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       if (!isRunning) return;
       frameCountRef.current++;
 
+      if (pulseProgressRef.current > 0) {
+        pulseProgressRef.current = Math.max(0, pulseProgressRef.current - 0.03);
+      }
+
       ctx.fillStyle = palette.background;
       ctx.fillRect(0, 0, size, size);
 
-      if (pulseProgressRef.current > 0) {
-        pulseProgressRef.current = Math.max(0, pulseProgressRef.current - 0.04);
+      // Living animation behavior per shape
+      const dots = dotsRef.current;
+      if (activeShape === 'play' || isPlaying) {
+        // Living wave dynamics
+        const wave = Math.sin(frameCountRef.current * 0.08) * 1.8;
+        for (let i = 0; i < dots.length; i++) {
+          const d = dots[i];
+          d.y = d.targetY + Math.sin(frameCountRef.current * 0.06 + i * 0.2) * wave;
+        }
+      } else if (activeShape === 'heart') {
+        const beat = (Math.sin(frameCountRef.current * 0.06) + 1) * 0.5;
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].radius = dots[i].baseRadius + beat * 0.9 + pulseProgressRef.current * 1.5;
+        }
+      } else if (activeShape === 'star') {
+        const twinkle = Math.sin(frameCountRef.current * 0.1) * 0.4;
+        for (let i = 0; i < dots.length; i++) {
+          if (i % 4 === 0) dots[i].radius = dots[i].baseRadius + twinkle;
+        }
       }
 
-      // Living Shape-Specific Animations:
-      // 1. Play active: Living equalizer wave
-      if (shape === 'play' || isPlaying) {
-        DotPhysicsEngine.applySonicEqualizerWave(dotsRef.current, frameCountRef.current, 0.08, 4.5);
-      }
-      // 2. Pause active: Soft crystalline breathing pulse
-      else if (shape === 'pause') {
-        DotPhysicsEngine.applyHarmonicBreathing(dotsRef.current, frameCountRef.current, center, center, 0.04, 2.5);
-      }
-      // 3. Heart shape: Smooth wobble-free organic cardiac dilation
-      else if (shape === 'heart') {
-        DotPhysicsEngine.applySmoothPulse(dotsRef.current, frameCountRef.current, center, center, pulseProgressRef.current);
-      }
-
-      // Physics update with distinct hover dynamics
+      // Physics update with distinct hover reactions
       DotPhysicsEngine.updateDots(
         dotsRef.current,
         pointerRef.current,
-        {
-          stiffness: 0.20,
-          damping: 0.80,
-          mass: 1.0,
-        },
+        { stiffness: 0.22, damping: 0.78, mass: 1.0 },
         1,
-        shape === 'heart' ? 'smooth-pulse' : (animationType || 'particle-vortex')
+        'glow-fade'
       );
 
-      // Render particles
-      const dots = dotsRef.current;
+      // Render dots
       for (let i = 0; i < dots.length; i++) {
+        const d = dots[i];
         PaperTextureGenerator.drawInkDot(
           ctx,
-          dots[i].x,
-          dots[i].y,
-          dots[i].radius,
-          dots[i].color,
-          dots[i].opacity,
+          d.x,
+          d.y,
+          d.radius,
+          d.color,
+          d.opacity,
           true,
-          dots[i].shape || dotShape
+          d.shape || dotShape
         );
       }
+
+      // Subtle paper grain overlay
+      const paperPattern = PaperTextureGenerator.getPaperPattern(0.04);
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(paperPattern, 0, 0, size, size);
+      ctx.restore();
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -166,7 +184,7 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [size, palette, dotShape, shape, isPlaying, center]);
+  }, [size, palette, dotShape, activeShape, isPlaying]);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -185,16 +203,16 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
     const forceMult = burstIntensity === 'confetti' ? 1.4 : burstIntensity === 'none' ? 0 : 1.0;
 
     // Distinct On-Click Animations per Shape
-    if (shape === 'play') {
+    if (activeShape === 'play') {
       TactileAudio.playPop(580);
       if (forceMult > 0) DotPhysicsEngine.triggerRippleWave(dotsRef.current, clickX, clickY, 16, 11 * forceMult);
-    } else if (shape === 'pause') {
+    } else if (activeShape === 'pause') {
       TactileAudio.playClick(420);
       if (forceMult > 0) DotPhysicsEngine.triggerLetterpressStamp(dotsRef.current, clickX, clickY, 8 * forceMult);
-    } else if (shape === 'heart') {
+    } else if (activeShape === 'heart') {
       TactileAudio.playClick(460);
       pulseProgressRef.current = 1.0;
-    } else if (shape === 'star') {
+    } else if (activeShape === 'star') {
       TactileAudio.playPop(680);
       if (forceMult > 0) DotPhysicsEngine.triggerConfettiDrift(dotsRef.current, clickX, clickY, 15 * forceMult);
     } else {
@@ -214,19 +232,15 @@ export const PaperDotMorph: React.FC<PaperDotMorphProps> = ({
         className="rounded-2xl shadow-xs transition-transform active:scale-95"
         onClick={handleClick}
         onPointerMove={handlePointerMove}
-        onPointerEnter={() => { pointerRef.current.isInside = true; }}
-        onPointerLeave={() => { pointerRef.current.isInside = false; }}
-      />
-      <span
-        className="absolute bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase pointer-events-none whitespace-nowrap shadow-2xs border"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.90)',
-          color: palette.dark,
-          borderColor: 'rgba(0, 0, 0, 0.12)',
+        onPointerEnter={() => {
+          pointerRef.current.isInside = true;
+          setIsHovered(true);
         }}
-      >
-        {shape.toUpperCase()}
-      </span>
+        onPointerLeave={() => {
+          pointerRef.current.isInside = false;
+          setIsHovered(false);
+        }}
+      />
     </div>
   );
 };

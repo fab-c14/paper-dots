@@ -216,11 +216,12 @@ export const PaperDotTabs: React.FC<PaperDotTabsProps> = ({
               key={idx}
               type="button"
               onClick={() => handleTabClick(idx)}
-              className={`flex-1 h-full flex items-center justify-center text-xs font-mono font-extrabold uppercase tracking-wider rounded-lg transition-all cursor-pointer outline-none ${isSelected ? 'shadow-2xs border' : 'opacity-70 hover:opacity-100'}`}
+              className={`flex-1 h-full flex items-center justify-center text-xs font-mono font-extrabold uppercase tracking-wider rounded-lg transition-all cursor-pointer outline-none ${
+                isSelected ? 'opacity-100' : 'opacity-65 hover:opacity-90'
+              }`}
               style={{
-                color: palette.dark,
-                backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.88)' : 'transparent',
-                borderColor: isSelected ? 'rgba(0, 0, 0, 0.12)' : 'transparent',
+                color: isSelected ? palette.dark : palette.muted,
+                textShadow: isSelected ? '0 1px 2px rgba(255,255,255,0.8)' : 'none',
               }}
             >
               {item}

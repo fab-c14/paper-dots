@@ -300,11 +300,8 @@ export const PaperDotSlider: React.FC<PaperDotSliderProps> = ({
             {label}
           </span>
           <span
-            className="px-2 py-0.5 rounded text-[11px] font-bold shadow-2xs border"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.90)',
-              borderColor: 'rgba(0,0,0,0.12)',
-            }}
+            className="text-xs font-mono font-bold"
+            style={{ color: palette.muted }}
           >
             {value}%
           </span>
