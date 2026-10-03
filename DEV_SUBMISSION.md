@@ -202,7 +202,7 @@ Julian's exact words:
 
 ## 8. Try It & Explore the Code 🔗
 
-- **GitHub Repository**: [github.com/fab-c14/paperdots-ui](https://github.com/fab-c14/paperdots-ui)
+- **GitHub Repository**: [github.com/fab-c14/paper-dots](https://github.com/fab-c14/paper-dots)
 - **Live Interactive Playground**: [paperdots-ui.onrender.com](https://paperdots-ui.onrender.com)
 - **Agent Session Transcript**: Saved and verified via DevRelay.
 

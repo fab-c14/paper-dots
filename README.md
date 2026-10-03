@@ -1,9 +1,14 @@
+<p align="center">
+  <img src="assets/paperdots-logo.svg" alt="PaperDots UI" width="680" />
+</p>
+
 # 🎨 PaperDots UI (`PaperDots.js`)
 ### Tactile 2D Paper & Ink-Dot Physics with Distinct Per-Component Animations & Shadcn Registry CLI
 #### Built for Julian • Hacktoberfest Weekend Challenge 2026: *Build for a Friend*
 
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026_Live-FF7849?style=flat-square)](https://dev.to/challenges)
 [![Challenge](https://img.shields.io/badge/Theme-Build_for_a_Friend-FF48B0?style=flat-square)](https://dev.to/challenges)
+[![GitHub stars](https://img.shields.io/github/stars/fab-c14/paper-dots?style=flat-square&color=0078BF)](https://github.com/fab-c14/paper-dots)
 [![Shadcn CLI](https://img.shields.io/badge/Shadcn_CLI-Installable_Registry-000000?style=flat-square&logo=shadcnui)](https://ui.shadcn.com)
 [![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render)](https://render.com)
 [![Thinking Machines Tinker](https://img.shields.io/badge/Fine--Tuned_with-Tinker-0078BF?style=flat-square)](https://thinkingmachines.ai)
@@ -204,6 +209,25 @@ The repository includes a production-ready `render.yaml` blueprint:
 
 ---
 
+## 🤝 Open Source & Contributing
+
+PaperDots UI is **100% open-source** and built for the community. **Contributions are warmly welcomed!**
+
+Whether you want to:
+- 🎨 Design new **Risograph spot ink palettes** or paper textures
+- ⚛️ Create new **kinetic physics archetypes** (gyroscopes, fluid ripples, mechanical gauges)
+- 🧠 Add new **training prompt pairs** to the open-weight AI compiler dataset
+- 🧩 Submit new **Shadcn-compatible component recipes**
+- 🐛 Fix bugs, improve performance, or enhance accessibility
+
+Please see our comprehensive [**CONTRIBUTING.md**](file:///C:/Users/plesi/OneDrive/Desktop/2026/H-fest/CONTRIBUTING.md) for local setup instructions, architectural guidelines, and code of conduct.
+
+> 🔒 **Security Notice:** The repository strictly ignores all `.env` and credential files via `.gitignore`. An example environment template is provided at `tinker/.env.example`.
+
+---
+
 ## 📄 License
 
-MIT License © 2026. Made with tactile ink, square chips & love for friends everywhere.
+MIT License © 2026 Faisal Ahmad ([@fab-c14](https://github.com/fab-c14)) & Contributors.  
+Made with tactile ink, square chips & love for friends everywhere.
+
