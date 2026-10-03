@@ -13,6 +13,9 @@ import {
   PaperDotBadge,
   PaperDotProgress,
   PaperDotInput,
+  PaperDotTabs,
+  PaperDotRating,
+  PaperDotDial,
   TactileAudio,
 } from './paperdots';
 import type {
@@ -24,6 +27,9 @@ import type {
   ProgressAnimationType,
   BadgeAnimationType,
   InputAnimationType,
+  TabsAnimationType,
+  RatingAnimationType,
+  DialAnimationType,
 } from './paperdots';
 import { PaperDotsAICompiler } from './paperdots/ai/compiler';
 import type { PromptToComponentResult } from './paperdots/ai/dsl';
@@ -75,12 +81,18 @@ export const App: React.FC = () => {
   const [progressAnim, setProgressAnim] = useState<ProgressAnimationType>('domino-cascade');
   const [inputAnim, setInputAnim] = useState<InputAnimationType>('typewriter-recoil');
   const [badgeAnim, setBadgeAnim] = useState<BadgeAnimationType>('beacon-pulse');
+  const [tabsAnim, setTabsAnim] = useState<TabsAnimationType>('crawl-slide');
+  const [ratingAnim, setRatingAnim] = useState<RatingAnimationType>('bloom-expand');
+  const [dialAnim, setDialAnim] = useState<DialAnimationType>('radial-sweep');
 
   // Interactive component value states
   const [sliderVal, setSliderVal] = useState<number>(65);
   const [progressVal, setProgressVal] = useState<number>(45);
   const [toggleState, setToggleState] = useState<boolean>(true);
   const [inputVal, setInputVal] = useState<string>('Analog Futures Issue #03');
+  const [tabsIdx, setTabsIdx] = useState<number>(0);
+  const [ratingVal, setRatingVal] = useState<number>(5);
+  const [dialVal, setDialVal] = useState<number>(72);
   
   // Hero Live Application Console ("Julian's Analog Futures Zine Console")
   const [heroZineTitle, setHeroZineTitle] = useState<string>('Analog Futures Issue #04');
@@ -156,6 +168,9 @@ export const App: React.FC = () => {
     "A button with wrapping glowing border labeled 'Stamp Proof'",
     "A glowing fade in-out button with mint seafoam ink",
     "A smooth heart with pink ink and wobble-free pulse",
+    "A tactile 3-segment tabs bar with crawling dot indicator",
+    "A 5-star rating component with bloom expand ink dots",
+    "A rotary potentiometer dial labeled 'Cutoff' with magnetic detents",
     "An elastic volume slider with square paper chips",
     "A domino cascade progress bar labeled 'Ink Flow'",
     "A cylinder roll toggle labeled 'Risograph Mode'",
@@ -785,6 +800,9 @@ export function ZineConsole() {
                 <option value="button">paper-button</option>
                 <option value="slider">paper-slider</option>
                 <option value="toggle">paper-toggle</option>
+                <option value="tabs">paper-tabs</option>
+                <option value="rating">paper-rating</option>
+                <option value="dial">paper-dial</option>
                 <option value="morph">paper-morph</option>
                 <option value="badge">paper-badge</option>
                 <option value="progress">paper-progress</option>
@@ -1266,6 +1284,160 @@ export function ZineConsole() {
             </div>
             <span className="text-[11px] font-mono opacity-50 text-center">Hover border for magnetism</span>
           </div>
+
+          {/* Component 10: PaperDotTabs */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotTabs</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Kinetic Segmented</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Crawling stipple dot bed with Euler spring sliding between tab segments:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['crawl-slide', 'spring-elastic', 'glow-fade'] as TabsAnimationType[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => {
+                      setTabsAnim(t);
+                      TactileAudio.playClick(620);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      tabsAnim === t ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {t.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-4 flex justify-center">
+              <PaperDotTabs
+                items={['Zine Press', 'Halftones', 'Prints']}
+                activeIndex={tabsIdx}
+                onChange={setTabsIdx}
+                animationType={tabsAnim}
+                palette={activePalette}
+                inkColor={customInkColor || undefined}
+                dotShape={globalDotShape}
+                width={280}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Active: <strong>{['Zine Press', 'Halftones', 'Prints'][tabsIdx]}</strong></span>
+          </div>
+
+          {/* Component 11: PaperDotRating */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotRating</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Halftone Constellation</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Tactile rating stars or hearts with harmonic musical tones on press:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['bloom-expand', 'smooth-pulse', 'harmonic-wave'] as RatingAnimationType[]).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => {
+                      setRatingAnim(r);
+                      TactileAudio.playClick(720);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      ratingAnim === r ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {r.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-4 flex flex-col items-center gap-3">
+              <PaperDotRating
+                value={ratingVal}
+                onChange={setRatingVal}
+                animationType={ratingAnim}
+                palette={activePalette}
+                inkColor={customInkColor || undefined}
+                dotShape={globalDotShape}
+                shape="star"
+                size={34}
+              />
+              <PaperDotRating
+                value={Math.min(5, ratingVal)}
+                onChange={setRatingVal}
+                animationType={ratingAnim}
+                palette={activePalette}
+                inkColor="#FF48B0"
+                dotShape={globalDotShape}
+                shape="heart"
+                size={34}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Rating: <strong>{ratingVal} / 5 Stars</strong></span>
+          </div>
+
+          {/* Component 12: PaperDotDial */}
+          <div
+            className="rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+            style={{
+              backgroundColor: activePalette.cardBg,
+              border: `1px solid ${activePalette.border}`,
+            }}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm">PaperDotDial</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/5">Rotary Potentiometer</span>
+              </div>
+              <p className="text-xs font-mono opacity-70 mb-3">
+                Radial perimeter detent stipples with drag rotation & mechanical tick clicks:
+              </p>
+              <div className="flex flex-wrap gap-1 mb-4">
+                {(['radial-sweep', 'magnetic-detent', 'elastic-snap'] as DialAnimationType[]).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => {
+                      setDialAnim(d);
+                      TactileAudio.playClick(680);
+                    }}
+                    className={`px-2 py-0.5 text-[10px] font-mono rounded transition-all ${
+                      dialAnim === d ? 'bg-black text-white font-bold' : 'bg-black/5 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    {d.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="py-2 flex justify-center">
+              <PaperDotDial
+                value={dialVal}
+                onChange={setDialVal}
+                animationType={dialAnim}
+                palette={activePalette}
+                inkColor={customInkColor || undefined}
+                dotShape={globalDotShape}
+                label="Master Cutoff"
+                size={110}
+              />
+            </div>
+            <span className="text-[11px] font-mono opacity-60 text-center">Drag vertically or radially</span>
+          </div>
         </div>
 
         {/* SECTION 2B: Authentic Risograph Spot Inks Studio */}
@@ -1589,8 +1761,13 @@ export default function MyZine() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-black/5">
-                  <h4 className="font-bold mb-2 text-blue-600">PaperDotButton Animations:</h4>
+                  <h4 className="font-bold mb-2 text-blue-600">PaperDotButton (11 Modes):</h4>
                   <ul className="space-y-1 opacity-80 list-disc list-inside">
+                    <li><code className="font-bold">snake-trail</code>: Smooth continuous perimeter crawling slither</li>
+                    <li><code className="font-bold">border-wrap</code>: Orbital stipple boundary loop</li>
+                    <li><code className="font-bold">glow-fade</code>: Ambient breathing fade in & out</li>
+                    <li><code className="font-bold">smooth-pulse</code>: Gentle non-burst harmonic pulse</li>
+                    <li><code className="font-bold">wave-sweep</code>: Squeegee printmaker ink transfer sweep</li>
                     <li><code className="font-bold">hydraulic-pop</code>: Radial explosion that snaps back in &lt;350ms</li>
                     <li><code className="font-bold">ripple-wave</code>: Traveling circular wave across the button</li>
                     <li><code className="font-bold">stamp-press</code>: Vertical letterpress plate stamp impact</li>
@@ -1600,12 +1777,16 @@ export default function MyZine() {
                   </ul>
                 </div>
                 <div className="p-4 rounded-xl bg-black/5">
-                  <h4 className="font-bold mb-2 text-purple-600">PaperDotMorph & Others:</h4>
+                  <h4 className="font-bold mb-2 text-purple-600">Kinetic Controls & Inputs:</h4>
                   <ul className="space-y-1 opacity-80 list-disc list-inside">
-                    <li><code className="font-bold">PaperDotMorph</code>: Play equalizer waves, crystalline pause snap, vortex shape-morphs.</li>
-                    <li><code className="font-bold">PaperDotSlider</code>: Elastic catenary string, velocity ink dilation, magnetic notch ticks.</li>
-                    <li><code className="font-bold">PaperDotToggle</code>: Cylinder roll, page flip fold, rubber slingshot.</li>
-                    <li><code className="font-bold">PaperDotProgress</code>: Domino chip jumps, capillary bleed, traveling strobe.</li>
+                    <li><code className="font-bold">PaperDotTabs</code>: <span className="opacity-90">crawl-slide, spring-elastic, glow-fade</span></li>
+                    <li><code className="font-bold">PaperDotRating</code>: <span className="opacity-90">bloom-expand, smooth-pulse, harmonic-wave</span></li>
+                    <li><code className="font-bold">PaperDotDial</code>: <span className="opacity-90">radial-sweep, magnetic-detent, elastic-snap</span></li>
+                    <li><code className="font-bold">PaperDotSlider</code>: <span className="opacity-90">elastic-string, ink-dilation, magnetic-tick</span></li>
+                    <li><code className="font-bold">PaperDotToggle</code>: <span className="opacity-90">cylinder-roll, page-flip, slingshot-snap</span></li>
+                    <li><code className="font-bold">PaperDotProgress</code>: <span className="opacity-90">domino-cascade, capillary-bleed, strobe-pulse</span></li>
+                    <li><code className="font-bold">PaperDotInput</code>: <span className="opacity-90">typewriter-recoil, focus-halo, perimeter-wave</span></li>
+                    <li><code className="font-bold">PaperDotMorph</code>: <span className="opacity-90">smooth-pulse (wobble-free hearts), vortex-morph, equalizer-wave</span></li>
                   </ul>
                 </div>
               </div>
@@ -2252,6 +2433,41 @@ export default function MyZine() {
                       height={compiledResult.dsl.dimensions.height}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                    />
+                  )}
+                  {compiledResult.dsl.componentType === 'tabs' && (
+                    <PaperDotTabs
+                      items={['Zine Press', 'Halftones', 'Prints']}
+                      activeIndex={tabsIdx}
+                      onChange={setTabsIdx}
+                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
+                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'crawl-slide'}
+                      inkColor={compiledResult.dsl.inkColor}
+                      width={compiledResult.dsl.dimensions.width}
+                    />
+                  )}
+                  {compiledResult.dsl.componentType === 'rating' && (
+                    <PaperDotRating
+                      value={ratingVal}
+                      onChange={setRatingVal}
+                      shape={compiledResult.dsl.shape === 'heart' ? 'heart' : 'star'}
+                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
+                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'bloom-expand'}
+                      inkColor={compiledResult.dsl.inkColor}
+                    />
+                  )}
+                  {compiledResult.dsl.componentType === 'dial' && (
+                    <PaperDotDial
+                      value={dialVal}
+                      onChange={setDialVal}
+                      label={compiledResult.dsl.label || 'Volume'}
+                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
+                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'radial-sweep'}
+                      inkColor={compiledResult.dsl.inkColor}
+                      size={compiledResult.dsl.dimensions.width}
                     />
                   )}
                 </div>

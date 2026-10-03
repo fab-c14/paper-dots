@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper-tabs",
+  "type": "registry:ui",
+  "title": "Paper Kinetic Tabs",
+  "description": "Tactile segmented tabs with crawling dot bed, spring slide, and audio haptics.",
+  "dependencies": ["clsx", "tailwind-merge"],
+  "files": [
+    {
+      "path": "ui/paper-tabs.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/paper-tabs.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {\n  items?: string[];\n  activeIndex?: number;\n  onChange?: (index: number) => void;\n  animationType?: 'crawl-slide' | 'spring-elastic' | 'glow-fade';\n  inkColor?: string;\n}\n\nexport const Tabs: React.FC<TabsProps> = ({ items = ['Overview', 'Zine Press', 'Halftones'], activeIndex = 0, onChange, className, ...props }) => {\n  return (\n    <div className={cn(\"inline-flex p-1 bg-black/5 rounded-xl font-mono text-xs\", className)} {...props}>\n      {items.map((item, idx) => (\n        <button key={idx} onClick={() => onChange?.(idx)} className={cn(\"px-4 py-2 rounded-lg font-bold transition-all\", idx === activeIndex ? \"bg-white text-black shadow-xs\" : \"opacity-70 hover:opacity-100\")}>\n          {item}\n        </button>\n      ))}\n    </div>\n  );\n};"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper-dial",
+  "type": "registry:ui",
+  "title": "Paper Kinetic Dial",
+  "description": "Tactile rotary potentiometer knob with radial detent stipples and drag rotation.",
+  "dependencies": ["clsx", "tailwind-merge"],
+  "files": [
+    {
+      "path": "ui/paper-dial.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/paper-dial.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface DialProps extends React.HTMLAttributes<HTMLDivElement> {\n  value?: number;\n  min?: number;\n  max?: number;\n  onChange?: (val: number) => void;\n  label?: string;\n  animationType?: 'radial-sweep' | 'magnetic-detent' | 'elastic-snap';\n  inkColor?: string;\n}\n\nexport const Dial: React.FC<DialProps> = ({ value = 65, min = 0, max = 100, onChange, label = 'Level', className, ...props }) => {\n  return (\n    <div className={cn(\"inline-flex flex-col items-center select-none font-mono text-xs\", className)} {...props}>\n      <div className=\"w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center font-bold\">\n        {Math.round(value)}\n      </div>\n      {label && <span className=\"text-[10px] mt-1 opacity-70\">{label}</span>}\n    </div>\n  );\n};"
+    }
+  ]
+}

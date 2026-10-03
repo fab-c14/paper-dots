@@ -6,3 +6,5 @@ export * from "./paper-input";
 export * from "./paper-switch";
 export * from "./paper-slider";
 export * from "./paper-tabs";
+export * from "./paper-rating";
+export * from "./paper-dial";

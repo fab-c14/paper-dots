@@ -101,6 +101,48 @@
           "target": "components/ui/paper-card.tsx"
         }
       ]
+    },
+    {
+      "name": "paper-tabs",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Tabs",
+      "description": "Tactile segmented tabs with crawling dot bed, spring slide, and audio haptics.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-tabs.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-tabs.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-rating",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Rating",
+      "description": "Halftone paper dot star/heart rating with bloom expansion and ascending audio chimes.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-rating.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-rating.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-dial",
+      "type": "registry:ui",
+      "title": "Paper Kinetic Dial",
+      "description": "Tactile rotary potentiometer knob with radial detent stipples and drag rotation.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "ui/paper-dial.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/paper-dial.tsx"
+        }
+      ]
     }
   ]
 }

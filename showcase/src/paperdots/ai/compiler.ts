@@ -59,13 +59,19 @@ export class PaperDotsAICompiler {
 
     // 1. Determine Component Type
     let componentType: PaperDotComponentDSL['componentType'] = 'button';
-    if (lower.includes('slider') || lower.includes('volume') || lower.includes('fader') || lower.includes('range')) {
+    if (lower.includes('tab') || lower.includes('segment')) {
+      componentType = 'tabs';
+    } else if (lower.includes('rating') || lower.includes('review') || lower.includes('score') || (lower.includes('stars') && !lower.includes('morph'))) {
+      componentType = 'rating';
+    } else if (lower.includes('dial') || lower.includes('knob') || lower.includes('potentiometer') || lower.includes('rotary')) {
+      componentType = 'dial';
+    } else if (lower.includes('slider') || lower.includes('volume') || lower.includes('fader') || lower.includes('range')) {
       componentType = 'slider';
     } else if (lower.includes('toggle') || lower.includes('switch') || lower.includes('checkbox')) {
       componentType = 'toggle';
     } else if (lower.includes('badge') || lower.includes('tag') || lower.includes('pill') || lower.includes('status')) {
       componentType = 'badge';
-    } else if (lower.includes('progress') || lower.includes('meter') || lower.includes('gauge') || lower.includes('bar')) {
+    } else if (lower.includes('progress') || lower.includes('meter') || lower.includes('gauge') || lower.includes('progress bar')) {
       componentType = 'progress';
     } else if (lower.includes('input') || lower.includes('search') || lower.includes('field') || lower.includes('type')) {
       componentType = 'input';
@@ -172,6 +178,18 @@ export class PaperDotsAICompiler {
       if (lower.includes('halo') || lower.includes('focus')) animationType = 'focus-halo';
       else if (lower.includes('perimeter')) animationType = 'perimeter-wave';
       else animationType = 'typewriter-recoil';
+    } else if (componentType === 'tabs') {
+      if (lower.includes('spring') || lower.includes('elastic')) animationType = 'spring-elastic';
+      else if (lower.includes('fade') || lower.includes('glow')) animationType = 'glow-fade';
+      else animationType = 'crawl-slide';
+    } else if (componentType === 'rating') {
+      if (lower.includes('pulse') || lower.includes('smooth')) animationType = 'smooth-pulse';
+      else if (lower.includes('wave') || lower.includes('harmonic')) animationType = 'harmonic-wave';
+      else animationType = 'bloom-expand';
+    } else if (componentType === 'dial') {
+      if (lower.includes('detent') || lower.includes('magnetic') || lower.includes('tick')) animationType = 'magnetic-detent';
+      else if (lower.includes('snap') || lower.includes('elastic')) animationType = 'elastic-snap';
+      else animationType = 'radial-sweep';
     }
 
     // 7. Spot Ink Color Resolution
@@ -225,6 +243,18 @@ export class PaperDotsAICompiler {
         height = 110;
         dotRadius = 2.6;
         break;
+      case 'tabs':
+        width = 320;
+        height = 44;
+        break;
+      case 'rating':
+        width = 180;
+        height = 36;
+        break;
+      case 'dial':
+        width = 110;
+        height = 110;
+        break;
       case 'card':
         width = 300;
         height = 180;
@@ -249,6 +279,12 @@ export class PaperDotsAICompiler {
       label = 'Ink Transfer';
     } else if (componentType === 'input') {
       label = 'Search Zines...';
+    } else if (componentType === 'tabs') {
+      label = 'Overview / Press / Halftones';
+    } else if (componentType === 'rating') {
+      label = shape === 'heart' ? 'Tactile Hearts' : 'Star Rating';
+    } else if (componentType === 'dial') {
+      label = lower.includes('volume') ? 'Volume' : lower.includes('cutoff') ? 'Cutoff' : lower.includes('zoom') ? 'Zoom' : 'Level';
     }
 
     const dsl: PaperDotComponentDSL = {

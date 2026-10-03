@@ -11,29 +11,32 @@ import os
 OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_PATH = os.path.join(OUTPUT_DIR, "paperdots_tinker_train.jsonl")
 
-COMPONENTS = ["button", "slider", "toggle", "loader", "morph", "card", "canvas"]
-PALETTES = ["risographClassic", "warmZine", "cyberPaper", "matchaPaper", "monochromePress"]
+COMPONENTS = ["button", "slider", "toggle", "loader", "morph", "card", "canvas", "badge", "progress", "input", "tabs", "rating", "dial"]
+PALETTES = ["risographClassic", "warmZine", "pastelZine", "matchaPaper", "monochromePress", "botanicalOchre"]
 SHAPES = ["circle", "heart", "star", "play", "pause", "check", "arrow"]
 
 SAMPLE_PROMPTS = [
-    ("A tactile risograph teal button labeled 'Publish Zine' that bursts into confetti when clicked", "button", "risographClassic", "circle", "Publish Zine", 0.22, 0.78, 24),
-    ("An elastic volume slider with clay ink beads for Julian's interactive music zine", "slider", "warmZine", "circle", "Volume", 0.28, 0.75, 18),
-    ("A glowing neon cyan heart toggle that snaps with fast spring bounce", "toggle", "cyberPaper", "heart", "Like", 0.32, 0.70, 20),
-    ("A hypnotic slow-pulsing loader with matcha green paper dots", "loader", "matchaPaper", "circle", "Brewing...", 0.10, 0.88, 12),
-    ("A letterpress lead black star icon that morphs with heavy jitter", "morph", "monochromePress", "star", "", 0.16, 0.82, 16),
-    ("An interactive canvas grid with rice paper texture and gentle water ripple physics", "canvas", "matchaPaper", "circle", "", 0.12, 0.85, 14),
-    ("A ripped paper card container with stippled halftone borders for an art gallery piece", "card", "risographClassic", "circle", "Artwork No. 4", 0.18, 0.82, 16),
-    ("A tactile play button with coral ink dots that disperses on click", "button", "warmZine", "play", "Play Story", 0.24, 0.76, 26),
-    ("A high-tension spring slider for controlling ink bleed density", "slider", "risographClassic", "circle", "Ink Bleed", 0.35, 0.68, 22),
-    ("A minimal soy black pause toggle for audio playback", "toggle", "monochromePress", "pause", "Audio", 0.25, 0.78, 18),
-    ("A celebratory confetti button labeled 'Roll Credits' in fluorescent pink", "button", "risographClassic", "circle", "Roll Credits", 0.30, 0.72, 30),
-    ("A dark cyberpunk stippled card for displaying digital game stats", "card", "cyberPaper", "circle", "Level 42", 0.20, 0.80, 18),
+    ("A tactile risograph teal button labeled 'Publish Zine' that pops with gentle spring return", "button", "risographClassic", "circle", "Publish Zine", 0.22, 0.78, 0),
+    ("An elastic volume slider with clay ink beads for Julian's interactive music zine", "slider", "warmZine", "circle", "Volume", 0.28, 0.75, 0),
+    ("A glowing neon cyan heart toggle that snaps with fast spring bounce", "toggle", "pastelZine", "heart", "Like", 0.32, 0.70, 0),
+    ("A hypnotic slow-pulsing loader with matcha green paper dots", "loader", "matchaPaper", "circle", "Brewing...", 0.10, 0.88, 0),
+    ("A letterpress lead black star icon that morphs with smooth harmonic pulse", "morph", "monochromePress", "star", "", 0.16, 0.82, 0),
+    ("An interactive canvas grid with rice paper texture and gentle water ripple physics", "canvas", "matchaPaper", "circle", "", 0.12, 0.85, 0),
+    ("A ripped paper card container with stippled halftone borders for an art gallery piece", "card", "risographClassic", "circle", "Artwork No. 4", 0.18, 0.82, 0),
+    ("A tactile play button with coral ink dots that glides with snakey kinetic animation", "button", "warmZine", "play", "Play Story", 0.24, 0.76, 0),
+    ("A high-tension spring slider for controlling ink bleed density", "slider", "risographClassic", "circle", "Ink Bleed", 0.35, 0.68, 0),
+    ("A minimal soy black pause toggle for audio playback", "toggle", "monochromePress", "pause", "Audio", 0.25, 0.78, 0),
+    ("A tactile 3-segment tabs bar with crawling dot indicator for section navigation", "tabs", "risographClassic", "circle", "Overview / Press / Halftones", 0.24, 0.80, 0),
+    ("A 5-star rating component with bloom expand ink dots and harmonic audio chime", "rating", "warmZine", "star", "5 Stars", 0.25, 0.78, 0),
+    ("A rotary potentiometer dial labeled 'Cutoff' with magnetic detents and mechanical tick clicks", "dial", "monochromePress", "circle", "Cutoff", 0.28, 0.76, 0),
+    ("A domino cascade progress bar with capillary ink bleed transfer", "progress", "risographClassic", "circle", "Ink Transfer", 0.20, 0.82, 0),
+    ("A typewriter recoil text input field for searching risograph print archives", "input", "botanicalOchre", "circle", "Search Zines...", 0.22, 0.80, 0),
 ]
 
 def generate_entry(prompt, comp_type, palette, shape, label, stiffness, damping, scatter):
-    width = 180 if comp_type == "button" else 260 if comp_type == "slider" else 76 if comp_type == "toggle" else 110 if comp_type == "loader" else 120 if comp_type == "morph" else 300 if comp_type == "card" else 500
-    height = 54 if comp_type == "button" else 48 if comp_type == "slider" else 38 if comp_type == "toggle" else 110 if comp_type == "loader" else 120 if comp_type == "morph" else 180 if comp_type == "card" else 320
-    dot_radius = 2.8 if comp_type == "morph" else 2.2
+    width = 320 if comp_type == "tabs" else 180 if comp_type == "rating" else 110 if comp_type in ["loader", "morph", "dial"] else 260 if comp_type in ["slider", "progress", "input"] else 76 if comp_type == "toggle" else 300 if comp_type == "card" else 500 if comp_type == "canvas" else 180
+    height = 44 if comp_type == "tabs" else 36 if comp_type == "rating" else 110 if comp_type in ["loader", "morph", "dial"] else 48 if comp_type in ["slider", "progress", "input"] else 38 if comp_type == "toggle" else 180 if comp_type == "card" else 320 if comp_type == "canvas" else 54
+    dot_radius = 2.8 if comp_type in ["morph", "rating"] else 2.2
     dot_spacing = 22 if comp_type == "canvas" else 7
 
     dsl = {

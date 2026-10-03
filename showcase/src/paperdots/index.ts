@@ -14,4 +14,7 @@ export * from './components/PaperDotCanvas';
 export * from './components/PaperDotBadge';
 export * from './components/PaperDotProgress';
 export * from './components/PaperDotInput';
+export * from './components/PaperDotTabs';
+export * from './components/PaperDotRating';
+export * from './components/PaperDotDial';
 export * as shadcn from './shadcn';

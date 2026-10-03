@@ -121,6 +121,21 @@ export type CardAnimationType =
   | 'corner-lift'
   | 'border-chase';
 
+export type TabsAnimationType =
+  | 'crawl-slide'
+  | 'spring-elastic'
+  | 'glow-fade';
+
+export type RatingAnimationType =
+  | 'bloom-expand'
+  | 'smooth-pulse'
+  | 'harmonic-wave';
+
+export type DialAnimationType =
+  | 'radial-sweep'
+  | 'magnetic-detent'
+  | 'elastic-snap';
+
 export interface ComponentConfig {
   width: number;
   height: number;

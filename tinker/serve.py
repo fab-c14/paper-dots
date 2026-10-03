@@ -57,13 +57,19 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
     
     # 1. Component Type
     comp_type = "button"
-    if any(k in lower for k in ["slider", "volume", "fader", "range"]):
+    if any(k in lower for k in ["tab", "segment"]):
+        comp_type = "tabs"
+    elif any(k in lower for k in ["rating", "review", "score"]) or ("stars" in lower and "morph" not in lower):
+        comp_type = "rating"
+    elif any(k in lower for k in ["dial", "knob", "potentiometer", "rotary"]):
+        comp_type = "dial"
+    elif any(k in lower for k in ["slider", "volume", "fader", "range"]):
         comp_type = "slider"
     elif any(k in lower for k in ["toggle", "switch", "checkbox"]):
         comp_type = "toggle"
     elif any(k in lower for k in ["badge", "pill", "tag", "status"]):
         comp_type = "badge"
-    elif any(k in lower for k in ["progress", "meter", "gauge", "bar"]):
+    elif any(k in lower for k in ["progress", "meter", "gauge", "progress bar"]):
         comp_type = "progress"
     elif any(k in lower for k in ["input", "search", "field", "text"]):
         comp_type = "input"
@@ -172,6 +178,27 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
             animation_type = "perimeter-wave"
         else:
             animation_type = "typewriter-recoil"
+    elif comp_type == "tabs":
+        if any(k in lower for k in ["spring", "elastic"]):
+            animation_type = "spring-elastic"
+        elif any(k in lower for k in ["glow", "fade"]):
+            animation_type = "glow-fade"
+        else:
+            animation_type = "crawl-slide"
+    elif comp_type == "rating":
+        if any(k in lower for k in ["pulse", "smooth"]):
+            animation_type = "smooth-pulse"
+        elif any(k in lower for k in ["wave", "harmonic"]):
+            animation_type = "harmonic-wave"
+        else:
+            animation_type = "bloom-expand"
+    elif comp_type == "dial":
+        if any(k in lower for k in ["detent", "magnetic", "tick"]):
+            animation_type = "magnetic-detent"
+        elif any(k in lower for k in ["snap", "elastic"]):
+            animation_type = "elastic-snap"
+        else:
+            animation_type = "radial-sweep"
 
     # 6. Spot Ink Color
     ink_color = None
@@ -211,7 +238,7 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
     if label_match:
         label = label_match.group(1)
     else:
-        label = "Publish Zine" if "publish" in lower else "Stamp Proof" if "stamp" in lower else "Search Zines..." if comp_type == "input" else "Volume" if comp_type == "slider" else "Live Edition" if comp_type == "badge" else "Interact"
+        label = "Publish Zine" if "publish" in lower else "Stamp Proof" if "stamp" in lower else "Search Zines..." if comp_type == "input" else "Volume" if comp_type in ["slider", "dial"] else "Overview / Press / Halftones" if comp_type == "tabs" else "Tactile Rating" if comp_type == "rating" else "Live Edition" if comp_type == "badge" else "Interact"
 
     return {
         "id": f"comp-{int(time.time()*1000)}",
@@ -231,8 +258,8 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
             "scatterForce": 10 if burst != "none" else 0
         },
         "dimensions": {
-            "width": 240 if comp_type in ["slider", "progress", "input"] else 110 if comp_type == "morph" else 160,
-            "height": 48 if comp_type in ["slider", "progress", "input"] else 110 if comp_type == "morph" else 46
+            "width": 320 if comp_type == "tabs" else 180 if comp_type == "rating" else 110 if comp_type in ["morph", "dial"] else 240 if comp_type in ["slider", "progress", "input"] else 160,
+            "height": 44 if comp_type == "tabs" else 36 if comp_type == "rating" else 110 if comp_type in ["morph", "dial"] else 48 if comp_type in ["slider", "progress", "input"] else 46
         },
         "dotStyling": {
             "baseRadius": 2.4,
