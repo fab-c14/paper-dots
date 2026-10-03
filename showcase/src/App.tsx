@@ -28,7 +28,6 @@ import type {
 import { PaperDotsAICompiler } from './paperdots/ai/compiler';
 import type { PromptToComponentResult } from './paperdots/ai/dsl';
 import {
-  Sparkles,
   Zap,
   Heart,
   Palette,
@@ -417,7 +416,7 @@ export const App: React.FC = () => {
           {/* Real Library Buttons for Navigation (Eating our own dog food) */}
           <div className="flex flex-wrap items-center justify-center gap-3">
             <PaperDotButton
-              label="✦ Install via CLI"
+              label="Install via CLI"
               onClick={() => scrollTo('install')}
               palette={activePalette}
               dotShape={globalDotShape}
@@ -426,7 +425,7 @@ export const App: React.FC = () => {
               height={44}
             />
             <PaperDotButton
-              label="✦ Component Suite"
+              label="Component Suite"
               onClick={() => scrollTo('components')}
               palette={activePalette}
               dotShape={globalDotShape}
@@ -435,7 +434,7 @@ export const App: React.FC = () => {
               height={44}
             />
             <PaperDotButton
-              label="✦ Documentation"
+              label="Documentation"
               onClick={() => scrollTo('docs')}
               palette={activePalette}
               dotShape={globalDotShape}
@@ -444,7 +443,7 @@ export const App: React.FC = () => {
               height={44}
             />
             <PaperDotButton
-              label="✦ AI DSL Compiler"
+              label="AI DSL Compiler"
               onClick={() => scrollTo('playground')}
               palette={activePalette}
               dotShape={globalDotShape}
@@ -811,26 +810,26 @@ export function ZineConsole() {
           <div className="text-xs font-mono opacity-80 space-y-2">
             {installTab === 'shadcn' && (
               <>
-                <p>✦ <strong>Step 1:</strong> Run the command above in your terminal. Shadcn will fetch the schema and place the component in <code className="bg-black/5 px-1 py-0.5 rounded">components/ui/paper-{installComponent}.tsx</code>.</p>
-                <p>✦ <strong>Step 2:</strong> Import into any page: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { Button } from "@/components/ui/paper-button";`}</code></p>
-                <p>✦ <strong>Step 3:</strong> Configure any of the 6 distinct animation types via the <code className="bg-black/5 px-1 py-0.5 rounded">animationType</code> prop.</p>
+                <p><strong>Step 1:</strong> Run the command above in your terminal. Shadcn will fetch the schema and place the component in <code className="bg-black/5 px-1 py-0.5 rounded">components/ui/paper-{installComponent}.tsx</code>.</p>
+                <p><strong>Step 2:</strong> Import into any page: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { Button } from "@/components/ui/paper-button";`}</code></p>
+                <p><strong>Step 3:</strong> Configure any of the 11 distinct animation types via the <code className="bg-black/5 px-1 py-0.5 rounded">animationType</code> prop.</p>
               </>
             )}
             {installTab === 'cli' && (
               <>
-                <p>✦ <strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add {installComponent}</code> (or <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add --all</code> to install the complete 10-component suite).</p>
-                <p>✦ <strong>Step 2:</strong> Zero build step required—all canvas physics and audio synthesizers are bundled self-contained.</p>
+                <p><strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add {installComponent}</code> (or <code className="bg-black/5 px-1 py-0.5 rounded">npx paperdots-ui add --all</code> to install the complete 10-component suite).</p>
+                <p><strong>Step 2:</strong> Zero build step required—all canvas physics and audio synthesizers are bundled self-contained.</p>
               </>
             )}
             {installTab === 'npm' && (
               <>
-                <p>✦ <strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npm install paperdots-ui</code> in your package root.</p>
-                <p>✦ <strong>Step 2:</strong> Use with full TypeScript types: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { PaperDotButton, PALETTES } from 'paperdots-ui';`}</code></p>
+                <p><strong>Step 1:</strong> Run <code className="bg-black/5 px-1 py-0.5 rounded">npm install paperdots-ui</code> in your package root.</p>
+                <p><strong>Step 2:</strong> Use with full TypeScript types: <code className="bg-black/5 px-1 py-0.5 rounded">{`import { PaperDotButton, PALETTES } from 'paperdots-ui';`}</code></p>
               </>
             )}
             {installTab === 'manual' && (
               <>
-                <p>✦ Copy the component from <code className="bg-black/5 px-1 py-0.5 rounded">showcase/src/paperdots/components/PaperDot{installComponent.charAt(0).toUpperCase() + installComponent.slice(1)}.tsx</code> directly into your repo.</p>
+                <p>Copy the component from <code className="bg-black/5 px-1 py-0.5 rounded">showcase/src/paperdots/components/PaperDot{installComponent.charAt(0).toUpperCase() + installComponent.slice(1)}.tsx</code> directly into your repo.</p>
               </>
             )}
           </div>
@@ -1969,7 +1968,7 @@ export default function MyZine() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#666] mb-1">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Cpu className="w-4 h-4 text-emerald-600" />
               Open-Source AI Compiler
             </div>
             <h2 className="text-2xl md:text-3xl font-bold font-mono tracking-tight">
@@ -2018,7 +2017,7 @@ export default function MyZine() {
               }}
             />
             <PaperDotButton
-              label={isCompiling ? "Compiling..." : "✦ Compile DSL"}
+              label={isCompiling ? "Compiling..." : "Compile DSL"}
               onClick={() => handleCompile()}
               disabled={isCompiling}
               animationType="hydraulic-pop"
@@ -2512,7 +2511,7 @@ export const MyComponent = () => {
           </div>
 
           <div className="border-t pt-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono opacity-80" style={{ borderColor: activePalette.border }}>
-            <div>✦ "Now my digital zine feels like it was pressed by hand." — Julian</div>
+            <div>"Now my digital zine feels like it was pressed by hand." — Julian</div>
             <div className="font-bold text-pink-600">#hf26challenge #weekendchallenge</div>
           </div>
         </div>

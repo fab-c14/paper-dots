@@ -4,6 +4,7 @@ Provides a zero-dependency, local HTTP bridge connecting PaperDots UI
 to Thinking Machines' Tinker fine-tuned Gemma 2B model weights.
 """
 
+import os
 import sys
 import json
 import time
@@ -13,10 +14,33 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 HOST = "127.0.0.1"
 PORT = 8000
 
+def load_dotenv():
+    search_paths = [
+        os.path.join(os.path.dirname(__file__), ".env"),
+        os.path.join(os.path.dirname(__file__), "..", ".env"),
+        os.path.join(os.getcwd(), ".env"),
+        os.path.join(os.getcwd(), "tinker", ".env")
+    ]
+    for p in search_paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+load_dotenv()
+
 # Preset dataset loader for nearest semantic prompt match
 DATASET = []
 try:
-    import os
     dataset_path = os.path.join(os.path.dirname(__file__), "paperdots_tinker_train.jsonl")
     if os.path.exists(dataset_path):
         with open(dataset_path, "r", encoding="utf-8") as f:
@@ -130,9 +154,13 @@ class TinkerBridgeHandler(BaseHTTPRequestHandler):
             self._send_cors()
             self.send_header("Content-Type", "application/json")
             self.end_headers()
+            api_key = os.environ.get("TINKER_API_KEY")
+            masked = (api_key[:6] + "..." + api_key[-4:]) if api_key and len(api_key) > 10 else ("Configured" if api_key else "None")
             status = {
                 "status": "online",
-                "platform": "Thinking Machines Tinker",
+                "platform": "Thinking Machines Tinker (API Authenticated)" if api_key else "Thinking Machines Tinker",
+                "api_authenticated": bool(api_key),
+                "key_preview": masked,
                 "model": "google/gemma-2-2b-it (Tinker fine-tuned)",
                 "adapter": "tinker://models/paperdots-gemma-2b-latest",
                 "dataset_samples": len(DATASET),

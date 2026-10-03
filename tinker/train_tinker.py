@@ -8,12 +8,35 @@ import sys
 import json
 import time
 
+def load_dotenv():
+    search_paths = [
+        os.path.join(os.path.dirname(__file__), ".env"),
+        os.path.join(os.path.dirname(__file__), "..", ".env"),
+        os.path.join(os.getcwd(), ".env"),
+        os.path.join(os.getcwd(), "tinker", ".env")
+    ]
+    for p in search_paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
 def train_with_tinker():
+    load_dotenv()
     api_key = os.environ.get("TINKER_API_KEY")
     if api_key:
         masked = api_key[:6] + "..." + api_key[-4:] if len(api_key) > 10 else "***"
-        print(f"[✓] TINKER_API_KEY detected: {masked}")
-        print("[✓] Authenticated with Thinking Machines Tinker cloud cluster.")
+        print(f"[OK] TINKER_API_KEY detected: {masked}")
+        print("[OK] Authenticated with Thinking Machines Tinker cloud cluster.")
     else:
         print("[!] TINKER_API_KEY environment variable not set.")
         print("[i] Using your Thinking Machines promo code to configure Tinker client.")
