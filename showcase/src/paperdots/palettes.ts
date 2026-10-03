@@ -5,7 +5,7 @@ export const PALETTES: Record<string, RisographPalette> = {
     name: 'Risograph Classic',
     background: '#FAF7F0',    // Warm unbleached newsprint
     cardBg: '#FFFFFF',
-    border: 'rgba(28, 29, 31, 0.1)',
+    border: 'rgba(28, 29, 31, 0.12)',
     paperGrain: 'rgba(50, 40, 30, 0.04)',
     primary: '#0078BF',       // Risograph Federal Blue
     secondary: '#FF48B0',     // Risograph Fluorescent Pink
@@ -25,17 +25,29 @@ export const PALETTES: Record<string, RisographPalette> = {
     light: '#FFF9C4',         // Pale ivory highlight
     muted: '#B0BEC5',         // Paper grey
   },
-  cyberPaper: {
-    name: 'Cyber Halftone',
-    background: '#12131A',    // Deep dark recycled chipboard
-    cardBg: '#1B1C26',
-    border: 'rgba(0, 240, 255, 0.2)',
-    paperGrain: 'rgba(255, 255, 255, 0.03)',
-    primary: '#00F0FF',       // Cyan laser ink
-    secondary: '#FF0055',     // Hot magenta dot
-    dark: '#FFFFFF',          // High contrast white text
-    light: '#E2F1FF',         // Pale glow
-    muted: '#58607A',         // Slate halftone
+  pastelZine: {
+    name: 'Pastel Risograph',
+    background: '#FFF9F5',    // Soft cream cotton paper
+    cardBg: '#FFFFFF',
+    border: 'rgba(255, 107, 107, 0.18)',
+    paperGrain: 'rgba(255, 107, 107, 0.03)',
+    primary: '#FF6B6B',       // Coral Pink
+    secondary: '#4D96FF',     // Pastel Sky Blue
+    dark: '#2B2D42',          // Deep Navy ink
+    light: '#FFD93D',         // Buttercup Yellow
+    muted: '#C1C8E4',         // Lavender wash
+  },
+  botanicalOchre: {
+    name: 'Botanical & Ochre',
+    background: '#F8F5EE',    // French milled paper
+    cardBg: '#FFFFFF',
+    border: 'rgba(100, 110, 80, 0.15)',
+    paperGrain: 'rgba(80, 90, 60, 0.04)',
+    primary: '#C88A58',       // Warm terracotta ochre
+    secondary: '#588157',     // Sage leaf green
+    dark: '#283618',          // Deep olive sumi ink
+    light: '#E9D8A6',         // Oat milk
+    muted: '#A3B18A',         // Pale eucalyptus
   },
   matchaPaper: {
     name: 'Matcha & Ink',
@@ -61,24 +73,24 @@ export const PALETTES: Record<string, RisographPalette> = {
     light: '#EBE9E4',         // Tinted white
     muted: '#A3A3A3',         // Fine stipple
   },
-  cyanotype: {
-    name: 'Blueprint Cyanotype',
-    background: '#0D223A',    // Deep Prussian Sun Print Blue
-    cardBg: '#132F50',
-    border: 'rgba(125, 211, 252, 0.25)',
-    paperGrain: 'rgba(255, 255, 255, 0.04)',
-    primary: '#38BDF8',       // Light Cyan
-    secondary: '#F472B6',     // Solarized pink
-    dark: '#F0F9FF',          // Chalk white text
-    light: '#BAE6FD',         // Sky glow
-    muted: '#64748B',         // Faded blueprint blue
+  nordicLinen: {
+    name: 'Nordic Linen Print',
+    background: '#F6F8FA',    // Clean unbleached linen
+    cardBg: '#FFFFFF',
+    border: 'rgba(37, 99, 235, 0.14)',
+    paperGrain: 'rgba(30, 40, 60, 0.03)',
+    primary: '#2563EB',       // Cobalt Press Blue
+    secondary: '#D97706',     // Nordic Amber
+    dark: '#0F172A',          // Deep slate ink
+    light: '#E0F2FE',         // Pale glacier
+    muted: '#94A3B8',         // Cool slate
   },
   kraftPostal: {
     name: 'Kraft & Rubber Stamp',
-    background: '#E8D8C3',    // Raw Kraft Paper
-    cardBg: '#F2E6D5',
-    border: 'rgba(100, 70, 40, 0.2)',
-    paperGrain: 'rgba(80, 50, 20, 0.06)',
+    background: '#EADBCA',    // Raw Kraft Paper
+    cardBg: '#F4E8D9',
+    border: 'rgba(100, 70, 40, 0.18)',
+    paperGrain: 'rgba(80, 50, 20, 0.05)',
     primary: '#C5221F',       // Post Office Stamp Red
     secondary: '#1A535C',     // Postal Petrol Teal
     dark: '#2B1E16',          // Dark walnut ink

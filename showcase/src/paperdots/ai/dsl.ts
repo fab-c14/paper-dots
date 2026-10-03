@@ -4,7 +4,7 @@ export interface PaperDotComponentDSL {
   id: string;
   componentType: 'button' | 'slider' | 'toggle' | 'loader' | 'morph' | 'card' | 'canvas' | 'badge' | 'progress' | 'input';
   label?: string;
-  paletteKey: 'risographClassic' | 'warmZine' | 'cyberPaper' | 'matchaPaper' | 'monochromePress' | 'cyanotype' | 'kraftPostal';
+  paletteKey: 'risographClassic' | 'warmZine' | 'pastelZine' | 'botanicalOchre' | 'matchaPaper' | 'monochromePress' | 'nordicLinen' | 'kraftPostal';
   shape?: PresetShape;
   dotShape?: DotGeometry;
   burstIntensity?: 'none' | 'gentle' | 'confetti';

@@ -32,30 +32,32 @@ export class PaperDotsAICompiler {
     }
 
     // 2. Determine Dot Geometry (Square vs Circle vs Diamond)
-    let dotShape: DotGeometry = 'circle';
-    if (lower.includes('square') || lower.includes('chip') || lower.includes('pixel') || lower.includes('block') || lower.includes('tile')) {
-      dotShape = 'square';
-    } else if (lower.includes('diamond') || lower.includes('rhombus') || lower.includes('cmyk') || lower.includes('angle')) {
+    let dotShape: DotGeometry = 'square';
+    if (lower.includes('circle') || lower.includes('round') || lower.includes('dot') || lower.includes('stipple')) {
+      dotShape = 'circle';
+    } else if (lower.includes('diamond') || lower.includes('rhombus') || lower.includes('angle')) {
       dotShape = 'diamond';
     }
 
-    // 3. Determine Palette
+    // 3. Determine Light Palette (Zero dark palettes)
     let paletteKey: PaperDotComponentDSL['paletteKey'] = 'risographClassic';
-    if (lower.includes('cyber') || lower.includes('neon') || lower.includes('dark') || lower.includes('halftone')) {
-      paletteKey = 'cyberPaper';
-    } else if (lower.includes('warm') || lower.includes('zine') || lower.includes('parchment') || lower.includes('orange') || lower.includes('sepia')) {
+    if (lower.includes('pastel') || lower.includes('pink') || lower.includes('soft') || lower.includes('coral')) {
+      paletteKey = 'pastelZine';
+    } else if (lower.includes('botanical') || lower.includes('ochre') || lower.includes('terracotta') || lower.includes('olive')) {
+      paletteKey = 'botanicalOchre';
+    } else if (lower.includes('nordic') || lower.includes('linen') || lower.includes('cobalt') || lower.includes('blue')) {
+      paletteKey = 'nordicLinen';
+    } else if (lower.includes('warm') || lower.includes('zine') || lower.includes('parchment') || lower.includes('sepia')) {
       paletteKey = 'warmZine';
-    } else if (lower.includes('matcha') || lower.includes('moss') || lower.includes('green') || lower.includes('rice paper') || lower.includes('nature')) {
+    } else if (lower.includes('matcha') || lower.includes('moss') || lower.includes('green') || lower.includes('rice paper')) {
       paletteKey = 'matchaPaper';
-    } else if (lower.includes('monochrome') || lower.includes('letterpress') || lower.includes('black') || lower.includes('grey') || lower.includes('lead')) {
+    } else if (lower.includes('monochrome') || lower.includes('letterpress') || lower.includes('lead') || lower.includes('black')) {
       paletteKey = 'monochromePress';
-    } else if (lower.includes('blueprint') || lower.includes('cyanotype') || lower.includes('prussian') || lower.includes('sun print')) {
-      paletteKey = 'cyanotype';
     } else if (lower.includes('kraft') || lower.includes('postal') || lower.includes('stamp') || lower.includes('brown')) {
       paletteKey = 'kraftPostal';
     }
 
-    // 4. Determine Shape (for morph or button)
+    // 4. Determine Shape
     let shape: PresetShape = 'circle';
     if (lower.includes('heart') || lower.includes('love') || lower.includes('like')) {
       shape = 'heart';
@@ -73,10 +75,9 @@ export class PaperDotsAICompiler {
 
     // 5. Determine Physics & Burst Mode
     const isBouncy = lower.includes('bounc') || lower.includes('elastic') || lower.includes('springy');
-    const isGentle = lower.includes('gentle') || lower.includes('subtle') || lower.includes('soft') || lower.includes('less burst');
     const noBurst = lower.includes('no burst') || lower.includes('no scatter') || lower.includes('static');
 
-    const burstIntensity: PaperDotComponentDSL['burstIntensity'] = noBurst ? 'none' : isGentle ? 'gentle' : 'gentle'; // Default gentle to avoid feeling stuck!
+    const burstIntensity: PaperDotComponentDSL['burstIntensity'] = noBurst ? 'none' : 'gentle';
     const stiffness = isBouncy ? 0.28 : 0.20;
     const damping = isBouncy ? 0.74 : 0.80;
     const jitter = lower.includes('rough') || lower.includes('jitter') ? 0.25 : 0.12;
@@ -168,7 +169,7 @@ export class PaperDotsAICompiler {
         inkBleed: true,
         paperGrainIntensity: 0.05,
       },
-      description: `Generative ${componentType} with ${dotShape} paper dots, ${paletteKey} ink palette, and responsive tactile return physics.`,
+      description: `Generative ${componentType} with ${dotShape} paper dots, ${paletteKey} light paper palette, and responsive tactile return physics.`,
     };
 
     const inferenceTimeMs = Math.round(performance.now() - startTime);

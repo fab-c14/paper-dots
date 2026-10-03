@@ -14,3 +14,4 @@ export * from './components/PaperDotCanvas';
 export * from './components/PaperDotBadge';
 export * from './components/PaperDotProgress';
 export * from './components/PaperDotInput';
+export * as shadcn from './shadcn';
