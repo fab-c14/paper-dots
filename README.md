@@ -9,6 +9,7 @@
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026_Live-FF7849?style=flat-square)](https://dev.to/challenges)
 [![Challenge](https://img.shields.io/badge/Theme-Build_for_a_Friend-FF48B0?style=flat-square)](https://dev.to/challenges)
 [![GitHub stars](https://img.shields.io/github/stars/fab-c14/paper-dots?style=flat-square&color=0078BF)](https://github.com/fab-c14/paper-dots)
+[![npm version](https://img.shields.io/npm/v/paperdots-ui.svg?style=flat-square&color=CB3837)](https://www.npmjs.com/package/paperdots-ui)
 [![Shadcn CLI](https://img.shields.io/badge/Shadcn_CLI-Installable_Registry-000000?style=flat-square&logo=shadcnui)](https://ui.shadcn.com)
 [![Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render)](https://render.com)
 [![Thinking Machines Tinker](https://img.shields.io/badge/Fine--Tuned_with-Tinker-0078BF?style=flat-square)](https://thinkingmachines.ai)
