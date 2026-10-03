@@ -1,9 +1,7 @@
 services:
   # 1. PaperDots UI Interactive Showcase & Playground (Static Site)
-  - type: web
+  - type: static
     name: paperdots-ui-showcase
-    env: static
-    plan: free
     buildCommand: cd showcase && npm install && npm run build
     staticPublishPath: showcase/dist
     headers:
@@ -18,7 +16,7 @@ services:
   # 2. PaperDots AI Compiler Runtime (FastAPI / Open-Model Engine on Render)
   - type: web
     name: paperdots-ai-runtime
-    env: python
+    runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
