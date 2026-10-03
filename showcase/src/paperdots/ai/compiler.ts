@@ -130,7 +130,66 @@ export class PaperDotsAICompiler {
     const damping = isBouncy ? 0.74 : 0.80;
     const jitter = lower.includes('rough') || lower.includes('jitter') ? 0.25 : 0.12;
 
-    // 6. Dimensions
+    // 6. Comprehensive Animation Type Resolution
+    let animationType: string = 'hydraulic-pop';
+    if (lower.includes('snake') || lower.includes('slither') || lower.includes('trail')) {
+      animationType = 'snake-trail';
+    } else if (lower.includes('wrap') || lower.includes('border') || lower.includes('orbit')) {
+      animationType = 'border-wrap';
+    } else if (lower.includes('glow') || lower.includes('fade') || lower.includes('bloom')) {
+      animationType = 'glow-fade';
+    } else if (lower.includes('pulse') || lower.includes('smooth') || lower.includes('breathe') || lower.includes('heartbeat')) {
+      animationType = 'smooth-pulse';
+    } else if (lower.includes('wave') || lower.includes('sweep') || lower.includes('squeegee')) {
+      animationType = 'wave-sweep';
+    } else if (lower.includes('ripple')) {
+      animationType = 'ripple-wave';
+    } else if (lower.includes('stamp') || lower.includes('press')) {
+      animationType = 'stamp-press';
+    } else if (lower.includes('vortex') || lower.includes('swirl') || lower.includes('cyclone')) {
+      animationType = 'particle-vortex';
+    } else if (lower.includes('confetti') || lower.includes('drift')) {
+      animationType = 'confetti-drift';
+    } else if (lower.includes('chatter') || lower.includes('micro') || lower.includes('carriage')) {
+      animationType = 'micro-chatter';
+    } else if (componentType === 'slider') {
+      if (lower.includes('tick') || lower.includes('magnetic') || lower.includes('notch')) animationType = 'magnetic-tick';
+      else if (lower.includes('dilate') || lower.includes('dilation')) animationType = 'ink-dilation';
+      else animationType = 'elastic-string';
+    } else if (componentType === 'toggle') {
+      if (lower.includes('flip') || lower.includes('page')) animationType = 'page-flip';
+      else if (lower.includes('snap') || lower.includes('slingshot')) animationType = 'slingshot-snap';
+      else animationType = 'cylinder-roll';
+    } else if (componentType === 'progress') {
+      if (lower.includes('cascade') || lower.includes('domino')) animationType = 'domino-cascade';
+      else if (lower.includes('strobe') || lower.includes('pulse')) animationType = 'strobe-pulse';
+      else animationType = 'capillary-bleed';
+    } else if (componentType === 'badge') {
+      if (lower.includes('shimmer')) animationType = 'shimmer-wave';
+      else if (lower.includes('float') || lower.includes('drift')) animationType = 'float-drift';
+      else animationType = 'beacon-pulse';
+    } else if (componentType === 'input') {
+      if (lower.includes('halo') || lower.includes('focus')) animationType = 'focus-halo';
+      else if (lower.includes('perimeter')) animationType = 'perimeter-wave';
+      else animationType = 'typewriter-recoil';
+    }
+
+    // 7. Spot Ink Color Resolution
+    let inkColor: string | undefined = undefined;
+    if (lower.includes('pink') || lower.includes('fluorescent')) inkColor = '#FF48B0';
+    else if (lower.includes('blue') || lower.includes('federal')) inkColor = '#0078BF';
+    else if (lower.includes('yellow') || lower.includes('sunflower')) inkColor = '#FFD800';
+    else if (lower.includes('mint') || lower.includes('seafoam')) inkColor = '#00A95C';
+    else if (lower.includes('red') || lower.includes('scarlet')) inkColor = '#F15060';
+    else if (lower.includes('purple') || lower.includes('violet')) inkColor = '#765BA7';
+    else if (lower.includes('green') || lower.includes('emerald')) inkColor = '#00805A';
+    else if (lower.includes('terracotta') || lower.includes('clay') || lower.includes('orange')) inkColor = '#BB6B00';
+    else if (lower.includes('burgundy')) inkColor = '#5E2028';
+    else if (lower.includes('teal')) inkColor = '#00838A';
+    else if (lower.includes('gold') || lower.includes('bronze')) inkColor = '#8E6F3E';
+    else if (lower.includes('black') || lower.includes('soy') || lower.includes('lead')) inkColor = '#1C1D1F';
+
+    // 8. Dimensions
     let width = 180;
     let height = 52;
     let dotRadius = 2.4;
@@ -177,7 +236,7 @@ export class PaperDotsAICompiler {
         break;
     }
 
-    // 7. Extract Label
+    // 9. Extract Label
     let label = 'Action';
     if (componentType === 'button') {
       const match = prompt.match(/["']([^"']+)["']/);
@@ -200,6 +259,8 @@ export class PaperDotsAICompiler {
       shape,
       dotShape,
       burstIntensity,
+      animationType,
+      inkColor,
       physics: {
         stiffness,
         damping,
@@ -217,7 +278,7 @@ export class PaperDotsAICompiler {
         inkBleed: true,
         paperGrainIntensity: 0.05,
       },
-      description: `Generative ${componentType} with ${dotShape} paper dots, ${paletteKey} light paper palette, and responsive tactile return physics.`,
+      description: `Generative ${componentType} with ${dotShape} paper dots, ${animationType} kinetic animation, ${inkColor ? `spot ink (${inkColor})` : `${paletteKey} light paper palette`}, and tactile return physics.`,
     };
 
     const inferenceTimeMs = Math.round(performance.now() - startTime);

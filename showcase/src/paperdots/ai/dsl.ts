@@ -22,6 +22,8 @@ export interface PaperDotComponentDSL {
     inkBleed: boolean;
     paperGrainIntensity: number;
   };
+  animationType?: string;
+  inkColor?: string;
   description?: string;
 }
 

@@ -42,6 +42,7 @@ import {
   Cpu,
   BookOpen,
   Download,
+  Activity,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -151,12 +152,13 @@ export const App: React.FC = () => {
   }, []);
 
   const samplePrompts = [
-    "A tactile square-chip button labeled 'Publish Zine' with gentle pop",
-    "An elastic volume slider with square paper beads for Julian's music zine",
-    "A soft coral heart toggle with fast spring bounce",
-    "A tactical search input with responsive paper-dot borders",
-    "A segmented ink progress meter with square paper chips",
-    "A hypnotic slow-pulsing loader with matcha green paper chips",
+    "A button with snakey animation and fluorescent pink ink",
+    "A button with wrapping glowing border labeled 'Stamp Proof'",
+    "A glowing fade in-out button with mint seafoam ink",
+    "A smooth heart with pink ink and wobble-free pulse",
+    "An elastic volume slider with square paper chips",
+    "A domino cascade progress bar labeled 'Ink Flow'",
+    "A cylinder roll toggle labeled 'Risograph Mode'",
   ];
 
   const morphShapesList: PresetShape[] = ['play', 'pause', 'heart', 'star', 'check', 'arrow', 'circle'];
@@ -2109,6 +2111,18 @@ export default function MyZine() {
                   <Square className="w-3.5 h-3.5 text-pink-500" />
                   Shape: <strong>{compiledResult.dsl.dotShape || globalDotShape}</strong>
                 </span>
+                {compiledResult.dsl.animationType && (
+                  <span className="flex items-center gap-1">
+                    <Activity className="w-3.5 h-3.5 text-indigo-500" />
+                    Animation: <strong className="text-indigo-600">{compiledResult.dsl.animationType}</strong>
+                  </span>
+                )}
+                {compiledResult.dsl.inkColor && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full border border-black/20 shadow-2xs inline-block" style={{ backgroundColor: compiledResult.dsl.inkColor }} />
+                    Ink: <strong style={{ color: compiledResult.dsl.inkColor }}>{compiledResult.dsl.inkColor}</strong>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -2136,8 +2150,9 @@ export default function MyZine() {
                       label={compiledResult.dsl.label || 'Publish Zine'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      burstIntensity={globalBurstMode}
-                      animationType="hydraulic-pop"
+                      burstIntensity={compiledResult.dsl.burstIntensity || globalBurstMode}
+                      animationType={compiledResult.dsl.animationType as any || 'hydraulic-pop'}
+                      inkColor={compiledResult.dsl.inkColor}
                       width={compiledResult.dsl.dimensions.width}
                       height={compiledResult.dsl.dimensions.height}
                     />
@@ -2149,6 +2164,8 @@ export default function MyZine() {
                       label={compiledResult.dsl.label || 'Volume'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'elastic-string'}
+                      inkColor={compiledResult.dsl.inkColor}
                       width={compiledResult.dsl.dimensions.width}
                     />
                   )}
@@ -2159,6 +2176,8 @@ export default function MyZine() {
                       label={compiledResult.dsl.label || 'Risograph Mode'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'cylinder-roll'}
+                      inkColor={compiledResult.dsl.inkColor}
                     />
                   )}
                   {compiledResult.dsl.componentType === 'loader' && (
@@ -2166,6 +2185,7 @@ export default function MyZine() {
                       size={compiledResult.dsl.dimensions.width}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      inkColor={compiledResult.dsl.inkColor}
                       label={compiledResult.dsl.label || 'Inking...'}
                     />
                   )}
@@ -2175,7 +2195,9 @@ export default function MyZine() {
                       size={compiledResult.dsl.dimensions.width}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      burstIntensity={globalBurstMode}
+                      burstIntensity={compiledResult.dsl.burstIntensity || globalBurstMode}
+                      animationType={(compiledResult.dsl.animationType as any) || (compiledResult.dsl.shape === 'heart' ? 'smooth-pulse' : 'vortex-morph')}
+                      inkColor={compiledResult.dsl.inkColor}
                     />
                   )}
                   {compiledResult.dsl.componentType === 'badge' && (
@@ -2183,6 +2205,8 @@ export default function MyZine() {
                       label={compiledResult.dsl.label || 'Live Edition'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'beacon-pulse'}
+                      inkColor={compiledResult.dsl.inkColor}
                     />
                   )}
                   {compiledResult.dsl.componentType === 'progress' && (
@@ -2191,6 +2215,8 @@ export default function MyZine() {
                       label={compiledResult.dsl.label || 'Transfer'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'domino-cascade'}
+                      inkColor={compiledResult.dsl.inkColor}
                       width={compiledResult.dsl.dimensions.width}
                     />
                   )}
@@ -2201,6 +2227,8 @@ export default function MyZine() {
                       placeholder={compiledResult.dsl.label || 'Type...'}
                       palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
                       dotShape={compiledResult.dsl.dotShape || globalDotShape}
+                      animationType={compiledResult.dsl.animationType as any || 'typewriter-recoil'}
+                      inkColor={compiledResult.dsl.inkColor}
                       width={compiledResult.dsl.dimensions.width}
                     />
                   )}
@@ -2247,9 +2275,7 @@ export const MyComponent = () => {
     <PaperDot${compiledResult.dsl.componentType.charAt(0).toUpperCase() + compiledResult.dsl.componentType.slice(1)}
       palette={PALETTES.${compiledResult.dsl.paletteKey}}
       dotShape="${compiledResult.dsl.dotShape || globalDotShape}"
-      ${compiledResult.dsl.label ? `label="${compiledResult.dsl.label}"` : ''}
-      ${compiledResult.dsl.shape ? `shape="${compiledResult.dsl.shape}"` : ''}
-    />
+      ${compiledResult.dsl.animationType ? `animationType="${compiledResult.dsl.animationType}"\n      ` : ''}${compiledResult.dsl.inkColor ? `inkColor="${compiledResult.dsl.inkColor}"\n      ` : ''}${compiledResult.dsl.burstIntensity ? `burstIntensity="${compiledResult.dsl.burstIntensity}"\n      ` : ''}${compiledResult.dsl.label ? `label="${compiledResult.dsl.label}"\n      ` : ''}${compiledResult.dsl.shape ? `shape="${compiledResult.dsl.shape}"\n      ` : ''}/>
   );
 };`}
               </pre>
