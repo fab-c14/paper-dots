@@ -91,7 +91,7 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
     shape = "circle"
     if any(k in lower for k in ["heart", "love", "like"]):
         shape = "heart"
-        if not any(k in lower for k in ["button", "slider", "toggle", "badge"]):
+        if not any(k in lower for k in ["button", "slider", "toggle", "badge", "rating", "tabs", "dial", "input", "progress"]):
             comp_type = "morph"
     elif any(k in lower for k in ["star", "fav"]):
         shape = "star"
