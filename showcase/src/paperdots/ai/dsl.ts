@@ -2,7 +2,7 @@ import type { PresetShape, SpringConfig, DotGeometry } from '../types';
 
 export interface PaperDotComponentDSL {
   id: string;
-  componentType: 'button' | 'slider' | 'toggle' | 'loader' | 'morph' | 'card' | 'canvas' | 'badge' | 'progress' | 'input' | 'tabs' | 'rating' | 'dial';
+  componentType: 'button' | 'slider' | 'toggle' | 'loader' | 'morph' | 'card' | 'canvas' | 'badge' | 'progress' | 'input' | 'tabs' | 'rating' | 'dial' | 'equalizer' | 'radar' | 'keypad' | 'generative' | (string & {});
   label?: string;
   paletteKey: 'risographClassic' | 'warmZine' | 'pastelZine' | 'botanicalOchre' | 'matchaPaper' | 'monochromePress' | 'nordicLinen' | 'kraftPostal';
   shape?: PresetShape;

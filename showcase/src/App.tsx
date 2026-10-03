@@ -9,13 +9,13 @@ import {
   PaperDotLoader,
   PaperDotMorph,
   PaperDotCard,
-  PaperDotCanvas,
   PaperDotBadge,
   PaperDotProgress,
   PaperDotInput,
   PaperDotTabs,
   PaperDotRating,
   PaperDotDial,
+  PaperDotUniversal,
   TactileAudio,
 } from './paperdots';
 import type {
@@ -164,16 +164,16 @@ export const App: React.FC = () => {
   }, []);
 
   const samplePrompts = [
+    "An audio equalizer with bouncing dot columns",
+    "A 360-degree radar sweep scanner with emerald dots",
+    "A celestial galaxy spiral vortex with cosmic rotation",
+    "A continuous sinusoidal waveform oscilloscope",
+    "A cascading digital matrix rain with paper jitter",
+    "A harmonic pendulum metronome with smooth gravity swing",
+    "A cardiac rhythm heartbeat monitor with zero burst",
     "A button with snakey animation and fluorescent pink ink",
-    "A button with wrapping glowing border labeled 'Stamp Proof'",
-    "A glowing fade in-out button with mint seafoam ink",
+    "A button having wrapping glowing in fade labeled 'Stamp Proof'",
     "A smooth heart with pink ink and wobble-free pulse",
-    "A tactile 3-segment tabs bar with crawling dot indicator",
-    "A 5-star rating component with bloom expand ink dots",
-    "A rotary potentiometer dial labeled 'Cutoff' with magnetic detents",
-    "An elastic volume slider with square paper chips",
-    "A domino cascade progress bar labeled 'Ink Flow'",
-    "A cylinder roll toggle labeled 'Risograph Mode'",
   ];
 
   const morphShapesList: PresetShape[] = ['play', 'pause', 'heart', 'star', 'check', 'arrow', 'circle'];
@@ -2326,150 +2326,12 @@ export default function MyZine() {
                 </div>
 
                 <div className="p-4 flex items-center justify-center">
-                  {compiledResult.dsl.componentType === 'button' && (
-                    <PaperDotButton
-                      label={compiledResult.dsl.label || 'Publish Zine'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      burstIntensity={compiledResult.dsl.burstIntensity || globalBurstMode}
-                      animationType={compiledResult.dsl.animationType as any || 'hydraulic-pop'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      width={compiledResult.dsl.dimensions.width}
-                      height={compiledResult.dsl.dimensions.height}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'slider' && (
-                    <PaperDotSlider
-                      value={sliderVal}
-                      onChange={setSliderVal}
-                      label={compiledResult.dsl.label || 'Volume'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'elastic-string'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      width={compiledResult.dsl.dimensions.width}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'toggle' && (
-                    <PaperDotToggle
-                      checked={toggleState}
-                      onChange={setToggleState}
-                      label={compiledResult.dsl.label || 'Risograph Mode'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'cylinder-roll'}
-                      inkColor={compiledResult.dsl.inkColor}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'loader' && (
-                    <PaperDotLoader
-                      size={compiledResult.dsl.dimensions.width}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      inkColor={compiledResult.dsl.inkColor}
-                      label={compiledResult.dsl.label || 'Inking...'}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'morph' && (
-                    <PaperDotMorph
-                      shape={compiledResult.dsl.shape || 'star'}
-                      size={compiledResult.dsl.dimensions.width}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      burstIntensity={compiledResult.dsl.burstIntensity || globalBurstMode}
-                      animationType={(compiledResult.dsl.animationType as any) || (compiledResult.dsl.shape === 'heart' ? 'smooth-pulse' : 'vortex-morph')}
-                      inkColor={compiledResult.dsl.inkColor}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'badge' && (
-                    <PaperDotBadge
-                      label={compiledResult.dsl.label || 'Live Edition'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'beacon-pulse'}
-                      inkColor={compiledResult.dsl.inkColor}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'progress' && (
-                    <PaperDotProgress
-                      value={progressVal}
-                      label={compiledResult.dsl.label || 'Transfer'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'domino-cascade'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      width={compiledResult.dsl.dimensions.width}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'input' && (
-                    <PaperDotInput
-                      value={inputVal}
-                      onChange={setInputVal}
-                      placeholder={compiledResult.dsl.label || 'Type...'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'typewriter-recoil'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      width={compiledResult.dsl.dimensions.width}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'card' && (
-                    <PaperDotCard
-                      title={compiledResult.dsl.label || 'Tactile Paper Card'}
-                      subtitle="Dynamic stippled border reacting to cursor magnetism"
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      width={compiledResult.dsl.dimensions.width}
-                      height={compiledResult.dsl.dimensions.height}
-                    >
-                      <p className="text-xs font-mono opacity-80">
-                        Organic risograph ink dots generated with Euler spring dynamics.
-                      </p>
-                    </PaperDotCard>
-                  )}
-                  {compiledResult.dsl.componentType === 'canvas' && (
-                    <PaperDotCanvas
-                      width={compiledResult.dsl.dimensions.width}
-                      height={compiledResult.dsl.dimensions.height}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'tabs' && (
-                    <PaperDotTabs
-                      items={['Zine Press', 'Halftones', 'Prints']}
-                      activeIndex={tabsIdx}
-                      onChange={setTabsIdx}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'crawl-slide'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      width={compiledResult.dsl.dimensions.width}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'rating' && (
-                    <PaperDotRating
-                      value={ratingVal}
-                      onChange={setRatingVal}
-                      shape={compiledResult.dsl.shape === 'heart' ? 'heart' : 'star'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'bloom-expand'}
-                      inkColor={compiledResult.dsl.inkColor}
-                    />
-                  )}
-                  {compiledResult.dsl.componentType === 'dial' && (
-                    <PaperDotDial
-                      value={dialVal}
-                      onChange={setDialVal}
-                      label={compiledResult.dsl.label || 'Volume'}
-                      palette={PALETTES[compiledResult.dsl.paletteKey] || activePalette}
-                      dotShape={compiledResult.dsl.dotShape || globalDotShape}
-                      animationType={compiledResult.dsl.animationType as any || 'radial-sweep'}
-                      inkColor={compiledResult.dsl.inkColor}
-                      size={compiledResult.dsl.dimensions.width}
-                    />
-                  )}
+                  <PaperDotUniversal
+                    dsl={compiledResult.dsl}
+                    activePalette={activePalette}
+                    globalDotShape={globalDotShape}
+                    globalBurstMode={globalBurstMode}
+                  />
                 </div>
               </div>
             )}

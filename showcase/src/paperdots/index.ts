@@ -17,4 +17,5 @@ export * from './components/PaperDotInput';
 export * from './components/PaperDotTabs';
 export * from './components/PaperDotRating';
 export * from './components/PaperDotDial';
+export * from './components/PaperDotUniversal';
 export * as shadcn from './shadcn';

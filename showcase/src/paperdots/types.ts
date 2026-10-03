@@ -136,6 +136,28 @@ export type DialAnimationType =
   | 'magnetic-detent'
   | 'elastic-snap';
 
+export type EqualizerAnimationType =
+  | 'frequency-bounce'
+  | 'smooth-wave'
+  | 'strobe-peak';
+
+export type RadarAnimationType =
+  | 'continuous-sweep'
+  | 'sonar-ping'
+  | 'orbital-drift';
+
+export type KeypadAnimationType =
+  | 'key-recoil'
+  | 'grid-ripple'
+  | 'press-compress';
+
+export type GenerativeAnimationType =
+  | 'lissajous-orbit'
+  | 'spiral-galaxy'
+  | 'wave-pool'
+  | 'pendulum-chaos'
+  | 'attractor-drift';
+
 export interface ComponentConfig {
   width: number;
   height: number;
