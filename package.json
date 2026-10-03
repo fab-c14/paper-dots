@@ -4,8 +4,8 @@
   "description": "Tactile 2D paper & ink-dot physics UI library with square chips, Shadcn registry support, and Web Audio haptics.",
   "main": "showcase/src/paperdots/index.ts",
   "bin": {
-    "paperdots-ui": "./scripts/paperdots-cli.js",
-    "paperdots": "./scripts/paperdots-cli.js"
+    "paperdots-ui": "scripts/paperdots-cli.js",
+    "paperdots": "scripts/paperdots-cli.js"
   },
   "scripts": {
     "dev": "npm --prefix showcase run dev",
@@ -27,6 +27,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fab-c14/paper-dots"
+    "url": "git+https://github.com/fab-c14/paper-dots.git"
   }
 }

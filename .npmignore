@@ -1,0 +1,14 @@
+# Development and AI fine-tuning datasets
+tinker/
+api/
+render.yaml
+requirements.txt
+ROADMAP.md
+DEV_SUBMISSION.md
+.gitignore
+.env*
+*.log
+
+# Git
+.git/
+.github/
