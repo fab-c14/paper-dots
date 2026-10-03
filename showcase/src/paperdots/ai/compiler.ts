@@ -109,8 +109,14 @@ export class PaperDotsAICompiler {
       componentType = 'pendulum';
     } else if (lower.includes('heartbeat') || lower.includes('ecg') || lower.includes('pulse monitor') || lower.includes('cardiogram')) {
       componentType = 'heartbeat';
-    } else if (lower.includes('keypad') || lower.includes('numpad') || lower.includes('pin pad')) {
-      componentType = 'keypad';
+    } else if (lower.includes('compass') || lower.includes('gyroscope') || lower.includes('bearing') || lower.includes('astrolabe') || lower.includes('heading')) {
+      componentType = 'compass';
+    } else if (lower.includes('orbit') || lower.includes('planetary') || lower.includes('solar') || lower.includes('celestial orbit')) {
+      componentType = 'orbit';
+    } else if (lower.includes('ripple pool') || lower.includes('fluid pool') || lower.includes('pond') || lower.includes('droplet') || lower.includes('water surface')) {
+      componentType = 'ripple-pool';
+    } else if (lower.includes('tachometer') || lower.includes('rpm') || lower.includes('speedometer') || lower.includes('rev counter')) {
+      componentType = 'tachometer';
     } else if (lower.includes('tab') || lower.includes('segment')) {
       componentType = 'tabs';
     } else if (lower.includes('rating') || lower.includes('review') || lower.includes('score') || (lower.includes('stars') && !lower.includes('morph'))) {
@@ -399,6 +405,22 @@ export class PaperDotsAICompiler {
         width = 320;
         height = 130;
         break;
+      case 'compass':
+        width = 240;
+        height = 240;
+        break;
+      case 'orbit':
+        width = 260;
+        height = 260;
+        break;
+      case 'ripple-pool':
+        width = 300;
+        height = 180;
+        break;
+      case 'tachometer':
+        width = 240;
+        height = 200;
+        break;
       case 'slider':
         width = 240;
         height = 48;
@@ -475,6 +497,14 @@ export class PaperDotsAICompiler {
       label = 'Matrix Rain';
     } else if (componentType === 'pendulum') {
       label = 'Harmonic Pendulum';
+    } else if (componentType === 'compass') {
+      label = 'Magnetic Gyroscope';
+    } else if (componentType === 'orbit') {
+      label = 'Planetary Gravity System';
+    } else if (componentType === 'ripple-pool') {
+      label = 'Capillary Fluid Surface';
+    } else if (componentType === 'tachometer') {
+      label = 'Engine RPM Tachometer';
     } else if (componentType === 'heartbeat') {
       label = 'Cardiac Rhythm';
     } else if (componentType === 'keypad') {

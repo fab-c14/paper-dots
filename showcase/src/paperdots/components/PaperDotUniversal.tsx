@@ -288,6 +288,13 @@ const GenerativePaperDotCanvas: React.FC<{
   const isPendulum = compType.includes('pendulum') || compType.includes('metronome') || animationType.includes('pendulum') || animationType.includes('swing');
   const isKeypad = compType.includes('keypad') || compType.includes('numpad') || compType.includes('pin');
   const isHeartbeat = compType.includes('heart') || compType.includes('ecg') || compType.includes('pulse');
+  const isCompass = compType.includes('compass') || compType.includes('gyro') || compType.includes('azimuth') || compType.includes('bearing') || compType.includes('astrolabe');
+  const isOrbit = compType.includes('orbit') || compType.includes('planetary') || compType.includes('solar') || compType.includes('gravity');
+  const isRipplePool = compType.includes('ripple') || compType.includes('pool') || compType.includes('pond') || compType.includes('fluid') || compType.includes('water');
+  const isTachometer = compType.includes('tacho') || compType.includes('rpm') || compType.includes('speedo') || compType.includes('gauge') || compType.includes('rev');
+
+  const compassHeadingRef = useRef<number>(0);
+  const tachometerRevRef = useRef<number>(0.15);
 
   const pointerRef = useRef<PointerState>({
     x: 0,
@@ -607,8 +614,247 @@ const GenerativePaperDotCanvas: React.FC<{
           });
         }
       }
+    } else if (isCompass) {
+      // 9. Nautical Gyroscope / Compass Formation
+      const ringRadius = Math.min(width, height) * 0.38;
+      const count = 32;
+      for (let i = 0; i < count; i++) {
+        const theta = (i / count) * Math.PI * 2;
+        const x = center.x + Math.cos(theta) * ringRadius;
+        const y = center.y + Math.sin(theta) * ringRadius;
+        const isCardinal = i % 8 === 0;
+        dots.push({
+          id: `gen-compass-ring-${i}`,
+          x,
+          y,
+          targetX: x,
+          targetY: y,
+          vx: 0,
+          vy: 0,
+          radius: isCardinal ? 3.0 : 1.9,
+          baseRadius: isCardinal ? 3.0 : 1.9,
+          color: isCardinal ? activePrimary : (palette.secondary || '#FF48B0'),
+          opacity: isCardinal ? 0.95 : 0.45,
+          baseOpacity: isCardinal ? 0.95 : 0.45,
+          mass: 1.0,
+          stiffness: 0.22,
+          damping: 0.8,
+          jitter: 0.05,
+          shape: dotShape,
+          phaseOffset: theta,
+        });
+      }
+      // Center pivot dot
+      dots.push({
+        id: 'gen-compass-pivot',
+        x: center.x,
+        y: center.y,
+        targetX: center.x,
+        targetY: center.y,
+        vx: 0,
+        vy: 0,
+        radius: 3.5,
+        baseRadius: 3.5,
+        color: activePrimary,
+        opacity: 1.0,
+        baseOpacity: 1.0,
+        mass: 1.0,
+        stiffness: 0.25,
+        damping: 0.8,
+        jitter: 0.02,
+        shape: dotShape,
+      });
+      // North needle dots
+      const needleCount = 5;
+      for (let i = 1; i <= needleCount; i++) {
+        const dist = (i / needleCount) * (ringRadius * 0.75);
+        dots.push({
+          id: `gen-compass-needle-n-${i}`,
+          x: center.x,
+          y: center.y - dist,
+          targetX: center.x,
+          targetY: center.y - dist,
+          vx: 0,
+          vy: 0,
+          radius: 2.8 - i * 0.25,
+          baseRadius: 2.8 - i * 0.25,
+          color: activePrimary,
+          opacity: 0.95,
+          baseOpacity: 0.95,
+          mass: 0.8,
+          stiffness: 0.24,
+          damping: 0.78,
+          jitter: 0.05,
+          shape: dotShape,
+          phaseOffset: dist,
+        });
+      }
+      // South needle dots
+      for (let i = 1; i <= needleCount; i++) {
+        const dist = (i / needleCount) * (ringRadius * 0.75);
+        dots.push({
+          id: `gen-compass-needle-s-${i}`,
+          x: center.x,
+          y: center.y + dist,
+          targetX: center.x,
+          targetY: center.y + dist,
+          vx: 0,
+          vy: 0,
+          radius: 2.8 - i * 0.25,
+          baseRadius: 2.8 - i * 0.25,
+          color: palette.secondary || '#FF48B0',
+          opacity: 0.75,
+          baseOpacity: 0.75,
+          mass: 0.8,
+          stiffness: 0.24,
+          damping: 0.78,
+          jitter: 0.05,
+          shape: dotShape,
+          phaseOffset: dist,
+        });
+      }
+    } else if (isOrbit) {
+      // 10. Planetary Keplerian Solar System Formation
+      dots.push({
+        id: 'gen-orbit-sun',
+        x: center.x,
+        y: center.y,
+        targetX: center.x,
+        targetY: center.y,
+        vx: 0,
+        vy: 0,
+        radius: 4.8,
+        baseRadius: 4.8,
+        color: activePrimary,
+        opacity: 1.0,
+        baseOpacity: 1.0,
+        mass: 1.5,
+        stiffness: 0.25,
+        damping: 0.8,
+        jitter: 0.05,
+        shape: dotShape,
+      });
+      const orbitRadii = [32, 58, 88];
+      const orbitCounts = [5, 8, 12];
+      orbitRadii.forEach((rad, oIdx) => {
+        const cnt = orbitCounts[oIdx];
+        for (let i = 0; i < cnt; i++) {
+          const theta = (i / cnt) * Math.PI * 2;
+          const x = center.x + Math.cos(theta) * rad;
+          const y = center.y + Math.sin(theta) * rad;
+          dots.push({
+            id: `gen-orbit-${oIdx}-${i}`,
+            x,
+            y,
+            targetX: x,
+            targetY: y,
+            vx: 0,
+            vy: 0,
+            radius: 2.0 + oIdx * 0.4,
+            baseRadius: 2.0 + oIdx * 0.4,
+            color: oIdx % 2 === 0 ? activePrimary : (palette.secondary || '#FF48B0'),
+            opacity: 0.8,
+            baseOpacity: 0.8,
+            mass: 0.9,
+            stiffness: 0.22,
+            damping: 0.8,
+            jitter: 0.05,
+            shape: dotShape,
+            phaseOffset: theta,
+          });
+        }
+      });
+    } else if (isRipplePool) {
+      // 11. Capillary Fluid Stippled Surface
+      const cols = 15;
+      const rows = 9;
+      const stepX = (width - 32) / (cols - 1);
+      const stepY = (height - 32) / (rows - 1);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = 16 + c * stepX;
+          const y = 16 + r * stepY;
+          dots.push({
+            id: `gen-pool-${r}-${c}`,
+            x,
+            y,
+            targetX: x,
+            targetY: y,
+            vx: 0,
+            vy: 0,
+            radius: 2.0,
+            baseRadius: 2.0,
+            color: (r + c) % 2 === 0 ? activePrimary : (palette.secondary || '#FF48B0'),
+            opacity: 0.65,
+            baseOpacity: 0.65,
+            mass: 1.0,
+            stiffness: 0.24,
+            damping: 0.78,
+            jitter: 0.05,
+            shape: dotShape,
+            phaseOffset: Math.hypot(x - center.x, y - center.y) * 0.1,
+          });
+        }
+      }
+    } else if (isTachometer) {
+      // 12. Mechanical High-Rev Tachometer Arc
+      const arcRadius = Math.min(width, height) * 0.42;
+      const arcDots = 28;
+      const startAngle = Math.PI * 0.75;
+      const totalSweep = Math.PI * 1.5;
+      for (let i = 0; i < arcDots; i++) {
+        const theta = startAngle + (i / (arcDots - 1)) * totalSweep;
+        const x = center.x + Math.cos(theta) * arcRadius;
+        const y = center.y + 15 + Math.sin(theta) * arcRadius;
+        const isRedline = i >= arcDots - 7;
+        dots.push({
+          id: `gen-tacho-arc-${i}`,
+          x,
+          y,
+          targetX: x,
+          targetY: y,
+          vx: 0,
+          vy: 0,
+          radius: i % 4 === 0 ? 2.8 : 1.9,
+          baseRadius: i % 4 === 0 ? 2.8 : 1.9,
+          color: isRedline ? '#F15060' : activePrimary,
+          opacity: 0.85,
+          baseOpacity: 0.85,
+          mass: 1.0,
+          stiffness: 0.24,
+          damping: 0.8,
+          jitter: 0.05,
+          shape: dotShape,
+          phaseOffset: theta,
+        });
+      }
+      // Needle arm
+      const needleCount = 6;
+      for (let i = 1; i <= needleCount; i++) {
+        const dist = (i / needleCount) * (arcRadius * 0.85);
+        dots.push({
+          id: `gen-tacho-needle-${i}`,
+          x: center.x,
+          y: center.y + 15,
+          targetX: center.x,
+          targetY: center.y + 15,
+          vx: 0,
+          vy: 0,
+          radius: 2.6 - i * 0.2,
+          baseRadius: 2.6 - i * 0.2,
+          color: '#F15060',
+          opacity: 0.95,
+          baseOpacity: 0.95,
+          mass: 0.8,
+          stiffness: 0.28,
+          damping: 0.75,
+          jitter: 0.05,
+          shape: dotShape,
+          phaseOffset: dist,
+        });
+      }
     } else {
-      // 9. Organic Stippled Perimeter & Field Lattice
+      // 13. Organic Stippled Perimeter & Field Lattice
       const cols = Math.floor((width - 24) / 10);
       const rows = Math.floor((height - 24) / 10);
       for (let r = 0; r < rows; r++) {
@@ -644,7 +890,7 @@ const GenerativePaperDotCanvas: React.FC<{
     }
 
     dotsRef.current = dots;
-  }, [width, height, animationType, compType, activePrimary, palette, dotShape, dsl.physics, isSpiral, isRadar, isEqualizer, isWaveform, isMatrix, isPendulum, isHeartbeat, isKeypad]);
+  }, [width, height, animationType, compType, activePrimary, palette, dotShape, dsl.physics, isSpiral, isRadar, isEqualizer, isWaveform, isMatrix, isPendulum, isHeartbeat, isKeypad, isCompass, isOrbit, isRipplePool, isTachometer]);
 
   // Living Kinetic Animation Loop (60 FPS)
   useEffect(() => {
@@ -738,18 +984,71 @@ const GenerativePaperDotCanvas: React.FC<{
             dot.targetX = center.x + Math.sin(swing) * (height * 0.62 * frac);
             dot.targetY = 20 + Math.cos(swing) * (height * 0.62 * frac);
           }
-        } else if (isHeartbeat) {
-          // Cardiac P-Q-R-S-T wave pulse
-          const scanX = (frameCountRef.current * 4) % (width + 60) - 30;
-          const dist = dot.targetX - scanX;
-          if (Math.abs(dist) < 25) {
-            const norm = dist / 25;
-            const ecg = Math.exp(-norm * norm * 12) * -(height * 0.38) + Math.sin(norm * Math.PI * 2) * 8;
-            dot.targetY = center.y + ecg;
-            dot.opacity = 1.0;
+        } else if (isCompass) {
+          // Dynamic magnetic needle orientation
+          const targetAng = pointerRef.current.isInside
+            ? Math.atan2(pointerRef.current.y - center.y, pointerRef.current.x - center.x) + Math.PI / 2
+            : Math.sin(time * 0.5) * 0.35;
+          compassHeadingRef.current += (targetAng - compassHeadingRef.current) * 0.12;
+          const ang = compassHeadingRef.current;
+          const cosA = Math.cos(ang - Math.PI / 2);
+          const sinA = Math.sin(ang - Math.PI / 2);
+          if (String(dot.id).startsWith('gen-compass-needle-n-')) {
+            const dist = dot.phaseOffset || 0;
+            dot.targetX = center.x + cosA * dist;
+            dot.targetY = center.y + sinA * dist;
+          } else if (String(dot.id).startsWith('gen-compass-needle-s-')) {
+            const dist = dot.phaseOffset || 0;
+            dot.targetX = center.x - cosA * dist;
+            dot.targetY = center.y - sinA * dist;
+          }
+        } else if (isOrbit) {
+          // Keplerian Planetary System with Gravitational Cursor Attraction
+          if (!String(dot.id).includes('sun')) {
+            const parts = String(dot.id).split('-');
+            const oIdx = parseInt(parts[2], 10) || 0;
+            const rad = oIdx === 0 ? 32 : oIdx === 1 ? 58 : 88;
+            const speed = (0.75 / (oIdx + 1));
+            const currentAngle = (dot.phaseOffset || 0) + time * speed;
+            let tx = center.x + Math.cos(currentAngle) * rad;
+            let ty = center.y + Math.sin(currentAngle) * rad;
+            if (pointerRef.current.isInside) {
+              const dx = pointerRef.current.x - tx;
+              const dy = pointerRef.current.y - ty;
+              const dist = Math.hypot(dx, dy);
+              if (dist < 75 && dist > 4) {
+                const pull = (1 - dist / 75) * 14;
+                tx += (dx / dist) * pull;
+                ty += (dy / dist) * pull;
+              }
+            }
+            dot.targetX = tx;
+            dot.targetY = ty;
           } else {
-            dot.targetY = center.y;
-            dot.opacity = 0.35;
+            // Sun pulsing core
+            const sunPulse = (Math.sin(time * 3) + 1) * 0.5;
+            dot.radius = dot.baseRadius * (1 + sunPulse * 0.25);
+          }
+        } else if (isRipplePool) {
+          // Harmonic capillary water surface
+          const rx = pointerRef.current.isInside ? pointerRef.current.x : center.x;
+          const ry = pointerRef.current.isInside ? pointerRef.current.y : center.y;
+          const dist = Math.hypot(dot.x - rx, dot.y - ry);
+          const wave = Math.sin(dist * 0.12 - time * 5);
+          dot.radius = dot.baseRadius * (1 + (wave + 1) * 0.35);
+          dot.y = dot.targetY + wave * 4;
+        } else if (isTachometer) {
+          // High-rev engine RPM sweep
+          const targetRev = pointerRef.current.isInside ? 0.88 + Math.sin(time * 14) * 0.04 : 0.18 + Math.sin(time * 6) * 0.03;
+          tachometerRevRef.current += (targetRev - tachometerRevRef.current) * 0.1;
+          const curRev = tachometerRevRef.current;
+          const startAngle = Math.PI * 0.75;
+          const totalSweep = Math.PI * 1.5;
+          const needleAngle = startAngle + curRev * totalSweep;
+          if (String(dot.id).startsWith('gen-tacho-needle-')) {
+            const dist = dot.phaseOffset || 0;
+            dot.targetX = center.x + Math.cos(needleAngle) * dist;
+            dot.targetY = center.y + 15 + Math.sin(needleAngle) * dist;
           }
         } else if (animationType.includes('snake') || animationType.includes('trail')) {
           // Living snake crawling wave
@@ -830,6 +1129,33 @@ const GenerativePaperDotCanvas: React.FC<{
         }
       }
 
+      // Compass N-S-E-W Cardinal Labels
+      if (isCompass) {
+        const ringRadius = Math.min(width, height) * 0.38;
+        ctx.fillStyle = activePrimary;
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('N', center.x, center.y - ringRadius + 14);
+        ctx.fillStyle = palette.dark;
+        ctx.fillText('S', center.x, center.y + ringRadius - 14);
+        ctx.fillText('E', center.x + ringRadius - 14, center.y);
+        ctx.fillText('W', center.x - ringRadius + 14, center.y);
+      }
+
+      // Tachometer RPM Gauge Labels
+      if (isTachometer) {
+        ctx.fillStyle = palette.dark;
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('RPM x1000', center.x, center.y + 36);
+        ctx.fillText('0', center.x - 55, center.y + 40);
+        ctx.fillText('4', center.x, center.y - 25);
+        ctx.fillStyle = '#F15060';
+        ctx.fillText('8', center.x + 55, center.y + 40);
+      }
+
       // Clean, elegant label at top left & animation tag at top right
       ctx.fillStyle = palette.dark;
       ctx.font = 'bold 11px monospace';
@@ -851,7 +1177,7 @@ const GenerativePaperDotCanvas: React.FC<{
       isRunning = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, animationType, compType, palette, activePrimary, dotShape, dsl, isSpiral, isRadar, isEqualizer, isWaveform, isMatrix, isPendulum, isHeartbeat]);
+  }, [width, height, animationType, compType, palette, activePrimary, dotShape, dsl, isSpiral, isRadar, isEqualizer, isWaveform, isMatrix, isPendulum, isHeartbeat, isCompass, isOrbit, isRipplePool, isTachometer]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

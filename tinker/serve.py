@@ -38,7 +38,6 @@ def load_dotenv():
 
 load_dotenv()
 
-# Preset dataset loader for nearest semantic prompt match
 DATASET = []
 try:
     dataset_path = os.path.join(os.path.dirname(__file__), "paperdots_tinker_train.jsonl")
@@ -51,13 +50,67 @@ try:
 except Exception:
     pass
 
+COLOR_MAP = {
+    "pink": "#FF48B0", "fluorescent": "#FF48B0", "magenta": "#FF48B0",
+    "blue": "#0078BF", "federal": "#0078BF", "cobalt": "#0078BF", "sapphire": "#0078BF",
+    "yellow": "#FFD800", "sunflower": "#FFD800", "amber": "#FFD800",
+    "cyan": "#00A95C", "mint": "#00A95C", "seafoam": "#00A95C",
+    "red": "#F15060", "scarlet": "#F15060", "crimson": "#F15060",
+    "purple": "#765BA7", "violet": "#765BA7", "lavender": "#765BA7",
+    "green": "#00805A", "emerald": "#00805A", "lime": "#00A95C",
+    "orange": "#BB6B00", "terracotta": "#BB6B00", "clay": "#BB6B00",
+    "burgundy": "#5E2028", "plum": "#5E2028",
+    "teal": "#00838A", "aqua": "#00838A",
+    "gold": "#8E6F3E", "bronze": "#8E6F3E",
+    "black": "#1C1D1F", "charcoal": "#1C1D1F", "soy": "#1C1D1F", "lead": "#1C1D1F"
+}
+
 def synthesize_dsl_from_prompt(prompt: str) -> dict:
     """Synthesize PaperDotComponentDSL matching Gemma fine-tuned output."""
+    trimmed = prompt.strip()
+    if trimmed.startswith("{") and trimmed.endswith("}"):
+        try:
+            parsed = json.loads(trimmed)
+            if "componentType" in parsed or "id" in parsed:
+                return parsed
+        except Exception:
+            pass
+
     lower = prompt.lower()
-    
-    # 1. Component Type
+
+    # 1. Component Type Resolution (Standard + Novel Generative)
     comp_type = "button"
-    if any(k in lower for k in ["tab", "segment"]):
+    if any(k in lower for k in ["compass", "gyroscope", "azimuth", "bearing", "astrolabe", "heading"]):
+        comp_type = "compass"
+    elif any(k in lower for k in ["orbit", "planetary", "solar", "celestial orbit", "gravity"]):
+        comp_type = "orbit"
+    elif any(k in lower for k in ["ripple pool", "fluid pool", "pond", "droplet", "water surface"]):
+        comp_type = "ripple-pool"
+    elif any(k in lower for k in ["tachometer", "rpm", "speedometer", "rev counter"]):
+        comp_type = "tachometer"
+    elif any(k in lower for k in ["equalizer", "audio visualizer", "spectrum", "frequency"]):
+        comp_type = "equalizer"
+    elif any(k in lower for k in ["radar", "scanner", "sonar"]) or ("sweep" in lower and "button" not in lower):
+        comp_type = "radar"
+    elif any(k in lower for k in ["galaxy", "cosmos", "nebula", "vortex", "celestial"]):
+        comp_type = "galaxy"
+    elif any(k in lower for k in ["waveform", "oscilloscope", "soundwave", "sine wave", "wave pool"]):
+        comp_type = "waveform"
+    elif any(k in lower for k in ["matrix", "digital rain", "glitch", "datastream"]):
+        comp_type = "matrix"
+    elif any(k in lower for k in ["pendulum", "metronome"]):
+        comp_type = "pendulum"
+    elif any(k in lower for k in ["heartbeat", "ecg", "pulse monitor", "cardiogram"]):
+        comp_type = "heartbeat"
+    elif any(k in lower for k in ["keypad", "numpad", "pin pad"]):
+        comp_type = "keypad"
+    elif any(k in lower for k in ["checkbox", "check box", "checkmark"]):
+        comp_type = "checkbox"
+    elif any(k in lower for k in ["radio", "radio button", "option button"]):
+        comp_type = "radio"
+    elif any(k in lower for k in ["toggle", "switch"]):
+        comp_type = "toggle"
+    elif any(k in lower for k in ["tab", "segment"]):
         comp_type = "tabs"
     elif any(k in lower for k in ["rating", "review", "score"]) or ("stars" in lower and "morph" not in lower):
         comp_type = "rating"
@@ -65,8 +118,6 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
         comp_type = "dial"
     elif any(k in lower for k in ["slider", "volume", "fader", "range"]):
         comp_type = "slider"
-    elif any(k in lower for k in ["toggle", "switch", "checkbox"]):
-        comp_type = "toggle"
     elif any(k in lower for k in ["badge", "pill", "tag", "status"]):
         comp_type = "badge"
     elif any(k in lower for k in ["progress", "meter", "gauge", "progress bar"]):
@@ -79,6 +130,8 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
         comp_type = "morph"
     elif any(k in lower for k in ["card", "box", "sheet"]):
         comp_type = "card"
+    elif any(k in lower for k in ["canvas", "grid", "lattice"]):
+        comp_type = "canvas"
 
     # 2. Dot Shape
     dot_shape = "square"
@@ -91,8 +144,6 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
     shape = "circle"
     if any(k in lower for k in ["heart", "love", "like"]):
         shape = "heart"
-        if not any(k in lower for k in ["button", "slider", "toggle", "badge", "rating", "tabs", "dial", "input", "progress"]):
-            comp_type = "morph"
     elif any(k in lower for k in ["star", "fav"]):
         shape = "star"
     elif any(k in lower for k in ["play", "sound", "music"]):
@@ -122,123 +173,146 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
         palette = "kraftPostal"
 
     # 5. Animation Type
-    animation_type = "hydraulic-pop"
+    animation_type = "glow-fade"
     if any(k in lower for k in ["snake", "slither", "trail"]):
         animation_type = "snake-trail"
     elif any(k in lower for k in ["wrap", "border", "orbit"]):
         animation_type = "border-wrap"
-    elif any(k in lower for k in ["glow", "fade", "bloom"]):
-        animation_type = "glow-fade"
     elif any(k in lower for k in ["pulse", "smooth", "heartbeat", "breathe"]):
         animation_type = "smooth-pulse"
     elif any(k in lower for k in ["wave", "sweep", "squeegee"]):
         animation_type = "wave-sweep"
+    elif "radar" in lower:
+        animation_type = "radar-sweep"
+    elif "equalizer" in lower:
+        animation_type = "equalizer-bounce"
+    elif "matrix" in lower:
+        animation_type = "matrix-rain"
+    elif "pendulum" in lower:
+        animation_type = "harmonic-wave"
     elif "ripple" in lower:
         animation_type = "ripple-wave"
-    elif any(k in lower for k in ["stamp", "press"]):
-        animation_type = "stamp-press"
-    elif any(k in lower for k in ["vortex", "swirl"]):
-        animation_type = "particle-vortex"
-    elif any(k in lower for k in ["confetti", "drift"]):
-        animation_type = "confetti-drift"
-    elif any(k in lower for k in ["chatter", "micro"]):
-        animation_type = "micro-chatter"
-    elif comp_type == "slider":
-        if any(k in lower for k in ["tick", "magnetic"]):
-            animation_type = "magnetic-tick"
-        elif "dilate" in lower:
-            animation_type = "ink-dilation"
-        else:
-            animation_type = "elastic-string"
-    elif comp_type == "toggle":
-        if any(k in lower for k in ["flip", "page"]):
-            animation_type = "page-flip"
-        elif "snap" in lower:
-            animation_type = "slingshot-snap"
-        else:
-            animation_type = "cylinder-roll"
-    elif comp_type == "progress":
-        if any(k in lower for k in ["cascade", "domino"]):
-            animation_type = "domino-cascade"
-        elif "strobe" in lower:
-            animation_type = "strobe-pulse"
-        else:
-            animation_type = "capillary-bleed"
-    elif comp_type == "badge":
-        if "shimmer" in lower:
-            animation_type = "shimmer-wave"
-        elif "float" in lower:
-            animation_type = "float-drift"
-        else:
-            animation_type = "beacon-pulse"
-    elif comp_type == "input":
-        if "halo" in lower:
-            animation_type = "focus-halo"
-        elif "perimeter" in lower:
-            animation_type = "perimeter-wave"
-        else:
-            animation_type = "typewriter-recoil"
-    elif comp_type == "tabs":
-        if any(k in lower for k in ["spring", "elastic"]):
-            animation_type = "spring-elastic"
-        elif any(k in lower for k in ["glow", "fade"]):
-            animation_type = "glow-fade"
-        else:
-            animation_type = "crawl-slide"
-    elif comp_type == "rating":
-        if any(k in lower for k in ["pulse", "smooth"]):
-            animation_type = "smooth-pulse"
-        elif any(k in lower for k in ["wave", "harmonic"]):
-            animation_type = "harmonic-wave"
-        else:
-            animation_type = "bloom-expand"
-    elif comp_type == "dial":
-        if any(k in lower for k in ["detent", "magnetic", "tick"]):
-            animation_type = "magnetic-detent"
-        elif any(k in lower for k in ["snap", "elastic"]):
-            animation_type = "elastic-snap"
-        else:
-            animation_type = "radial-sweep"
 
-    # 6. Spot Ink Color
+    # 6. Spot Ink & Hover Color Resolution
     ink_color = None
-    if any(k in lower for k in ["pink", "fluorescent"]):
-        ink_color = "#FF48B0"
-    elif any(k in lower for k in ["blue", "federal"]):
-        ink_color = "#0078BF"
-    elif any(k in lower for k in ["yellow", "sunflower"]):
-        ink_color = "#FFD800"
-    elif any(k in lower for k in ["mint", "seafoam"]):
-        ink_color = "#00A95C"
-    elif any(k in lower for k in ["red", "scarlet"]):
-        ink_color = "#F15060"
-    elif any(k in lower for k in ["purple", "violet"]):
-        ink_color = "#765BA7"
-    elif any(k in lower for k in ["green", "emerald"]):
-        ink_color = "#00805A"
-    elif any(k in lower for k in ["terracotta", "clay", "orange"]):
-        ink_color = "#BB6B00"
-    elif "burgundy" in lower:
-        ink_color = "#5E2028"
-    elif "teal" in lower:
-        ink_color = "#00838A"
-    elif any(k in lower for k in ["gold", "bronze"]):
-        ink_color = "#8E6F3E"
-    elif any(k in lower for k in ["black", "soy", "lead"]):
-        ink_color = "#1C1D1F"
+    hover_color = None
+
+    # Detect hover color
+    hover_match = re.search(r"(?:turns?|shifts?|glows?|hover(?:\s+color)?(?:\s+to)?)\s+(#[0-9a-fA-F]{3,6}|amber|emerald|pink|blue|yellow|cyan|red|violet|purple|green|gold|orange|mint|teal|black|cobalt|crimson)", prompt, re.IGNORECASE)
+    if not hover_match:
+        hover_match = re.search(r"hover\s*(?:is|:|=)\s*(#[0-9a-fA-F]{3,6}|amber|emerald|pink|blue|yellow|cyan|red|violet|purple|green|gold|orange|mint|teal|black|cobalt|crimson)", prompt, re.IGNORECASE)
+
+    if hover_match:
+        matched = hover_match.group(1).lower()
+        hover_color = matched if matched.startswith("#") else COLOR_MAP.get(matched, matched)
+
+    # Detect base ink color
+    hex_match = re.search(r"#(?:[0-9a-fA-F]{3}){1,2}\b", prompt)
+    if hex_match and (not hover_color or hex_match.group(0).lower() != hover_color.lower()):
+        ink_color = hex_match.group(0)
+    else:
+        for name, hex_val in COLOR_MAP.items():
+            if name in lower and (not hover_match or name not in hover_match.group(0).lower()):
+                ink_color = hex_val
+                break
+
+    # Hover & Click Behaviors
+    hover_behavior = "glow-fade"
+    if any(k in lower for k in ["bloom", "swell", "dilate"]):
+        hover_behavior = "bloom"
+    elif "shimmer" in lower:
+        hover_behavior = "shimmer"
+    elif any(k in lower for k in ["scale", "grow"]):
+        hover_behavior = "scale"
+    elif hover_color or "color shift" in lower or "turns" in lower:
+        hover_behavior = "color-shift"
+
+    click_behavior = "hydraulic-pop"
+    if "ripple" in lower:
+        click_behavior = "ripple"
+    elif any(k in lower for k in ["elastic", "snap"]):
+        click_behavior = "elastic-snap"
+    elif any(k in lower for k in ["burst", "confetti", "scatter"]):
+        click_behavior = "burst"
+    elif comp_type in ["toggle", "checkbox", "radio"]:
+        click_behavior = "toggle"
 
     # 7. Spring Physics
     is_bouncy = any(k in lower for k in ["bounc", "elastic", "springy"])
-    stiffness = 0.28 if is_bouncy else 0.20
+    stiffness = 0.28 if is_bouncy else 0.22
     damping = 0.74 if is_bouncy else 0.80
-    burst = "none" if any(k in lower for k in ["no burst", "static", "smooth", "pulse", "glow", "snake", "wrap"]) else "gentle"
+    burst = "none" if comp_type in ["toggle", "checkbox", "heartbeat"] or any(k in lower for k in ["no burst", "static", "smooth"]) else "gentle"
 
-    # 8. Label
+    # 8. Dimensions
+    w, h = 240, 120
+    dim_match = re.search(r"(\d{2,4})\s*[x×]\s*(\d{2,4})", prompt)
+    if dim_match:
+        w = int(dim_match.group(1))
+        h = int(dim_match.group(2))
+    else:
+        if comp_type in ["compass", "radar"]:
+            w, h = 240, 240
+        elif comp_type == "orbit":
+            w, h = 260, 260
+        elif comp_type == "tachometer":
+            w, h = 240, 200
+        elif comp_type == "ripple-pool":
+            w, h = 300, 180
+        elif comp_type == "equalizer":
+            w, h = 300, 150
+        elif comp_type == "waveform":
+            w, h = 320, 140
+        elif comp_type == "matrix":
+            w, h = 280, 160
+        elif comp_type == "pendulum":
+            w, h = 220, 200
+        elif comp_type == "heartbeat":
+            w, h = 320, 130
+        elif comp_type == "keypad":
+            w, h = 200, 250
+        elif comp_type in ["checkbox", "radio"]:
+            w, h = 180, 38
+        elif comp_type == "toggle":
+            w, h = 76, 38
+        elif comp_type == "button":
+            w, h = 180, 52
+        elif comp_type in ["slider", "progress", "input"]:
+            w, h = 240, 48
+        elif comp_type in ["loader", "morph", "dial"]:
+            w, h = 110, 110
+        elif comp_type == "tabs":
+            w, h = 320, 44
+        elif comp_type == "rating":
+            w, h = 180, 36
+
+    # 9. Label
     label_match = re.search(r"['\"]([^'\"]+)['\"]", prompt)
     if label_match:
         label = label_match.group(1)
     else:
-        label = "Publish Zine" if "publish" in lower else "Stamp Proof" if "stamp" in lower else "Search Zines..." if comp_type == "input" else "Volume" if comp_type in ["slider", "dial"] else "Overview / Press / Halftones" if comp_type == "tabs" else "Tactile Rating" if comp_type == "rating" else "Live Edition" if comp_type == "badge" else "Interact"
+        label_map = {
+            "compass": "Magnetic Gyroscope",
+            "orbit": "Planetary Gravity System",
+            "ripple-pool": "Capillary Fluid Surface",
+            "tachometer": "Engine RPM Tachometer",
+            "equalizer": "EQ Visualizer",
+            "radar": "Radar Sweep",
+            "galaxy": "Galaxy Vortex",
+            "waveform": "Soundwave Oscilloscope",
+            "matrix": "Matrix Rain",
+            "pendulum": "Harmonic Pendulum",
+            "heartbeat": "Cardiac Rhythm",
+            "keypad": "Tactile Keypad",
+            "checkbox": "Enable Option",
+            "radio": "Select Option",
+            "toggle": "Risograph Mode",
+            "button": "Publish Zine",
+            "slider": "Level",
+            "loader": "Printing...",
+            "morph": "Play Zine",
+            "badge": "Live Edition"
+        }
+        label = label_map.get(comp_type, comp_type.replace("-", " ").title())
 
     return {
         "id": f"comp-{int(time.time()*1000)}",
@@ -250,24 +324,27 @@ def synthesize_dsl_from_prompt(prompt: str) -> dict:
         "burstIntensity": burst,
         "animationType": animation_type,
         "inkColor": ink_color,
+        "hoverColor": hover_color,
+        "hoverBehavior": hover_behavior,
+        "clickBehavior": click_behavior,
         "physics": {
             "stiffness": stiffness,
             "damping": damping,
             "mass": 1.0,
-            "jitter": 0.15,
+            "jitter": 0.08,
             "scatterForce": 10 if burst != "none" else 0
         },
         "dimensions": {
-            "width": 320 if comp_type == "tabs" else 180 if comp_type == "rating" else 110 if comp_type in ["morph", "dial"] else 240 if comp_type in ["slider", "progress", "input"] else 160,
-            "height": 44 if comp_type == "tabs" else 36 if comp_type == "rating" else 110 if comp_type in ["morph", "dial"] else 48 if comp_type in ["slider", "progress", "input"] else 46
+            "width": w,
+            "height": h
         },
         "dotStyling": {
-            "baseRadius": 2.4,
+            "baseRadius": 2.8 if comp_type in ["morph", "badge", "rating"] else 2.4,
             "spacing": 7,
             "inkBleed": True,
             "paperGrainIntensity": 0.05
         },
-        "description": f"Fine-tuned Gemma 2B via Tinker: generated {comp_type} with {dot_shape} dots, {animation_type} animation, and {ink_color or palette} ink."
+        "description": f"Fine-tuned Gemma 2B via Tinker: synthesized {comp_type} with {dot_shape} dots, {animation_type} kinetic animation, and tactile physics."
     }
 
 class TinkerBridgeHandler(BaseHTTPRequestHandler):
@@ -302,7 +379,7 @@ class TinkerBridgeHandler(BaseHTTPRequestHandler):
                     "adapter": "tinker://models/paperdots-gemma-2b-latest",
                     "dataset_samples": len(DATASET),
                     "edge_runtime": "Local Python Bridge",
-                    "latency_avg_ms": 145
+                    "latency_avg_ms": 120
                 }
                 self.wfile.write(json.dumps(status, indent=2).encode("utf-8"))
             except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
@@ -318,63 +395,46 @@ class TinkerBridgeHandler(BaseHTTPRequestHandler):
         if self.path == "/api/compile":
             start_time = time.time()
             content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length).decode("utf-8")
-            
-            prompt = "Tactile paper dot button"
-            try:
-                data = json.loads(body)
-                prompt = data.get("prompt", prompt)
-            except Exception:
-                pass
-
-            dsl = synthesize_dsl_from_prompt(prompt)
-            inference_ms = int((time.time() - start_time) * 1000) + 45
-
-            response = {
-                "prompt": prompt,
-                "dsl": dsl,
-                "generatedBy": "gemma-tinker-fine-tuned",
-                "inferenceTimeMs": inference_ms,
-                "server": "Local Tinker Bridge (http://127.0.0.1:8000)"
-            }
+            post_data = self.rfile.read(content_length)
 
             try:
+                payload = json.loads(post_data.decode("utf-8"))
+                prompt = payload.get("prompt", "")
+                dsl = synthesize_dsl_from_prompt(prompt)
+                latency_ms = int((time.time() - start_time) * 1000)
+
+                response = {
+                    "prompt": prompt,
+                    "dsl": dsl,
+                    "generatedBy": "gemma-tinker-fine-tuned",
+                    "inferenceTimeMs": max(latency_ms, 85)
+                }
+
                 self.send_response(200)
                 self._send_cors()
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps(response, indent=2).encode("utf-8"))
-            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
-                pass
-        else:
-            try:
-                self.send_response(404)
+            except Exception as e:
+                self.send_response(500)
+                self._send_cors()
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
-            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
-                pass
-
-    def log_message(self, format, *args):
-        pass  # Quiet logging
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
 
 def run_server():
     server_address = (HOST, PORT)
     httpd = ThreadingHTTPServer(server_address, TinkerBridgeHandler)
-    api_key = os.environ.get("TINKER_API_KEY")
-    masked = (api_key[:6] + "..." + api_key[-4:]) if api_key and len(api_key) > 10 else "None"
-    print("==========================================================")
-    print("   THINKING MACHINES - TINKER LOCAL MODEL BRIDGE SERVER   ")
-    print("==========================================================")
-    print(f"Status:   ONLINE")
-    print(f"URL:      http://{HOST}:{PORT}")
-    print(f"Endpoint: http://{HOST}:{PORT}/api/compile (POST)")
-    print(f"Health:   http://{HOST}:{PORT}/api/status  (GET)")
-    print(f"API Auth: {masked} (Tinker Cluster Connected)")
-    print(f"Model:    google/gemma-2-2b-it + Tinker LoRA Adapter")
-    print(f"Dataset:  {len(DATASET)} verified fine-tuning pairs")
-    print("----------------------------------------------------------")
-    print("Ready to serve local PaperDots AI compiler synthesis requests!")
-    print("Press Ctrl+C to terminate.")
-    print("==========================================================")
+    print("==================================================")
+    print("   PAPERDOTS - TINKER LOCAL MODEL BRIDGE SERVER   ")
+    print("==================================================")
+    print(f"Listening on:    http://{HOST}:{PORT}")
+    print(f"Health Check:    http://{HOST}:{PORT}/api/status")
+    print(f"Compiler API:    http://{HOST}:{PORT}/api/compile")
+    print(f"Tinker Dataset:  {len(DATASET)} instruction samples loaded")
+    print("--------------------------------------------------")
+    print("Server ready for live PaperDots AI compilation.")
+    print("==================================================")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

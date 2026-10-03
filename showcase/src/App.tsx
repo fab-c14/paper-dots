@@ -167,11 +167,14 @@ export const App: React.FC = () => {
   }, []);
 
   const samplePrompts = [
+    "An interactive nautical compass gyroscope with magnetic needle tracking cursor",
+    "A planetary Keplerian solar system with cosmic orbits and gravitational cursor pull",
+    "A capillary fluid ripple pool that disperses harmonic ink waves on cursor touch",
+    "A high-rev engine RPM tachometer gauge that revs up on hover with crimson redline",
     "A 360-degree radar sweep with emerald dots that turns amber on hover with blooming dots",
     "A glowing button labeled 'Stamp Proof' with glow-fade hover and hot pink ink",
     "A tactile stippled checkbox labeled 'Auto-Print' that shifts to cobalt ink on hover",
     "An audio equalizer with bouncing emerald bars and rustle sound",
-    "A celestial galaxy spiral vortex with cosmic rotation and stippled particles",
     "A continuous sinusoidal waveform oscilloscope with cyan ink",
     "A cascading digital matrix rain with paper jitter and 0.28 bouncy stiffness",
     "A cardiac rhythm heartbeat monitor with crimson ink and smooth pulse",
