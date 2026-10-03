@@ -35,9 +35,9 @@ Julian asked a simple question:
 ### Option 1: Install via Shadcn CLI
 ```bash
 # Add any component directly into your components/ui directory:
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-slider.json
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-toggle.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-button.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-slider.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-toggle.json
 ```
 
 ### Option 2: Install via PaperDots CLI
@@ -200,12 +200,15 @@ Evaluating representative generative UI prompts:
 
 The repository includes a production-ready `render.yaml` blueprint:
 
+- **Live Showcase & Playground**: [https://paperdots-ui-showcase.onrender.com](https://paperdots-ui-showcase.onrender.com)
+- **Live AI Runtime API**: [https://paperdots-ai-runtime.onrender.com](https://paperdots-ai-runtime.onrender.com)
+
 1. Push this repository to GitHub.
 2. Log into your [Render Dashboard](https://dashboard.render.com).
 3. Click **New +** → **Blueprint**, and select this repository.
 4. Render will automatically provision:
-   - **Static Site**: Fast global edge delivery for the interactive showcase, installation hub, and registry (`showcase/dist`).
-   - **Python Web Service**: The FastAPI open-model AI compiler runtime (`api/main.py`).
+   - **Static Site (`paperdots-ui-showcase`)**: Fast global edge delivery for the interactive showcase, installation hub, and registry (`showcase/dist`).
+   - **Python Web Service (`paperdots-ai-runtime`)**: The FastAPI open-model AI compiler runtime (`api/main.py`).
 
 ---
 

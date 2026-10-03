@@ -34,8 +34,8 @@ Instead of static code comparisons, PaperDots UI is designed to be **directly in
 
 ```bash
 # 1. Install via Shadcn Registry:
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-slider.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-button.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-slider.json
 
 # 2. Or install via PaperDots CLI:
 npx paperdots-ui add button
@@ -203,7 +203,8 @@ Julian's exact words:
 ## 8. Try It & Explore the Code 🔗
 
 - **GitHub Repository**: [github.com/fab-c14/paper-dots](https://github.com/fab-c14/paper-dots)
-- **Live Interactive Playground**: [paperdots-ui.onrender.com](https://paperdots-ui.onrender.com)
+- **Live Interactive Playground**: [paperdots-ui-showcase.onrender.com](https://paperdots-ui-showcase.onrender.com)
+- **Live AI Runtime API**: [paperdots-ai-runtime.onrender.com](https://paperdots-ai-runtime.onrender.com)
 - **Agent Session Transcript**: Saved and verified via DevRelay.
 
 ---

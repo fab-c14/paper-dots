@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "paperdots-ui",
-  "homepage": "https://paperdots-ui.onrender.com",
+  "homepage": "https://paperdots-ui-showcase.onrender.com",
   "items": [
     {
       "name": "paper-button",

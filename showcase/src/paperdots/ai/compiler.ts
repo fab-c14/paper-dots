@@ -2,37 +2,57 @@ import type { PaperDotComponentDSL, PromptToComponentResult } from './dsl';
 import type { PresetShape, DotGeometry } from '../types';
 
 export class PaperDotsAICompiler {
-  public static async checkLocalTinkerStatus(): Promise<{ connected: boolean; model?: string; adapter?: string }> {
+  private static readonly LOCAL_API = 'http://127.0.0.1:8000';
+  private static readonly RENDER_API = 'https://paperdots-ai-runtime.onrender.com';
+
+  public static async checkLocalTinkerStatus(): Promise<{ connected: boolean; model?: string; adapter?: string; endpoint?: string }> {
+    // 1. Check local Tinker bridge
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 600);
-      const res = await fetch('http://127.0.0.1:8000/api/status', {
+      const timeoutId = setTimeout(() => controller.abort(), 350);
+      const res = await fetch(`${this.LOCAL_API}/api/status`, {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
-        return { connected: true, model: data.model, adapter: data.adapter };
+        return { connected: true, model: data.model, adapter: data.adapter, endpoint: 'Local Tinker Server (:8000)' };
       }
     } catch {
-      // Local server is not currently listening
+      // Local server not running, check Render cloud runtime
     }
+
+    // 2. Check Render production AI runtime
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1200);
+      const res = await fetch(`${this.RENDER_API}/api/health`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        return { connected: true, model: data.model || 'gemma-2b-v2-latest', adapter: 'Tinker LoRA on Render', endpoint: 'Render Cloud Runtime' };
+      }
+    } catch {
+      // Offline fallback
+    }
+
     return { connected: false };
   }
 
   /**
    * Translates a natural language prompt into a PaperDots DSL specification.
-   * Connects to local Tinker/Gemma bridge (http://127.0.0.1:8000) if active,
-   * otherwise falls back instantly to the edge heuristic engine.
+   * Multi-tier: Local Tinker bridge (:8000) -> Render AI Runtime -> Client-side edge compiler.
    */
   public static async compilePrompt(prompt: string): Promise<PromptToComponentResult> {
     const startTime = performance.now();
 
-    // 1. Try local Tinker model bridge server first with immediate fallback
+    // 1. Try local Tinker model bridge server first
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120);
-      const res = await fetch('http://127.0.0.1:8000/api/compile', {
+      const timeoutId = setTimeout(() => controller.abort(), 150);
+      const res = await fetch(`${this.LOCAL_API}/api/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -46,13 +66,40 @@ export class PaperDotsAICompiler {
           return {
             prompt,
             dsl: data.dsl,
-            generatedBy: 'gemma-tinker-fine-tuned',
+            generatedBy: 'gemma-tinker-fine-tuned (Local)',
             inferenceTimeMs: data.inferenceTimeMs || Math.round(performance.now() - startTime),
           };
         }
       }
     } catch {
-      // Local server not running; proceed immediately with client-side synthesis
+      // Local server not running; try Render production runtime
+    }
+
+    // 2. Try Render production runtime
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1800);
+      const res = await fetch(`${this.RENDER_API}/api/compile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.dsl) {
+          return {
+            prompt,
+            dsl: data.dsl,
+            generatedBy: 'gemma-tinker-fine-tuned (Render)',
+            inferenceTimeMs: data.inferenceTimeMs || Math.round(performance.now() - startTime),
+          };
+        }
+      }
+    } catch {
+      // Network offline; proceed with client-side edge synthesis
     }
 
     // Direct JSON DSL Specification parsing (Allows developers/users to pass ANY valid design specification directly)

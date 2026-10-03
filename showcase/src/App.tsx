@@ -192,7 +192,7 @@ export const App: React.FC = () => {
 
   const getInstallCommand = () => {
     if (installTab === 'shadcn') {
-      return `npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-${installComponent}.json`;
+      return `npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-${installComponent}.json`;
     }
     if (installTab === 'cli') {
       return `npx paperdots-ui add ${installComponent}`;
@@ -437,12 +437,12 @@ export const App: React.FC = () => {
               <div className="flex items-center gap-2 px-2 overflow-x-auto text-xs font-mono w-full sm:w-auto">
                 <Terminal className="w-4 h-4 text-emerald-600 shrink-0" />
                 <code className="text-emerald-700 font-bold whitespace-nowrap">
-                  npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
+                  npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-button.json
                 </code>
               </div>
               <PaperDotButton
                 label={copiedInstallCmd ? "Copied!" : "Copy Command"}
-                onClick={() => copyToClipboard('npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json')}
+                onClick={() => copyToClipboard('npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-button.json')}
                 palette={activePalette}
                 dotShape={globalDotShape}
                 animationType="hydraulic-pop"
@@ -1762,7 +1762,7 @@ export function ZineConsole() {
               </p>
               <pre className="bg-[#1C1D1F] text-emerald-400 p-4 rounded-xl overflow-x-auto">
 {`// 1. Install via Shadcn Registry CLI:
-npx shadcn@latest add https://paperdots-ui.onrender.com/r/paper-button.json
+npx shadcn@latest add https://paperdots-ui-showcase.onrender.com/r/paper-button.json
 
 // 2. Use in your component:
 import { Button } from "@/components/ui/paper-button";

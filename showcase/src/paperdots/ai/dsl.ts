@@ -33,6 +33,6 @@ export interface PaperDotComponentDSL {
 export interface PromptToComponentResult {
   prompt: string;
   dsl: PaperDotComponentDSL;
-  generatedBy: 'gemma-tinker-fine-tuned' | 'heuristic-local-engine';
+  generatedBy: 'gemma-tinker-fine-tuned' | 'heuristic-local-engine' | string;
   inferenceTimeMs: number;
 }
