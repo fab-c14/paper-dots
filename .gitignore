@@ -42,3 +42,6 @@ ENV/
 !**/.env.example
 # Test scratch projects
 test-app/
+
+# Separate repositories
+realitybench/
