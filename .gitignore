@@ -40,4 +40,5 @@ ENV/
 **/.env.*
 !.env.example
 !**/.env.example
-
+# Test scratch projects
+test-app/
