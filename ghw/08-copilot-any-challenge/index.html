@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple, clear tip calculator for splitting a bill.">
+  <title>Tip Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20241f;
+      --muted: #6d746b;
+      --line: #dce2d9;
+      --paper: #f6f7f2;
+      --panel: #ffffff;
+      --accent: #d97b3d;
+      --accent-dark: #a85322;
+      --accent-soft: #fff0e4;
+      --radius: 18px;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100dvh;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    .page {
+      width: min(100% - 32px, 1040px);
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+
+    .masthead {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--accent-dark);
+      font-size: 0.73rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 9ch;
+      font-size: clamp(2.8rem, 8vw, 5.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+      font-weight: 800;
+    }
+
+    .intro {
+      max-width: 25ch;
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.88fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 18px 44px rgba(42, 53, 40, 0.07);
+    }
+
+    .controls {
+      padding: clamp(24px, 5vw, 48px);
+    }
+
+    .section-title {
+      margin: 0 0 26px;
+      font-size: 1.16rem;
+      letter-spacing: -0.02em;
+    }
+
+    .field {
+      margin-bottom: 28px;
+    }
+
+    label,
+    legend {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .currency {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      color: var(--muted);
+      font-size: 1.25rem;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 15px 16px 15px 36px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcf9;
+      color: var(--ink);
+      font: inherit;
+      font-size: 1.25rem;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(217, 123, 61, 0.15);
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+
+    .tip-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .tip-options input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tip-options label {
+      display: grid;
+      place-items: center;
+      min-height: 48px;
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 0.95rem;
+      letter-spacing: 0;
+      text-transform: none;
+      transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .tip-options label:hover {
+      border-color: var(--accent);
+    }
+
+    .tip-options input:checked + label {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fffaf5;
+    }
+
+    .tip-options input:focus-visible + label {
+      outline: 3px solid rgba(217, 123, 61, 0.28);
+      outline-offset: 2px;
+    }
+
+    .tip-options label:active,
+    .toggle:active {
+      transform: translateY(1px);
+    }
+
+    .people-row {
+      display: grid;
+      grid-template-columns: 1fr 118px;
+      align-items: end;
+      gap: 16px;
+    }
+
+    .people-row .field {
+      margin-bottom: 0;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 31px 0 0;
+      color: var(--ink);
+      font-size: 0.92rem;
+      font-weight: 650;
+      letter-spacing: 0;
+      line-height: 1.35;
+      text-transform: none;
+      cursor: pointer;
+      transition: transform 160ms ease;
+    }
+
+    .toggle input {
+      width: 19px;
+      height: 19px;
+      margin: 0;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .hint {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .results {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(24px, 5vw, 40px);
+      background: var(--ink);
+      color: #f6f7f2;
+    }
+
+    .results-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(246, 247, 242, 0.16);
+    }
+
+    .results-heading h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .results-heading span {
+      color: #c8d0c6;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .total-block {
+      padding: 30px 0 36px;
+    }
+
+    .total-label {
+      margin: 0 0 6px;
+      color: #c8d0c6;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .total {
+      margin: 0;
+      color: #fffaf5;
+      font-size: clamp(3.4rem, 10vw, 6.2rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.08em;
+    }
+
+    .summary {
+      display: grid;
+      gap: 0;
+      margin: 0;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px 0;
+      border-top: 1px solid rgba(246, 247, 242, 0.16);
+    }
+
+    .summary-row dt {
+      color: #c8d0c6;
+    }
+
+    .summary-row dd {
+      margin: 0;
+      color: #fffaf5;
+      font-weight: 750;
+    }
+
+    .per-person {
+      margin-top: 26px;
+      padding: 18px 20px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .per-person p {
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .per-person strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--ink);
+      font-size: 2rem;
+      letter-spacing: -0.06em;
+    }
+
+    .footer-note {
+      margin: 30px 0 0;
+      color: #9ea99b;
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding-top: 28px;
+      }
+
+      .masthead {
+        display: block;
+        margin-bottom: 26px;
+      }
+
+      .intro {
+        margin-top: 18px;
+      }
+
+      .calculator {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .page {
+        width: min(100% - 20px, 1040px);
+      }
+
+      .controls,
+      .results {
+        padding: 22px;
+      }
+
+      .people-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .toggle {
+        margin-top: 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div>
+        <p class="kicker">Dinner math, sorted</p>
+        <h1>Tip calculator</h1>
+      </div>
+      <p class="intro">Enter the bill, choose a tip, and split the total without the guesswork.</p>
+    </header>
+
+    <section class="calculator" aria-label="Tip calculator">
+      <form class="panel controls" id="calculator-form">
+        <h2 class="section-title">Your bill</h2>
+
+        <div class="field">
+          <label for="bill">Bill amount</label>
+          <div class="input-wrap">
+            <span class="currency" aria-hidden="true">$</span>
+            <input id="bill" name="bill" type="number" min="0" step="0.01" value="84.50" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field">
+          <fieldset class="tip-options">
+            <legend>Tip percentage</legend>
+            <input id="tip-10" name="tip" type="radio" value="10">
+            <label for="tip-10">10%</label>
+            <input id="tip-15" name="tip" type="radio" value="15" checked>
+            <label for="tip-15">15%</label>
+            <input id="tip-18" name="tip" type="radio" value="18">
+            <label for="tip-18">18%</label>
+            <input id="tip-20" name="tip" type="radio" value="20">
+            <label for="tip-20">20%</label>
+          </fieldset>
+        </div>
+
+        <div class="people-row">
+          <div class="field">
+            <label for="people">People</label>
+            <input id="people" name="people" type="number" min="1" step="1" value="2" inputmode="numeric" autocomplete="off">
+          </div>
+          <label class="toggle" for="round-up">
+            <input id="round-up" name="round-up" type="checkbox">
+            <span>Round the total up to the next dollar</span>
+          </label>
+        </div>
+
+        <p class="hint">Tip is calculated from the bill before rounding.</p>
+      </form>
+
+      <section class="panel results" aria-live="polite" aria-atomic="true">
+        <div>
+          <div class="results-heading">
+            <h2>Your total</h2>
+            <span id="tip-rate">15% tip</span>
+          </div>
+
+          <div class="total-block">
+            <p class="total-label">Total to pay</p>
+            <p class="total" id="total">$97.18</p>
+          </div>
+
+          <dl class="summary">
+            <div class="summary-row">
+              <dt>Bill</dt>
+              <dd id="bill-output">$84.50</dd>
+            </div>
+            <div class="summary-row">
+              <dt>Tip</dt>
+              <dd id="tip-output">$12.68</dd>
+            </div>
+            <div class="summary-row">
+              <dt>People</dt>
+              <dd id="people-output">2</dd>
+            </div>
+          </dl>
+
+          <div class="per-person">
+            <p>Each person pays</p>
+            <strong id="share">$48.59</strong>
+          </div>
+        </div>
+
+        <p class="footer-note">Amounts are rounded to the nearest cent. The final total may differ by a cent when split.</p>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById("calculator-form");
+      const billInput = document.getElementById("bill");
+      const peopleInput = document.getElementById("people");
+      const roundInput = document.getElementById("round-up");
+      const billOutput = document.getElementById("bill-output");
+      const tipOutput = document.getElementById("tip-output");
+      const peopleOutput = document.getElementById("people-output");
+      const totalOutput = document.getElementById("total");
+      const shareOutput = document.getElementById("share");
+      const tipRateOutput = document.getElementById("tip-rate");
+
+      const money = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      });
+
+      function getTipRate() {
+        const selected = form.querySelector('input[name="tip"]:checked');
+        return selected ? Number(selected.value) : 15;
+      }
+
+      function update() {
+        const bill = Math.max(0, Number(billInput.value) || 0);
+        const people = Math.max(1, Math.floor(Number(peopleInput.value) || 1));
+        const tipRate = getTipRate();
+        const tip = bill * tipRate / 100;
+        const calculatedTotal = bill + tip;
+        const total = roundInput.checked ? Math.ceil(calculatedTotal) : calculatedTotal;
+        const share = total / people;
+
+        billOutput.textContent = money.format(bill);
+        tipOutput.textContent = money.format(tip);
+        peopleOutput.textContent = String(people);
+        totalOutput.textContent = money.format(total);
+        shareOutput.textContent = money.format(share);
+        tipRateOutput.textContent = tipRate + "% tip";
+      }
+
+      form.addEventListener("input", update);
+      form.addEventListener("change", update);
+      update();
+    }());
+  </script>
+</body>
+</html>

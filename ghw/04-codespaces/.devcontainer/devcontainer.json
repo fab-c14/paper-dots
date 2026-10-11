@@ -1,0 +1,5 @@
+{
+  "name": "School Club Fair",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "postStartCommand": "echo Workspace folder: ${containerWorkspaceFolder}"
+}

@@ -1,0 +1,14 @@
+# Documentation and school-facing written content
+*.md @teachers
+/docs/ @teachers
+
+# Website code and configuration
+*.html @club-leads
+*.css @club-leads
+*.js @club-leads
+*.ts @club-leads
+*.jsx @club-leads
+*.tsx @club-leads
+*.json @club-leads
+*.yml @club-leads
+*.yaml @club-leads

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Model benchmark</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f4efe6; color: #1c1915; font-family: "Segoe UI", sans-serif; }
+    main { width: min(640px, calc(100% - 32px)); background: #fffaf3; border: 1px solid #e4d9c8; border-radius: 16px; padding: 28px; }
+    h1 { margin: 0 0 8px; font-size: 1.4rem; }
+    p { margin: 0 0 16px; color: #6b6258; }
+    pre { background: #1c1915; color: #f4efe6; padding: 16px; border-radius: 12px; overflow: auto; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Same prompt, one model</h1>
+    <p>Prompt: write a function that reverses a string, in JavaScript.</p>
+    <ul>
+      <li><strong>Grok 4.7</strong> in Cursor. Uses <code>Array.from</code> so café and emoji stay intact. Short and correct on the samples below.</li>
+    </ul>
+    <pre id="out"></pre>
+  </main>
+  <script>
+    function reverseString(value) {
+      return Array.from(String(value)).reverse().join("");
+    }
+    const lines = ["cursor", "café", "a😊b"].map((s) => `${s} -> ${reverseString(s)}`);
+    document.querySelector("#out").textContent = lines.join("\n");
+  </script>
+</body>
+</html>

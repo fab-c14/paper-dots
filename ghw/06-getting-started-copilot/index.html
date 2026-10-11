@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore extracurricular activities at Mergington High School.">
+  <title>Mergington High School | Activities</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f2eb;
+      --paper-deep: #e9e4d9;
+      --ink: #1f2933;
+      --muted: #66717b;
+      --line: #d7d1c5;
+      --card: #fbfaf7;
+      --accent: #1459c7;
+      --accent-soft: #dce8fb;
+      --warm: #e7a83e;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .site-shell {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.84rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 0.8rem;
+    }
+
+    .topbar nav { color: var(--muted); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+      gap: clamp(32px, 7vw, 96px);
+      align-items: center;
+      min-height: 500px;
+      padding: 64px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      max-width: 670px;
+      margin-bottom: 22px;
+      font-size: clamp(3.2rem, 8vw, 6.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+    }
+
+    .hero-copy {
+      max-width: 530px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .hero-note {
+      position: relative;
+      min-height: 300px;
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper-deep);
+      overflow: hidden;
+    }
+
+    .hero-note::before,
+    .hero-note::after {
+      position: absolute;
+      content: "";
+      border-radius: 50%;
+      opacity: 0.85;
+    }
+
+    .hero-note::before {
+      width: 220px;
+      height: 220px;
+      right: -48px;
+      top: -44px;
+      background: var(--accent);
+    }
+
+    .hero-note::after {
+      width: 150px;
+      height: 150px;
+      right: 100px;
+      bottom: -70px;
+      background: var(--warm);
+    }
+
+    .note-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 240px;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .note-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .note-quote {
+      max-width: 280px;
+      margin-bottom: 0;
+      font-size: clamp(1.6rem, 3vw, 2.45rem);
+      font-weight: 800;
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+
+    .activities-section {
+      padding: 8px 0 88px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin-bottom: 0;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .section-intro {
+      max-width: 330px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 0;
+    }
+
+    .filter-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    #activity-filter {
+      width: min(100%, 330px);
+      padding: 13px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      outline: none;
+      background: var(--card);
+      color: var(--ink);
+      font: inherit;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    #activity-filter:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .activity-card {
+      display: flex;
+      min-height: 190px;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 26px;
+      background: var(--card);
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .activity-card:hover {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      transform: translateY(-3px);
+    }
+
+    .activity-card[hidden] { display: none; }
+
+    .activity-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.79rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .activity-day { color: var(--accent); }
+
+    .activity-card h3 {
+      margin: 20px 0 8px;
+      font-size: 1.45rem;
+      letter-spacing: -0.04em;
+    }
+
+    .activity-card p {
+      max-width: 40ch;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .empty-state {
+      display: none;
+      padding: 30px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-state.visible { display: block; }
+
+    footer {
+      padding: 22px 0 36px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 700px) {
+      .site-shell { width: min(100% - 28px, 560px); }
+      .topbar { min-height: 62px; }
+      .topbar nav { display: none; }
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 52px 0 64px;
+      }
+      h1 { font-size: clamp(3.3rem, 17vw, 5.6rem); }
+      .hero-note { min-height: 230px; }
+      .note-content { min-height: 170px; }
+      .section-heading, .filter-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .activity-grid { grid-template-columns: 1fr; }
+      #activity-filter { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-shell topbar">
+    <a class="brand" href="#" aria-label="Mergington High School home">
+      <span class="brand-mark" aria-hidden="true">MH</span>
+      <span>Mergington High School</span>
+    </a>
+    <nav aria-label="Primary navigation">Student life / Activities</nav>
+  </header>
+
+  <main>
+    <section class="site-shell hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Make room for something new</p>
+        <h1 id="page-title">Find your after-school thing.</h1>
+        <p class="hero-copy">Meet people, build useful skills, and spend your week doing more of what makes you curious.</p>
+      </div>
+      <aside class="hero-note" aria-label="Activity message">
+        <div class="note-content">
+          <span class="note-label">A place to start</span>
+          <p class="note-quote">There is no wrong first club.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="site-shell activities-section" aria-labelledby="activities-title">
+      <div class="section-heading">
+        <h2 id="activities-title">Explore activities</h2>
+        <p class="section-intro">Search by activity, day, or the kind of experience you want to try.</p>
+      </div>
+
+      <div class="filter-row">
+        <label class="filter-label" for="activity-filter">Filter activities</label>
+        <input id="activity-filter" type="search" placeholder="Try “Tuesday” or “music”" autocomplete="off">
+      </div>
+
+      <div class="activity-grid" id="activity-list">
+        <article class="activity-card" data-search="robotics thursday engineering build technology">
+          <div class="activity-meta">
+            <span class="activity-day">Thursday</span>
+            <span>Workshop</span>
+          </div>
+          <div>
+            <h3>Robotics Club</h3>
+            <p>Design, build, and test machines with a team that likes solving real problems.</p>
+          </div>
+        </article>
+
+        <article class="activity-card" data-search="theater monday theatre acting performance arts">
+          <div class="activity-meta">
+            <span class="activity-day">Monday</span>
+            <span>Arts</span>
+          </div>
+          <div>
+            <h3>Theater Workshop</h3>
+            <p>Learn the craft of performance, from improvisation and scene work to stage design.</p>
+          </div>
+        </article>
+
+        <article class="activity-card" data-search="green team wednesday environment gardening sustainability">
+          <div class="activity-meta">
+            <span class="activity-day">Wednesday</span>
+            <span>Community</span>
+          </div>
+          <div>
+            <h3>Green Team</h3>
+            <p>Care for the school garden and lead practical projects for a healthier campus.</p>
+          </div>
+        </article>
+
+        <article class="activity-card" data-search="creative writing tuesday writing stories poetry literature">
+          <div class="activity-meta">
+            <span class="activity-day">Tuesday</span>
+            <span>Writing</span>
+          </div>
+          <div>
+            <h3>Creative Writing</h3>
+            <p>Bring an idea, shape a voice, and get thoughtful feedback in a friendly writing circle.</p>
+          </div>
+        </article>
+
+        <article class="activity-card" data-search="basketball friday sport athletics team">
+          <div class="activity-meta">
+            <span class="activity-day">Friday</span>
+            <span>Sports</span>
+          </div>
+          <div>
+            <h3>Basketball</h3>
+            <p>Build fundamentals, confidence, and team habits in a welcoming weekly practice.</p>
+          </div>
+        </article>
+
+        <article class="activity-card" data-search="music ensemble thursday band instruments performance">
+          <div class="activity-meta">
+            <span class="activity-day">Thursday</span>
+            <span>Music</span>
+          </div>
+          <div>
+            <h3>Music Ensemble</h3>
+            <p>Play together, learn new arrangements, and prepare a set for school showcases.</p>
+          </div>
+        </article>
+      </div>
+      <p class="empty-state" id="empty-state" role="status">No activities match that search. Try a different word or day.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="site-shell">Mergington High School student life</div>
+  </footer>
+
+  <script>
+    const filter = document.querySelector("#activity-filter");
+    const cards = [...document.querySelectorAll(".activity-card")];
+    const emptyState = document.querySelector("#empty-state");
+
+    filter.addEventListener("input", () => {
+      const query = filter.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const matches = !query || card.dataset.search.includes(query);
+        card.hidden = !matches;
+        if (matches) visibleCount += 1;
+      });
+
+      emptyState.classList.toggle("visible", visibleCount === 0);
+    });
+  </script>
+</body>
+</html>

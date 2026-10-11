@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Find your people at the annual Northstar School Club Fair."
+    />
+    <title>Club Fair | Northstar School</title>
+    <style>
+      :root {
+        --ink: #17251f;
+        --paper: #f7f1e6;
+        --cream: #fffaf1;
+        --coral: #ef765f;
+        --yellow: #f4c95d;
+        --blue: #8fc8c2;
+        --green: #28483c;
+        --line: rgba(23, 37, 31, 0.18);
+        --shadow: 0 18px 0 rgba(23, 37, 31, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 76px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        font-size: 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .header-link {
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+        gap: clamp(32px, 7vw, 100px);
+        align-items: center;
+        min-height: calc(100dvh - 77px);
+        padding: 64px 0 80px;
+      }
+
+      .eyebrow {
+        margin: 0 0 18px;
+        color: var(--coral);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin-bottom: 24px;
+        font-size: clamp(3.5rem, 9vw, 8rem);
+        line-height: 0.88;
+        letter-spacing: -0.075em;
+      }
+
+      .hero-copy {
+        max-width: 520px;
+        margin-bottom: 30px;
+        font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 22px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--cream);
+        font-weight: 800;
+        text-decoration: none;
+        transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+      }
+
+      .button:hover,
+      .button:focus-visible {
+        background: var(--coral);
+        color: var(--ink);
+        transform: translateY(-3px);
+      }
+
+      .hero-art {
+        position: relative;
+        min-height: 430px;
+        border: 2px solid var(--ink);
+        border-radius: 32px;
+        background: var(--yellow);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .hero-art::before,
+      .hero-art::after {
+        position: absolute;
+        content: "";
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+      }
+
+      .hero-art::before {
+        width: 300px;
+        height: 300px;
+        top: 56px;
+        left: -54px;
+        background: var(--blue);
+      }
+
+      .hero-art::after {
+        width: 220px;
+        height: 220px;
+        right: -30px;
+        bottom: -32px;
+        background: var(--coral);
+      }
+
+      .art-note {
+        position: absolute;
+        z-index: 1;
+        top: 28px;
+        right: 28px;
+        width: 132px;
+        padding: 14px;
+        border: 2px solid var(--ink);
+        background: var(--cream);
+        font-size: 0.78rem;
+        font-weight: 800;
+        transform: rotate(6deg);
+      }
+
+      .art-word {
+        position: absolute;
+        z-index: 1;
+        bottom: 34px;
+        left: 28px;
+        color: var(--green);
+        font-size: clamp(4rem, 10vw, 7rem);
+        font-weight: 900;
+        letter-spacing: -0.1em;
+        line-height: 0.8;
+        transform: rotate(-8deg);
+      }
+
+      .clubs {
+        padding: 110px 0 120px;
+        border-top: 1px solid var(--line);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+        gap: 30px;
+        align-items: end;
+        margin-bottom: 44px;
+      }
+
+      h2 {
+        max-width: 520px;
+        margin-bottom: 0;
+        font-size: clamp(2.6rem, 6vw, 5.8rem);
+        line-height: 0.92;
+        letter-spacing: -0.07em;
+      }
+
+      .section-intro {
+        max-width: 430px;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+      }
+
+      .club-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .club {
+        min-height: 360px;
+        padding: 26px;
+        border: 2px solid var(--ink);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .club:nth-child(1) {
+        background: var(--coral);
+        transform: translateY(24px);
+      }
+
+      .club:nth-child(2) {
+        background: var(--blue);
+      }
+
+      .club:nth-child(3) {
+        background: var(--cream);
+        transform: translateY(48px);
+      }
+
+      .club-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        margin-bottom: 76px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: var(--yellow);
+        font-weight: 900;
+      }
+
+      .club h3 {
+        max-width: 230px;
+        margin-bottom: 12px;
+        font-size: clamp(2rem, 4vw, 3.3rem);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .club p {
+        max-width: 280px;
+        margin-bottom: 0;
+      }
+
+      .visit {
+        padding: 100px 0 110px;
+        background: var(--green);
+        color: var(--cream);
+      }
+
+      .visit-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.7fr);
+        gap: 40px;
+        align-items: end;
+      }
+
+      .visit h2 {
+        max-width: 700px;
+        color: var(--yellow);
+      }
+
+      .visit p {
+        max-width: 340px;
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .visit .button {
+        margin-top: 28px;
+        border-color: var(--yellow);
+        background: var(--yellow);
+        color: var(--ink);
+      }
+
+      .visit .button:hover,
+      .visit .button:focus-visible {
+        border-color: var(--coral);
+        background: var(--coral);
+      }
+
+      footer {
+        padding: 24px 0;
+        background: var(--green);
+        color: var(--cream);
+        border-top: 1px solid rgba(255, 250, 241, 0.28);
+        font-size: 0.85rem;
+      }
+
+      @media (max-width: 760px) {
+        .wrap {
+          width: min(100% - 28px, 580px);
+        }
+
+        .site-header {
+          min-height: 64px;
+        }
+
+        .hero,
+        .section-heading,
+        .visit-inner {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding: 58px 0 72px;
+        }
+
+        h1 {
+          font-size: clamp(3.4rem, 18vw, 6rem);
+        }
+
+        .hero-art {
+          min-height: 320px;
+        }
+
+        .clubs {
+          padding: 78px 0 86px;
+        }
+
+        .club-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .club:nth-child(1),
+        .club:nth-child(3) {
+          transform: none;
+        }
+
+        .club-number {
+          margin-bottom: 42px;
+        }
+
+        .visit {
+          padding: 78px 0 84px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header wrap">
+      <div class="brand">Northstar School</div>
+      <a class="header-link" href="#clubs">Explore clubs</a>
+    </header>
+
+    <main>
+      <section class="hero wrap" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Annual club fair · Friday, 3:30 PM</p>
+          <h1 id="page-title">Find your next thing.</h1>
+          <p class="hero-copy">
+            Three student-led clubs. One afternoon to try something new, meet your people, and make room for a good idea.
+          </p>
+          <a class="button" href="#clubs">Meet the clubs</a>
+        </div>
+        <div class="hero-art" aria-label="Bright abstract shapes representing the energy of the club fair" role="img">
+          <div class="art-note">Bring a friend. Stay curious.</div>
+          <div class="art-word">JOIN</div>
+        </div>
+      </section>
+
+      <section class="clubs" id="clubs" aria-labelledby="clubs-title">
+        <div class="wrap">
+          <div class="section-heading">
+            <h2 id="clubs-title">Pick a doorway.</h2>
+            <p class="section-intro">
+              No auditions, no perfect plan. Drop in, ask questions, and see where the afternoon takes you.
+            </p>
+          </div>
+
+          <div class="club-grid">
+            <article class="club">
+              <div class="club-number">01</div>
+              <h3>Studio Arts</h3>
+              <p>Make posters, paint big, and turn the ordinary into something worth pinning up.</p>
+            </article>
+            <article class="club">
+              <div class="club-number">02</div>
+              <h3>Code Lab</h3>
+              <p>Build small experiments, playful websites, and useful tools with a curious crew.</p>
+            </article>
+            <article class="club">
+              <div class="club-number">03</div>
+              <h3>Eco Action</h3>
+              <p>Grow the garden, plan better systems, and make our school a little greener.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="visit" aria-labelledby="visit-title">
+        <div class="visit-inner wrap">
+          <h2 id="visit-title">Come as you are. Leave with a club.</h2>
+          <div>
+            <p>Meet us in the commons after last period. Everyone is welcome.</p>
+            <a class="button" href="mailto:clubs@northstar.school">Ask a question</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">Northstar School Club Fair · Student life, made together.</div>
+    </footer>
+  </body>
+</html>
