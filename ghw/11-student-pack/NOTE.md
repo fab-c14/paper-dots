@@ -1,3 +1,3 @@
 # GitHub Student Developer Pack
 
-Needs a real screenshot of the pack landing page, or an honest note on the “Cannot Sign up” card if the pack is refused.
+Not submitted. This card needs a real screenshot of the GitHub Student Developer Pack page, or an honest reason on the “Cannot Sign up” card. Neither was available.

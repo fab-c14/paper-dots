@@ -1,3 +1,3 @@
 # Fill out the address form
 
-Needs the mailing address saved on the MLH profile at https://mlh.link/Address. The address is not written into this repo.
+The mailing address stays on the MLH profile at https://mlh.link/Address and is not written into this repo. MLH auto-approved this challenge.
